@@ -1,24 +1,40 @@
-<UserControl x:Class="MahApps.IconPacksBrowser.Avalonia.Views.IconPreviewer" xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls" xmlns:controls1="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia" xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:prop="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Properties" xmlns:system="clr-namespace:System;assembly=System.Runtime" xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels" d:DesignHeight="450" d:DesignWidth="500" x:DataType="viewModels:MainViewModel" Design.DataContext="{x:Static viewModels:MainViewModel.Instance}" mc:Ignorable="d">
+<UserControl x:Class="MahApps.IconPacksBrowser.Avalonia.Views.IconPreviewer"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls"
+             xmlns:controls1="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prop="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Properties"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels"
+             d:DesignHeight="450"
+             d:DesignWidth="500"
+             x:DataType="viewModels:MainViewModel"
+             Design.DataContext="{x:Static viewModels:MainViewModel.Instance}"
+             mc:Ignorable="d">
     <UserControl.Resources>
         <Thickness x:Key="ExpanderContentPadding">10,5,5,5</Thickness>
         <Thickness x:Key="ExpanderHeaderPadding">10,0,0,0</Thickness>
     </UserControl.Resources>
 
     <DockPanel HorizontalAlignment="Right" Background="{DynamicResource ControlAltFillColorTertiaryBrush}">
-        
-        <controls:PropertyResizer  Classes="horizontal" 
-                                   DockPanel.Dock="Left"
-                                   MinimumHorizontal="100"
-                                   MaximumHorizontal="1200"
-                                   DragIncrementHorizontally="-1"
-                                   PropertyToAdjustHorizontal="{Binding #Panel.Width}"
-                                   IsVisible="{Binding IsPreviewerVisible, Source={x:Static prop:Settings.Default}}"/>
-        
-        <Button Padding="2"
+
+        <controls:PropertyResizer Classes="horizontal"
+                                  DockPanel.Dock="Left"
+                                  DragIncrementHorizontally="-1"
+                                  IsVisible="{Binding IsPreviewerVisible, Source={x:Static prop:Settings.Default}}"
+                                  MaximumHorizontal="1200"
+                                  MinimumHorizontal="100"
+                                  PropertyToAdjustHorizontal="{Binding #Panel.Width}" />
+
+        <ToggleButton Padding="2"
                 VerticalAlignment="Stretch"
                 Background="Transparent"
                 BorderBrush="Transparent"
-                Command="{Binding Source={x:Static prop:Settings.Default}, Path=ToggleIsPreviewerVisibleCommand}"
+                IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsPreviewerVisible}"
                 DockPanel.Dock="Left"
                 ToolTip.Tip="Toggle Previewer visibility">
             <LayoutTransformControl LayoutTransform="rotate(270deg)">
@@ -34,7 +50,7 @@
                                                    Kind="AngleUp" />
                 </StackPanel>
             </LayoutTransformControl>
-        </Button>
+        </ToggleButton>
 
         <ScrollViewer Padding="0,0,12,0"
                       Grid.IsSharedSizeScope="True"
@@ -115,13 +131,11 @@
                         <controls:HeaderedControl Header="Additional Tags">
                             <TextBox Text="{Binding SelectedIcon.Description}" Theme="{StaticResource CopyToClipboardTextBox}" />
                         </controls:HeaderedControl>
-                        <controls:HeaderedControl Header="Homepage" >
-                            <TextBox Theme="{StaticResource CopyToClipboardAndHyperlinkTextBox}"
-                                     Text="{Binding SelectedIcon.MetaData.ProjectUrl, Mode=OneWay}" />
+                        <controls:HeaderedControl Header="Homepage">
+                            <TextBox Text="{Binding SelectedIcon.MetaData.ProjectUrl, Mode=OneWay}" Theme="{StaticResource CopyToClipboardAndHyperlinkTextBox}" />
                         </controls:HeaderedControl>
                         <controls:HeaderedControl Header="License URL">
-                            <TextBox Theme="{StaticResource CopyToClipboardAndHyperlinkTextBox}"
-                                     Text="{Binding SelectedIcon.MetaData.LicenseUrl, Mode=OneWay}" />
+                            <TextBox Text="{Binding SelectedIcon.MetaData.LicenseUrl, Mode=OneWay}" Theme="{StaticResource CopyToClipboardAndHyperlinkTextBox}" />
                         </controls:HeaderedControl>
                     </StackPanel>
                 </Expander>
@@ -129,20 +143,29 @@
                 <Expander Header="Preview options" IsExpanded="True">
                     <StackPanel>
                         <controls:HeaderedControl Header="Iconsize ">
-                            <controls1:FAComboBox x:Name="ComboBoxIconPreviewSize"
-                                                  HorizontalAlignment="Stretch"
-                                                  IsEditable="True"
-                                                  Text="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}">
-                                <system:Double>16</system:Double>
-                                <system:Double>24</system:Double>
-                                <system:Double>32</system:Double>
-                                <system:Double>48</system:Double>
-                                <system:Double>64</system:Double>
-                                <system:Double>128</system:Double>
-                                <system:Double>256</system:Double>
-                                <system:Double>512</system:Double>
-                                <system:Double>1024</system:Double>
-                            </controls1:FAComboBox>
+                            <Grid ColumnDefinitions="*, Auto"> 
+                                <controls1:NumberBox HorizontalAlignment="Stretch"
+                                                     SpinButtonPlacementMode="Inline"
+                                                     Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}" />
+                                <DropDownButton Grid.Column="1" Width="{Binding $self.Bounds.Height}"
+                                                CornerRadius="50">
+                                    <DropDownButton.Flyout>
+                                        <Flyout>
+                                            <ListBox SelectedValue="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}" >
+                                                <system:Double>16</system:Double>
+                                                <system:Double>24</system:Double>
+                                                <system:Double>32</system:Double>
+                                                <system:Double>48</system:Double>
+                                                <system:Double>64</system:Double>
+                                                <system:Double>128</system:Double>
+                                                <system:Double>256</system:Double>
+                                                <system:Double>512</system:Double>
+                                                <system:Double>1024</system:Double>
+                                            </ListBox>
+                                        </Flyout>
+                                    </DropDownButton.Flyout>
+                                </DropDownButton>
+                            </Grid>
                         </controls:HeaderedControl>
                         <controls:HeaderedControl Header="Foreground">
                             <ColorPicker HorizontalAlignment="Left" Color="{Binding Source={x:Static prop:Settings.Default}, Path=IconForeground}" />
@@ -174,8 +197,8 @@
                                            Content="WPF-Control" />
                                 </StackPanel>
                             </controls:HeaderedControl.Header>
-                            <TextBox FontFamily="Consolas" 
-                                     Text="{Binding CopyToClipboardText}" 
+                            <TextBox FontFamily="Consolas"
+                                     Text="{Binding CopyToClipboardText}"
                                      Theme="{StaticResource CopyToClipboardTextBox}" />
                         </controls:HeaderedControl>
 
@@ -212,7 +235,8 @@
                                 </StackPanel>
                             </controls:HeaderedControl.Header>
                             <TextBox FontFamily="Consolas"
-                                     Text="{Binding CopyToClipboardAsContentText}" Theme="{StaticResource CopyToClipboardTextBox}" />
+                                     Text="{Binding CopyToClipboardAsContentText}"
+                                     Theme="{StaticResource CopyToClipboardTextBox}" />
                         </controls:HeaderedControl>
 
                         <!--  Copy as UWP Control  -->
@@ -261,13 +285,15 @@
                     <StackPanel>
                         <Button Command="{Binding SaveAsSvgCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
+                                HorizontalAlignment="Stretch"
                                 Content="Save as svg" />
-                    <!--     <Button Command="{Binding SaveAsWpfCommand}" Content="Save as XAML (WPF)" /> -->
-                    <!--     <Button Command="{Binding SaveAsUwpCommand}" Content="Save as XAML (UWP)" /> -->
-                    <Button Command="{Binding SaveAsPngCommand}" 
-                            CommandParameter="{Binding SelectedIcon}"
-                            Content="Save as Png" />
-                    <!--     <Button Command="{Binding SaveAsBmpCommand}" Content="Save as Bmp" /> -->
+                        <!--     <Button Command="{Binding SaveAsWpfCommand}" Content="Save as XAML (WPF)" /> -->
+                        <!--     <Button Command="{Binding SaveAsUwpCommand}" Content="Save as XAML (UWP)" /> -->
+                        <Button Command="{Binding SaveAsPngCommand}"
+                                CommandParameter="{Binding SelectedIcon}"
+                                HorizontalAlignment="Stretch"
+                                Content="Save as Png" />
+                        <!--     <Button Command="{Binding SaveAsBmpCommand}" Content="Save as Bmp" /> -->
                     </StackPanel>
                 </Expander>
             </StackPanel>

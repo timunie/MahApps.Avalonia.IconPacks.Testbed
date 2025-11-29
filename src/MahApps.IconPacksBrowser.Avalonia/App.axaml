@@ -1,4 +1,11 @@
-<Application x:Class="MahApps.IconPacksBrowser.Avalonia.App" xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:fa="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia" xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia" xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels" RequestedThemeVariant="Light">
+<Application x:Class="MahApps.IconPacksBrowser.Avalonia.App"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:fa="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
+             xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
+             xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels"
+             xmlns:properties="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Properties"
+             RequestedThemeVariant="{Binding Source={x:Static properties:Settings.Default}, Path=AppTheme}">
     <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
 
     <Application.Resources>
@@ -17,6 +24,58 @@
                       Height="128"
                       Background="Transparent"
                       RowDefinitions="*,Auto">
+
+                    <Grid.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardTextCommand}"
+                                      CommandParameter="{Binding}"
+                                      Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as element'}">
+                                <MenuItem.Icon>
+                                    <StackPanel Orientation="Horizontal">
+                                        <iconPacks:PackIconBoxIcons Width="7"
+                                                                    Margin="1,0"
+                                                                    Kind="RegularChevronLeft" />
+                                        <iconPacks:PackIconBoxIcons Width="7"
+                                                                    Margin="1,0"
+                                                                    Kind="RegularChevronRight" />
+                                    </StackPanel>
+                                </MenuItem.Icon>
+                            </MenuItem>
+
+                            <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsContentTextCommand}"
+                                      CommandParameter="{Binding}"
+                                      Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as content'}"
+                                      Icon="{iconPacks:BoxIcons Width=14,
+                                                                Height=14,
+                                                                Kind=RegularBracket}" />
+
+                            <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsPathIconTextCommand}"
+                                      CommandParameter="{Binding}"
+                                      Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as PathIcon element'}"
+                                      Icon="{iconPacks:BoxIcons Kind=RegularPolygon,
+                                                                Width=14,
+                                                                Height=14}" />
+
+                            <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsGeometryTextCommand}"
+                                      CommandParameter="{Binding}"
+                                      Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as Geometry'}"
+                                      Icon="{iconPacks:BoxIcons Kind=RegularPencil,
+                                                                Width=14,
+                                                                Height=14}" />
+                            
+                            <Separator />
+
+                            <MenuItem Header="View IconPack-Website" 
+                                      Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
+                                      CommandParameter="{Binding MetaData.ProjectUrl, Mode=OneWay}" 
+                                      Icon="{iconPacks:Octicons Kind=LinkExternal, Width=14, Height=14}"/>
+                            
+                            <MenuItem Header="View IconPack-License" 
+                                      Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
+                                      CommandParameter="{Binding MetaData.LicenseUrl, Mode=OneWay}" 
+                                      Icon="{iconPacks:Octicons Kind=Law, Width=14, Height=14}"/>
+                        </MenuFlyout>
+                    </Grid.ContextFlyout>
 
                     <iconPacks:PackIconControl Grid.Row="0"
                                                Width="48"
@@ -270,7 +329,7 @@
 
     <Application.Styles>
 
-        <fa:FluentAvaloniaTheme CustomAccentColor="Green" />
+        <fa:FluentAvaloniaTheme CustomAccentColor="#FF008A00" />
 
         <StyleInclude Source="avares://IconPacks.Avalonia/Icons.axaml" />
 

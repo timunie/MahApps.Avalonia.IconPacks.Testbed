@@ -51,6 +51,7 @@ using IconPacks.Avalonia.VaadinIcons;
 using IconPacks.Avalonia.WeatherIcons;
 using IconPacks.Avalonia.Zondicons;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
+using MahApps.IconPacksBrowser.Avalonia.Properties;
 using ObservableCollections;
 using R3;
 
@@ -66,9 +67,7 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel()
     {
         this.AppVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion!;
-
-        // for ui synchronization safety of viewmodel
-        _SelectedIconPackNavigationItem = AvailableIconPacks[0];
+        SelectedNavigationItem = AvailableIconPacks[0];
 
         var view = _iconsCache.CreateView(x => x);
 
@@ -97,9 +96,12 @@ public partial class MainViewModel : ViewModelBase
         //     .Subscribe();
 
         //LoadIconPacksAsync().SafeFireAndForget();
+        
+        AppVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
     }
 
-    [ObservableProperty] int _TotalItems;
+    [ObservableProperty]
+    public partial int TotalItems { get; set; }
 
     public async Task LoadIconPacksAsync()
     {
@@ -155,10 +157,9 @@ public partial class MainViewModel : ViewModelBase
                 return iconPack;
             });
 
-
         var loadIconsTasks = availableIconPacks.Select(ip => ip.LoadIconsAsync(ip.EnumType, ip.PackType));
         _iconsCache.AddRange((await Task.WhenAll(loadIconsTasks)).SelectMany(x => x));
-
+        
         //Dispatcher.UIThread.Post(() => TotalItems = _iconsCache.Count);
         TotalItems = _iconsCache.Count;
         SelectedIcon = SelectedIconPack?.Icons.FirstOrDefault() ?? _iconsCache.FirstOrDefault();
@@ -173,25 +174,52 @@ public partial class MainViewModel : ViewModelBase
         new SeparatorNavigationItemViewModel()
     ];
 
+    /// <summary>
+    /// Gets a list of option items such as settings and about
+    /// </summary>
+    public List<NavigationItemViewModelBase> OptionNavigationItems { get; } =
+    [
+        new SettingsNavigationItem()
+    ];
+    
     private readonly ObservableList<IIconViewModel> _iconsCache = new();
 
+    /// <summary>
+    /// Gets a list of visible items
+    /// </summary>
     public NotifyCollectionChangedSynchronizedViewList<IIconViewModel> VisibleIcons { get; set; }
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(SelectedIconPack))]
-    private NavigationItemViewModelBase _SelectedIconPackNavigationItem;
 
-    public IconPackViewModel? SelectedIconPack => SelectedIconPackNavigationItem.Tag as IconPackViewModel;
+    /// <summary>
+    /// Gets the selected IconPack-NavigationItem
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedIconPack))]
+    public partial NavigationItemViewModelBase SelectedNavigationItem { get; set; }
 
-    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(SaveAsSvgCommand))] [NotifyCanExecuteChangedFor(nameof(SaveAsPngCommand))]
-    private IIconViewModel? _SelectedIcon;
+    /// <summary>
+    /// Gets the selected IconPack
+    /// </summary>
+    public IconPackViewModel? SelectedIconPack => SelectedNavigationItem.Tag as IconPackViewModel;
 
+    /// <summary>
+    /// Gets or sets the selected icon
+    /// </summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SaveAsSvgCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveAsPngCommand))]
+    public partial IIconViewModel? SelectedIcon { get; set; }
 
-    [ObservableProperty] string? _FilterText;
+    /// <summary>
+    /// Gets or sets the filter text
+    /// </summary>
+    [ObservableProperty]
+    public partial string? FilterText { get; set; }
 
     /// <summary>
     /// Gets the App version of this Application
     /// </summary>
-    public string AppVersion { get; }
+    public string? AppVersion { get; }
 
 
     private class IconFilter(MainViewModel viewModel) : ISynchronizedViewFilter<IIconViewModel, IIconViewModel>
@@ -200,8 +228,8 @@ public partial class MainViewModel : ViewModelBase
         {
             return
                 // Filter for IconPackType
-                (viewModel.SelectedIconPackNavigationItem is AllIconPacksNavigationItemViewModel
-                 || icon.IconPackType == (viewModel.SelectedIconPackNavigationItem as IconPackNavigationItemViewModel)?.IconPack.PackType)
+                (viewModel.SelectedNavigationItem is AllIconPacksNavigationItemViewModel
+                 || icon.IconPackType == (viewModel.SelectedNavigationItem as IconPackNavigationItemViewModel)?.IconPack.PackType)
                 // Filter for IconName
                 && (string.IsNullOrWhiteSpace(viewModel.FilterText) || icon.Name.Contains(viewModel.FilterText.Trim(), StringComparison.OrdinalIgnoreCase));
         }
@@ -218,9 +246,9 @@ public partial class MainViewModel : ViewModelBase
     bool CanExport => SelectedIcon != null;
 
     [RelayCommand]
-    private async Task FollowUriAsync(string? text)
+    private async Task LaunchUriAsync(string? uri)
     {
-        await this.OpenUriAsync(text);
+        await this.OpenUriAsync(uri);
     }
 
     [RelayCommand]

@@ -1,7 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Windowing;
+using MahApps.IconPacksBrowser.Avalonia.Properties;
 using MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Views;

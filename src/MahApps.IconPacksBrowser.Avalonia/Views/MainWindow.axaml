@@ -13,7 +13,7 @@
         Height="720"
         MinWidth="400"
         MinHeight="300"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/Icon.ico"
         Title="MahApps.IconPacksBrowser">
         <views:MainView />
 </windowing:AppWindow>

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using FluentAvalonia.UI.Controls;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Helper;
 
@@ -116,12 +117,47 @@ public static class DialogHelper
                 });
 
             // return the result
-            return storageFiles.Select(s => s.Name);
+            return storageFiles.Select(s => s.TryGetLocalPath() ?? s.Name);
         }
 
         return null;
     }
 
+    /// <summary>
+    /// Shows an open folder dialog for a registered context, most likely a ViewModel
+    /// </summary>
+    /// <param name="context">The context</param>
+    /// <param name="title">The dialog title or a default is null</param>
+    /// /// <param name="selectMany">Is selecting many folders allowed?</param>
+    /// <returns>An array of folder names</returns>
+    /// <exception cref="ArgumentNullException">if context was null</exception>
+    public static async Task<IEnumerable<string>?> OpenFolderDialogAsync(this object? context, string? title = null, bool selectMany = true)
+    {
+        if (context == null)
+        {
+            throw new ArgumentNullException(nameof(context));
+        }
+
+        // lookup the TopLevel for the context
+        var topLevel = DialogManager.GetTopLevelForContext(context);
+
+        if (topLevel != null)
+        {
+            // Open the file dialog
+            var storageFolders = await topLevel.StorageProvider.OpenFolderPickerAsync(
+                new FolderPickerOpenOptions()
+                {
+                    AllowMultiple = selectMany,
+                    Title = title ?? "Select any folder(s)"
+                });
+
+            // return the result
+            return storageFolders.Select(s => s.TryGetLocalPath() ?? s.Name);
+        }
+
+        return null;
+    }
+    
     /// <summary>
     /// Shows a save file dialog for a registered context, most likely a ViewModel
     /// </summary>
@@ -156,6 +192,23 @@ public static class DialogHelper
         }
 
         return null;
+    }
+
+    public static async Task<ContentDialogResult> ShowMessageAsync(this object? context, string? title, object? content)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        // lookup the TopLevel for the context
+        var topLevel = DialogManager.GetTopLevelForContext(context);
+
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = content,
+            PrimaryButtonText = "OK",
+        };
+        
+        return await dialog.ShowAsync(topLevel);
     }
 
     public static async Task SetClipboardContentAsync(this object? context, string content)

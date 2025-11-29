@@ -36,7 +36,7 @@
             <Template>
                 <StackPanel Orientation="Horizontal">
                     <Button Padding="0"
-                            Command="{Binding Source={x:Static vm:MainViewModel.Instance}, Path=FollowUriCommand}"
+                            Command="{Binding Source={x:Static vm:MainViewModel.Instance}, Path=LaunchUriCommand}"
                             CommandParameter="{Binding $parent[TextBox].Text}"
                             Content="{iconPacks:RadixIcons Kind=ExternalLink,
                                                            Height={StaticResource TextBoxIconFontSize}}"

@@ -1,14 +1,15 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
-public class NavigationItemViewModelBase
+public partial class NavigationItemViewModelBase : ViewModelBase
 {
     public object? Tag { get; init; }
 
     public string? Title { get; init; }
-
-    public IconSource? Icon { get; init; }
+    
+    public object? Icon { get; init; }
 }
 
 public class SeparatorNavigationItemViewModel : NavigationItemViewModelBase;
@@ -33,4 +34,14 @@ public class AllIconPacksNavigationItemViewModel : NavigationItemViewModelBase
     }
 
     public MainViewModel MainViewModel => MainViewModel.Instance;
+}
+
+public class SettingsNavigationItem : NavigationItemViewModelBase
+{
+    public SettingsNavigationItem()
+    {
+        Title = "Settings";
+        Icon = new SymbolIconSource(){Symbol = Symbol.Settings};
+        Tag = new SettingsViewModel();
+    }
 }

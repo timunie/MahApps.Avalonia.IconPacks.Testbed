@@ -9,8 +9,8 @@
              xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
              xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls"
              xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
-             xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
              xmlns:views="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Views"
+             xmlns:properties="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Properties"
              d:DesignWidth="800"
              d:DesignHeight="450"
              helper:DialogManager.Register="{Binding}"
@@ -36,6 +36,12 @@
                 <Border x:Name="WindowButtonsPlaceHolder"
                         DockPanel.Dock="Right"
                         Width="0" />
+
+                <!-- HamburgerMenuControls -->
+                <ToggleButton IsChecked="{Binding #NavigationView.IsPaneOpen}"
+                              Theme="{StaticResource PaneToggleButtonStyle}">
+                </ToggleButton>
+
                 <TextBox x:Name="FilterTextBox"
                          MinWidth="400"
                          Margin="5"
@@ -51,7 +57,7 @@
                                                           VerticalAlignment="Center"
                                                           Height="14"
                                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                                          Margin="10,0,0,0"/>
+                                                          Margin="10,0,0,0" />
                     </TextBox.InnerLeftContent>
                     <ToolTip.Tip>
                         <StackPanel Spacing="5">
@@ -75,22 +81,31 @@
                                              Foreground="{DynamicResource AccentFillColorDefaultBrush}"
                                              FontSize="30"
                                              FontWeight="DemiBold"
-                                             Content="{Binding SelectedIconPackNavigationItem.Title}" />
+                                             Content="{Binding SelectedNavigationItem.Title}" />
             </DockPanel>
         </Border>
-
-
-        <fa:NavigationView Grid.Row="1"
-                           PaneDisplayMode="Left"
-                           IsPaneOpen="True"
+        
+        <fa:NavigationView x:Name="NavigationView"
+                           Grid.Row="1"
+                           PaneDisplayMode="Auto"
                            OpenPaneLength="205"
+                           CompactPaneLength="0"
+                           IsPaneToggleButtonVisible="False"
                            MenuItemsSource="{Binding AvailableIconPacks}"
-                           SelectedItem="{Binding SelectedIconPackNavigationItem}">
+                           FooterMenuItemsSource="{Binding OptionNavigationItems}"
+                           IsSettingsVisible="False"
+                           SelectedItem="{Binding SelectedNavigationItem}"
+                           Content="{Binding SelectedNavigationItem}">
             <fa:NavigationView.MenuItemTemplateSelector>
                 <helper:MenuItemTemplateSelector>
                     <helper:MenuItemTemplateSelector.ItemTemplate>
-                        <DataTemplate DataType="vm:NavigationItemViewModelBase">
-                            <fa:NavigationViewItem Content="{Binding Title}" IconSource="{Binding Icon}" />
+                        <DataTemplate DataType="vm:IconPackNavigationItemViewModel">
+                            <fa:NavigationViewItem>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Spacing="5">
+                                    <fa:IconSourceElement IconSource="{Binding Icon}" />
+                                    <ContentControl Content="{Binding Title}" />
+                                </StackPanel>
+                            </fa:NavigationViewItem>
                         </DataTemplate>
                     </helper:MenuItemTemplateSelector.ItemTemplate>
                     <helper:MenuItemTemplateSelector.SeparatorTemplate>
@@ -101,25 +116,35 @@
                 </helper:MenuItemTemplateSelector>
             </fa:NavigationView.MenuItemTemplateSelector>
 
-            <Grid ColumnDefinitions="*,Auto" >
+            <fa:NavigationView.DataTemplates>
+                <!-- We have to use specialized DataTemplates bevore any other since these will be resolved first -->
+                <DataTemplate DataType="vm:SettingsNavigationItem">
+                    <views:SettingsView DataContext="{Binding Tag}"/>
+                </DataTemplate>
+                
+                <DataTemplate DataType="vm:NavigationItemViewModelBase">
+                    <Grid ColumnDefinitions="*,Auto" DataContext="{x:Static vm:MainViewModel.Instance}"
+                          x:DataType="vm:MainViewModel">
+                        <ListBox Grid.Column="0"
+                                 Margin="2"
+                                 ItemTemplate="{StaticResource IconPacksBrowser.DataTemplates.ListBox.IconViewModel}"
+                                 ItemsSource="{Binding VisibleIcons}"
+                                 ItemContainerTheme="{StaticResource IconPackBrowserListBoxItemStyle}"
+                                 SelectedValue="{Binding SelectedIcon}">
 
-                <ListBox Grid.Column="0"
-                         Margin="2"
-                         ItemTemplate="{StaticResource IconPacksBrowser.DataTemplates.ListBox.IconViewModel}"
-                         ItemsSource="{Binding VisibleIcons}"
-                         ItemContainerTheme="{StaticResource IconPackBrowserListBoxItemStyle}"
-                         SelectedValue="{Binding SelectedIcon}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <controls:VirtualizingWrapPanel SpacingMode="Uniform" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
 
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <controls:VirtualizingWrapPanel SpacingMode="Uniform" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
+                        <views:IconPreviewer Grid.Column="1" />
+                    </Grid>
+                </DataTemplate>
+            </fa:NavigationView.DataTemplates>
 
-                <views:IconPreviewer Grid.Column="1"  />
 
-            </Grid>
         </fa:NavigationView>
 
         <StackPanel Grid.Row="2"
@@ -163,10 +188,12 @@
             <ContentControl Content="{Binding AppVersion, Mode=OneWay, StringFormat='{}Browser version v{0}'}" />
             <Separator />
 
-            <ContentControl Content="{Binding SelectedIconPackNavigationItem.Tag, Converter={x:Static converters:GetAssemblyVersionConverter.Instance}, Mode=OneWay, StringFormat='{}IconPack version v{0}'}" IsVisible="{Binding SelectedIconPackNavigationItem.Tag, Converter={x:Static ObjectConverters.IsNotNull}}" />
-            <Separator IsVisible="{Binding SelectedIconPackNavigationItem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <ContentControl
+                Content="{Binding SelectedNavigationItem.Tag, Converter={x:Static converters:GetAssemblyVersionConverter.Instance}, Mode=OneWay, StringFormat='{}IconPack version v{0}'}"
+                IsVisible="{Binding SelectedNavigationItem.Tag, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <Separator IsVisible="{Binding SelectedNavigationItem, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
-            <ContentControl Content="{Binding SelectedIconPackNavigationItem, Mode=OneWay}">
+            <ContentControl Content="{Binding SelectedNavigationItem, Mode=OneWay}">
                 <ContentControl.DataTemplates>
                     <DataTemplate DataType="{x:Type vm:IconPackNavigationItemViewModel}">
                         <TextBlock>
