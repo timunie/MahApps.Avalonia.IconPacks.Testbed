@@ -2,9 +2,9 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls"
-             xmlns:fa="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:fa="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prop="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Properties"
@@ -18,9 +18,16 @@
     <UserControl.Resources>
         <Thickness x:Key="ExpanderContentPadding">10,5,5,5</Thickness>
         <Thickness x:Key="ExpanderHeaderPadding">10,0,0,0</Thickness>
+
+        <!--  Our ToggleButton should look like a normal button  -->
+        <ControlTheme x:Key="PreviewExpanderToggleButtonTheme"
+                      BasedOn="{StaticResource {x:Type Button}}"
+                      TargetType="ToggleButton" />
+
     </UserControl.Resources>
 
-    <DockPanel HorizontalAlignment="Right" Background="{DynamicResource ControlAltFillColorTertiaryBrush}">
+    <DockPanel HorizontalAlignment="Right" 
+               Background="{DynamicResource SolidBackgroundFillColorBaseBrush}">
 
         <controls:PropertyResizer Classes="horizontal"
                                   DockPanel.Dock="Left"
@@ -31,12 +38,14 @@
                                   PropertyToAdjustHorizontal="{Binding #Panel.Width}" />
 
         <ToggleButton Padding="2"
-                VerticalAlignment="Stretch"
-                Background="Transparent"
-                BorderBrush="Transparent"
-                IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsPreviewerVisible}"
-                DockPanel.Dock="Left"
-                ToolTip.Tip="Toggle Previewer visibility">
+                      VerticalAlignment="Stretch"
+                      Background="Transparent"
+                      BorderBrush="Transparent"
+                      DockPanel.Dock="Left"
+                      CornerRadius="0"
+                      IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsPreviewerVisible}"
+                      Theme="{StaticResource PreviewExpanderToggleButtonTheme}"
+                      ToolTip.Tip="Toggle Previewer visibility">
             <LayoutTransformControl LayoutTransform="rotate(270deg)">
                 <StackPanel HorizontalAlignment="Center"
                             Orientation="Horizontal"
@@ -89,72 +98,77 @@
                                   HorizontalScrollBarVisibility="Auto"
                                   VerticalScrollBarVisibility="Auto">
                         <ScrollViewer.ContextFlyout>
-                        <MenuFlyout>
-                            <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardTextCommand}"
-                                      CommandParameter="{Binding}"
-                                      Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as element'}">
-                                <MenuItem.Icon>
-                                    <StackPanel Orientation="Horizontal">
-                                        <iconPacks:PackIconBoxIcons Width="7"
-                                                                    Margin="1,0"
-                                                                    Kind="RegularChevronLeft" />
-                                        <iconPacks:PackIconBoxIcons Width="7"
-                                                                    Margin="1,0"
-                                                                    Kind="RegularChevronRight" />
-                                    </StackPanel>
-                                </MenuItem.Icon>
-                            </MenuItem>
+                            <MenuFlyout>
+                                <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardTextCommand}"
+                                          CommandParameter="{Binding}"
+                                          Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as element'}">
+                                    <MenuItem.Icon>
+                                        <StackPanel Orientation="Horizontal">
+                                            <iconPacks:PackIconBoxIcons Width="7"
+                                                                        Margin="1,0"
+                                                                        Kind="RegularChevronLeft" />
+                                            <iconPacks:PackIconBoxIcons Width="7"
+                                                                        Margin="1,0"
+                                                                        Kind="RegularChevronRight" />
+                                        </StackPanel>
+                                    </MenuItem.Icon>
+                                </MenuItem>
 
-                            <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsContentTextCommand}"
-                                      CommandParameter="{Binding}"
-                                      Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as content'}"
-                                      Icon="{iconPacks:BoxIcons Width=14,
-                                                                Height=14,
-                                                                Kind=RegularBracket}" />
+                                <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsContentTextCommand}"
+                                          CommandParameter="{Binding}"
+                                          Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as content'}"
+                                          Icon="{iconPacks:BoxIcons Width=14,
+                                                                    Height=14,
+                                                                    Kind=RegularBracket}" />
 
-                            <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsPathIconTextCommand}"
-                                      CommandParameter="{Binding}"
-                                      Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as PathIcon element'}"
-                                      Icon="{iconPacks:BoxIcons Kind=RegularPolygon,
-                                                                Width=14,
-                                                                Height=14}" />
+                                <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsPathIconTextCommand}"
+                                          CommandParameter="{Binding}"
+                                          Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as PathIcon element'}"
+                                          Icon="{iconPacks:BoxIcons Kind=RegularPolygon,
+                                                                    Width=14,
+                                                                    Height=14}" />
 
-                            <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsGeometryTextCommand}"
-                                      CommandParameter="{Binding}"
-                                      Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as Geometry'}"
-                                      Icon="{iconPacks:BoxIcons Kind=RegularPencil,
-                                                                Width=14,
-                                                                Height=14}" />
-                            
-                            <Separator />
+                                <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsGeometryTextCommand}"
+                                          CommandParameter="{Binding}"
+                                          Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as Geometry'}"
+                                          Icon="{iconPacks:BoxIcons Kind=RegularPencil,
+                                                                    Width=14,
+                                                                    Height=14}" />
 
-                            <MenuItem Header="View IconPack-Website" 
-                                      Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
-                                      CommandParameter="{Binding MetaData.ProjectUrl, Mode=OneWay}" 
-                                      Icon="{iconPacks:Octicons Kind=LinkExternal, Width=14, Height=14}"/>
-                            
-                            <MenuItem Header="View IconPack-License" 
-                                      Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
-                                      CommandParameter="{Binding MetaData.LicenseUrl, Mode=OneWay}" 
-                                      Icon="{iconPacks:Octicons Kind=Law, Width=14, Height=14}"/>
-                        </MenuFlyout>
+                                <Separator />
+
+                                <MenuItem Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
+                                          CommandParameter="{Binding MetaData.ProjectUrl, Mode=OneWay}"
+                                          Header="View IconPack-Website"
+                                          Icon="{iconPacks:Octicons Kind=LinkExternal,
+                                                                    Width=14,
+                                                                    Height=14}" />
+
+                                <MenuItem Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
+                                          CommandParameter="{Binding MetaData.LicenseUrl, Mode=OneWay}"
+                                          Header="View IconPack-License"
+                                          Icon="{iconPacks:Octicons Kind=Law,
+                                                                    Width=14,
+                                                                    Height=14}" />
+                            </MenuFlyout>
                         </ScrollViewer.ContextFlyout>
 
-                        <Border VerticalAlignment="Center" HorizontalAlignment="Center" 
-                                Padding="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Converter={converters:NumberToThicknessConverter}}">
+                        <Border Padding="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Converter={converters:NumberToThicknessConverter}}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
                             <Border.Background>
                                 <SolidColorBrush Color="{Binding Source={x:Static prop:Settings.Default}, Path=IconBackground}" />
-                            </Border.Background>                                                            
-                        <iconPacks:PackIconControl x:Name="PreviewHolder"
-                                                   Width="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize}"
-                                                   Height="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize}"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Kind="{Binding Value, Mode=OneWay}">
-                            <iconPacks:PackIconControl.Foreground>
-                                <SolidColorBrush Color="{Binding Source={x:Static prop:Settings.Default}, Path=IconForeground}" />
-                            </iconPacks:PackIconControl.Foreground>
-                        </iconPacks:PackIconControl>
+                            </Border.Background>
+                            <iconPacks:PackIconControl x:Name="PreviewHolder"
+                                                       Width="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize}"
+                                                       Height="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Kind="{Binding Value, Mode=OneWay}">
+                                <iconPacks:PackIconControl.Foreground>
+                                    <SolidColorBrush Color="{Binding Source={x:Static prop:Settings.Default}, Path=IconForeground}" />
+                                </iconPacks:PackIconControl.Foreground>
+                            </iconPacks:PackIconControl>
                         </Border>
                     </ScrollViewer>
                 </Expander>
@@ -166,18 +180,19 @@
                                           MinimumVertical="100"
                                           PropertyToAdjustVertical="{Binding #PreviewScrollViewer.Height}" />
 
-                                <Expander Header="Preview options" IsExpanded="True">
+                <Expander Header="Preview options" IsExpanded="True">
                     <StackPanel>
                         <controls:HeaderedControl Header="Icon-Size ">
-                            <Grid ColumnDefinitions="*, Auto"> 
+                            <Grid ColumnDefinitions="*, Auto">
                                 <fa:NumberBox HorizontalAlignment="Stretch"
-                                                     SpinButtonPlacementMode="Inline"
-                                                     Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}" />
-                                <DropDownButton Grid.Column="1" Width="{Binding $self.Bounds.Height}"
+                                              SpinButtonPlacementMode="Inline"
+                                              Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}" />
+                                <DropDownButton Grid.Column="1"
+                                                Width="{Binding $self.Bounds.Height}"
                                                 CornerRadius="50">
                                     <DropDownButton.Flyout>
                                         <Flyout>
-                                            <ListBox SelectedValue="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}" >
+                                            <ListBox SelectedValue="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}">
                                                 <system:Double>16</system:Double>
                                                 <system:Double>24</system:Double>
                                                 <system:Double>32</system:Double>
@@ -194,15 +209,16 @@
                             </Grid>
                         </controls:HeaderedControl>
                         <controls:HeaderedControl Header="Icon-Padding ">
-                            <Grid ColumnDefinitions="*, Auto"> 
+                            <Grid ColumnDefinitions="*, Auto">
                                 <fa:NumberBox HorizontalAlignment="Stretch"
-                                                     SpinButtonPlacementMode="Inline"
-                                                     Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Mode=TwoWay}" />
-                                <DropDownButton Grid.Column="1" Width="{Binding $self.Bounds.Height}"
+                                              SpinButtonPlacementMode="Inline"
+                                              Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Mode=TwoWay}" />
+                                <DropDownButton Grid.Column="1"
+                                                Width="{Binding $self.Bounds.Height}"
                                                 CornerRadius="50">
                                     <DropDownButton.Flyout>
                                         <Flyout>
-                                            <ListBox SelectedValue="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Mode=TwoWay}" >
+                                            <ListBox SelectedValue="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Mode=TwoWay}">
                                                 <system:Double>0</system:Double>
                                                 <system:Double>1</system:Double>
                                                 <system:Double>2</system:Double>
@@ -226,7 +242,7 @@
                         </controls:HeaderedControl>
                     </StackPanel>
                 </Expander>
-                
+
                 <Expander Header="Icon Information" IsExpanded="True">
                     <StackPanel>
                         <controls:HeaderedControl DataContext="{Binding SelectedIcon}" Header="IconPack.IconKind">
@@ -359,15 +375,15 @@
                           Header="Export"
                           IsExpanded="True">
                     <StackPanel>
-                        <Button Command="{Binding SaveAsSvgCommand}"
+                        <Button HorizontalAlignment="Stretch"
+                                Command="{Binding SaveAsSvgCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
-                                HorizontalAlignment="Stretch"
                                 Content="Save as svg" />
                         <!--     <Button Command="{Binding SaveAsWpfCommand}" Content="Save as XAML (WPF)" /> -->
                         <!--     <Button Command="{Binding SaveAsUwpCommand}" Content="Save as XAML (UWP)" /> -->
-                        <Button Command="{Binding SaveAsPngCommand}"
+                        <Button HorizontalAlignment="Stretch"
+                                Command="{Binding SaveAsPngCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
-                                HorizontalAlignment="Stretch"
                                 Content="Save as Png" />
                         <!--     <Button Command="{Binding SaveAsBmpCommand}" Content="Save as Bmp" /> -->
                     </StackPanel>

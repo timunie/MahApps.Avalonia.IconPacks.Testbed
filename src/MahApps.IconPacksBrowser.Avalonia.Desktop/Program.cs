@@ -1,5 +1,6 @@
 ﻿using System;
 using Avalonia;
+using ReactiveUI.Avalonia;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Desktop;
 
@@ -17,5 +18,6 @@ sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
+            .UseReactiveUI()
             .LogToTrace();
 }

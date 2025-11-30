@@ -43,15 +43,15 @@
                 </ToggleButton>
 
                 <TextBox x:Name="FilterTextBox"
-                         MinWidth="400"
+                         MinWidth="{OnFormFactor Desktop=400, Default=200}"
                          Margin="5"
                          VerticalContentAlignment="Center"
-                         Watermark="Filter by... (Ctrl + F)"
+                         Watermark="{OnFormFactor Desktop='Filter by... (Ctrl + F)', Default='Filter by...'}"
                          BorderBrush="{DynamicResource SurfaceStrokeColorDefaultBrush}"
                          CornerRadius="{Binding $self.Bounds, Converter={x:Static converters:BoundsToCornerRadiusConverter.Instance}}"
                          BorderThickness="1"
                          DockPanel.Dock="Right"
-                         Text="{Binding FilterText}">
+                         Text="{Binding FilterText, Delay=300}">
                     <TextBox.InnerLeftContent>
                         <iconPacks:PackIconBootstrapIcons Kind="Search"
                                                           VerticalAlignment="Center"

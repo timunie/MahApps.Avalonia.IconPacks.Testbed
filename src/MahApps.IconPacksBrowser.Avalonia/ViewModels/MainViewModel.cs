@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData;
+using DynamicData.Binding;
 using IconPacks.Avalonia.BootstrapIcons;
 using IconPacks.Avalonia.BoxIcons;
 using IconPacks.Avalonia.BoxIcons2;
@@ -51,8 +53,7 @@ using IconPacks.Avalonia.VaadinIcons;
 using IconPacks.Avalonia.WeatherIcons;
 using IconPacks.Avalonia.Zondicons;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
-using ObservableCollections;
-using R3;
+using ReactiveUI;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
@@ -65,31 +66,26 @@ public partial class MainViewModel : ViewModelBase
         this.AppVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion!;
         SelectedNavigationItem = AvailableIconPacks[0];
 
-        var view = _iconsCache.CreateView(x => x);
+        var filterByText = this.WhenAnyValue(x => x.FilterText)
+            .DistinctUntilChanged()
+            .Select(FilterIconsByStringPredicate);
 
-        var filter = new IconFilter(this);
-        // view.AttachFilter(filter);
+        var filterByIconPack = this.WhenAnyValue(x => x.SelectedIconPack)
+            .DistinctUntilChanged()
+            .Select(FilterIconsByTypePredicate);
 
-        this.ObservePropertyChanged(x => x.FilterText)
-            .Debounce(TimeSpan.FromMilliseconds(500))
-            .ObserveOn(SynchronizationContext.Current)
-            .Subscribe(_ => view.AttachFilter(filter));
 
-        this.ObservePropertyChanged(x => x.SelectedIconPack)
-            .ObserveOn(SynchronizationContext.Current)
-            .Subscribe(_ => view.AttachFilter(filter));
-
-        VisibleIcons = view.ToNotifyCollectionChanged(SynchronizationContextCollectionEventDispatcher.Current);
-        // var filterByText = this.WhenAnyValue(x => x.FilterText, x => x.SelectedIconPack)
-        //     .Throttle(TimeSpan.FromMilliseconds(350), RxApp.MainThreadScheduler)
-        //     .Select(IconFilter);
-        //
-        // _iconsCache.Connect()
-        //     .Filter(filterByText)
-        //     .Sort(SortExpressionComparer<IIconViewModel>.Ascending(e => e.IconPackName).ThenByAscending(e => e.Name))
-        //     .ObserveOn(RxApp.MainThreadScheduler)
-        //     .Bind(out _visibleIcons)
-        //     .Subscribe();
+        _iconsCache.Connect()
+            .ObserveOn(RxApp.TaskpoolScheduler)
+            .Filter(filterByIconPack)
+            .Filter(filterByText)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .SortAndBind(out _visibleIcons, 
+                SortExpressionComparer<IIconViewModel>
+                    .Ascending(e => e.IconPackName)
+                    .ThenByAscending(e => e.Name))
+            .DisposeMany()
+            .Subscribe();
 
         //LoadIconPacksAsync().SafeFireAndForget();
 
@@ -153,11 +149,11 @@ public partial class MainViewModel : ViewModelBase
             });
 
         var loadIconsTasks = availableIconPacks.Select(ip => ip.LoadIconsAsync(ip.EnumType, ip.PackType));
-        _iconsCache.AddRange((await Task.WhenAll(loadIconsTasks)).SelectMany(x => x));
+        _iconsCache.AddOrUpdate((await Task.WhenAll(loadIconsTasks)).SelectMany(x => x));
 
         //Dispatcher.UIThread.Post(() => TotalItems = _iconsCache.Count);
         TotalItems = _iconsCache.Count;
-        SelectedIcon = SelectedIconPack?.Icons.FirstOrDefault() ?? _iconsCache.FirstOrDefault();
+        SelectedIcon = SelectedIconPack?.Icons.FirstOrDefault() ?? _iconsCache.Items.FirstOrDefault();
     }
 
     /// <summary>
@@ -177,12 +173,14 @@ public partial class MainViewModel : ViewModelBase
         new SettingsNavigationItem()
     ];
 
-    private readonly ObservableList<IIconViewModel> _iconsCache = new();
+    private readonly SourceCache<IIconViewModel, string> _iconsCache = new(x => x.Identifier);
+
+    private readonly ReadOnlyObservableCollection<IIconViewModel> _visibleIcons;
 
     /// <summary>
     /// Gets a list of visible items
     /// </summary>
-    public NotifyCollectionChangedSynchronizedViewList<IIconViewModel> VisibleIcons { get; set; }
+    public ReadOnlyObservableCollection<IIconViewModel> VisibleIcons => _visibleIcons;
 
 
     /// <summary>
@@ -211,42 +209,68 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     public partial string? FilterText { get; set; }
 
+    partial void OnFilterTextChanged(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(FilterText))
+        {
+            _filterItems = null;
+            return;
+        }
+        
+        var outer = value?.Split(['+', ',', ';', '&'], StringSplitOptions.RemoveEmptyEntries);
+        string[][]? inner =
+            outer?.Select(x => x.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(y => y.Trim())
+                    .ToArray())
+                .ToArray();
+
+        _filterItems = inner;
+    }
+
+    private string[][]? _filterItems = null;
+
     /// <summary>
     /// Gets the App version of this Application
     /// </summary>
     public string? AppVersion { get; }
 
 
-    private class IconFilter(MainViewModel viewModel) : ISynchronizedViewFilter<IIconViewModel, IIconViewModel>
+    private Func<IIconViewModel, bool> FilterIconsByStringPredicate(string? filterText) => icon =>
     {
-        public bool IsMatch(IIconViewModel icon, IIconViewModel transformedIcon)
+        // we have no filter text, so this icon should be visible
+        if (_filterItems is null)
+            return true;
+
+        for (var index = 0; index < _filterItems.Length; index++)
         {
-            // first let's see if the icon is inside the currently selected icon pack
-            var isInIconPack = (viewModel.SelectedNavigationItem is AllIconPacksNavigationItemViewModel
-                                || icon.IconPackType == (viewModel.SelectedNavigationItem as IconPackNavigationItemViewModel)?.IconPack.PackType);
+            var outer = _filterItems[index];
+            
+            var found = false;
 
-            if (!isInIconPack)
-                return false;
-
-            // we have no filter text, so this icon should be visible
-            if (string.IsNullOrWhiteSpace(viewModel.FilterText))
-                return true;
-
-            var filterSubStrings = viewModel.FilterText.Split(new[] { '+', ',', ';', '&' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var filterSubString in filterSubStrings)
+            for (var i = 0; i < outer.Length; i++)
             {
-                var filterOrSubStrings = filterSubString.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-                var isInName = filterOrSubStrings.Exists(x => icon.Name.Contains(x.Trim(), StringComparison.CurrentCultureIgnoreCase));
-                var isInDescription = filterOrSubStrings.Exists(x => icon.Description.Contains(x.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-                if (!(isInName || isInDescription)) return false;
+                var searchStr = outer[i];
+                
+                if (icon.Name.Contains(searchStr, StringComparison.CurrentCultureIgnoreCase) 
+                    || icon.Description.Contains(searchStr, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    found = true;
+                    break;
+                }
             }
 
-            return true;
+            if (!found) return false;
         }
+
+        return true;
     };
+
+    private Func<IIconViewModel, bool> FilterIconsByTypePredicate(IconPackViewModel? selectedIconPack) => icon =>
+    {
+        return SelectedNavigationItem is AllIconPacksNavigationItemViewModel
+               || icon.IconPackType == selectedIconPack?.PackType;
+    };
+
 
     private async Task DoCopyTextToClipboard(string? text)
     {
