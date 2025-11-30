@@ -10,7 +10,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using MahApps.IconPacksBrowser.Avalonia.Controls.Utils;
 using Avalonia.Layout;
-using Avalonia.Threading;
 using Avalonia.VisualTree;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Controls

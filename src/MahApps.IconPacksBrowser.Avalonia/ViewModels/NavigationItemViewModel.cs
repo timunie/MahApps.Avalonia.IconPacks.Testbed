@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAvalonia.UI.Controls;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;

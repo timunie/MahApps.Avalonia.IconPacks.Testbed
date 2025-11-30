@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Properties;
@@ -61,6 +56,18 @@ public partial class Settings : ObservableObject
     }
 
     /// <summary>
+    /// Gets or sets the padding around the icon
+    /// </summary>
+    [ObservableProperty]
+    public partial int IconPreviewPadding { get; set; } = 4;
+    
+    partial void OnIconPreviewPaddingChanged(int value)
+    {
+        if (value < 0) IconPreviewPadding = 0;
+    }
+    
+    
+    /// <summary>
     /// Gets or sets if the previewer is visible 
     /// </summary>
     [ObservableProperty]
@@ -95,6 +102,7 @@ public partial class Settings : ObservableObject
             Default.IconBackground = settings.IconBackground;
             Default.IconForeground = settings.IconForeground;
             Default.IconPreviewSize = settings.IconPreviewSize;
+            Default.IconPreviewPadding = settings.IconPreviewPadding;
             Default.IsPreviewerVisible = settings.IsPreviewerVisible;
         }
         catch

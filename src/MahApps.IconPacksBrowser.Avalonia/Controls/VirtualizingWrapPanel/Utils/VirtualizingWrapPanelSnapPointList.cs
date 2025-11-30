@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using Avalonia.Controls;
     using Avalonia.Controls.Primitives;
-    using MahApps.IconPacksBrowser.Avalonia.Controls;
     using Avalonia.Layout;
 
     namespace  MahApps.IconPacksBrowser.Avalonia.Controls.Utils;

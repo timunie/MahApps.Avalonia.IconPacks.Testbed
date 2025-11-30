@@ -1,10 +1,8 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
-using IconPacks.Avalonia.Core;
 using IconPacks.Avalonia.Core.Attributes;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
-using SkiaSharp;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 

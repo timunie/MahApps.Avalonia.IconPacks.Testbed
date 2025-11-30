@@ -64,7 +64,7 @@ public partial class SettingsViewModel
         try
         {
             var failedItems = new List<string>();
-            var originalTemplates = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExportTemplates"));
+            var originalTemplates = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "ExportTemplates"));
 
             foreach (var template in originalTemplates)
             {

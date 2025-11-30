@@ -1,10 +1,6 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using CommunityToolkit.Mvvm.ComponentModel;
 using MahApps.IconPacksBrowser.Avalonia.Properties;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Views;

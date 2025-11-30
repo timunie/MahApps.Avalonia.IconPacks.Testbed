@@ -5,15 +5,15 @@
              xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:fa="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             xmlns:helper="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Helper"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prop="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Properties"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels"
-             xmlns:helper="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Helper"
              d:DesignHeight="450"
              d:DesignWidth="800"
-             x:DataType="viewModels:SettingsViewModel"
              helper:DialogManager.Register="{Binding}"
+             x:DataType="viewModels:SettingsViewModel"
              mc:Ignorable="d">
     <UserControl.DataTemplates>
         <DataTemplate DataType="Color">
@@ -54,8 +54,7 @@
                                   SelectedItem="{Binding Settings.AccentColor}" />
                     </controls:HeaderedControl>
                     <controls:HeaderedControl Header="Theme">
-                        <ComboBox HorizontalAlignment="Stretch"
-                                  SelectedItem="{Binding Settings.AppTheme}">
+                        <ComboBox HorizontalAlignment="Stretch" SelectedItem="{Binding Settings.AppTheme}">
                             <system:String>Default</system:String>
                             <system:String>Light</system:String>
                             <system:String>Dark</system:String>
@@ -64,20 +63,27 @@
                 </StackPanel>
             </fa:SettingsExpander>
 
-            <fa:SettingsExpander Header="Export" IsExpanded="True"
-                                 Description="Directory for custom export templates">
+            <fa:SettingsExpander Description="Directory for custom export templates"
+                                 Header="Export"
+                                 IsExpanded="True">
 
                 <StackPanel Spacing="5">
-                    <HyperlinkButton Content="{Binding Settings.ExportTemplatesDir}" 
-                                     NavigateUri="{Binding Settings.ExportTemplatesDir}"
-                                     IsVisible="{Binding Settings.ExportTemplatesDir, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                    <Button Command="{Binding SelectTemplateFolderCommand}"
-                            HorizontalAlignment="Stretch"
+                    <controls:HeaderedControl Header="Template Folder"
+                                              ToolTip.Tip="Open the folder to edit the templates."
+                                              IsVisible="{Binding Settings.ExportTemplatesDir, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        <HyperlinkButton Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
+                                         CommandParameter="{Binding Settings.ExportTemplatesDir}"
+                                         Content="{Binding Settings.ExportTemplatesDir}" />
+                    </controls:HeaderedControl>
+                    <Button HorizontalAlignment="Stretch"
+                            Command="{Binding SelectTemplateFolderCommand}"
                             Content="Select a custom template folder" />
-                    <Button Command="{Binding ClearTemplatesDirCommand}" Content="Reset template folder to default"
-                            HorizontalAlignment="Stretch"/>
-                    <Button Command="{Binding CopyOriginalTemplatesCommand}" Content="Copy original templates to custom folder"
-                            HorizontalAlignment="Stretch"/>
+                    <Button HorizontalAlignment="Stretch"
+                            Command="{Binding ClearTemplatesDirCommand}"
+                            Content="Reset template folder to default" />
+                    <Button HorizontalAlignment="Stretch"
+                            Command="{Binding CopyOriginalTemplatesCommand}"
+                            Content="Copy original templates to custom folder" />
                 </StackPanel>
             </fa:SettingsExpander>
 

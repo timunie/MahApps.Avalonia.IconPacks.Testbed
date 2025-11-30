@@ -51,7 +51,6 @@ using IconPacks.Avalonia.VaadinIcons;
 using IconPacks.Avalonia.WeatherIcons;
 using IconPacks.Avalonia.Zondicons;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
-using MahApps.IconPacksBrowser.Avalonia.Properties;
 using ObservableCollections;
 using R3;
 
@@ -59,9 +58,6 @@ namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    private const int PAGE_SIZE = 100;
-    private const int FIRST_PAGE = 1;
-
     public static MainViewModel Instance { get; } = new();
 
     public MainViewModel()
@@ -96,12 +92,11 @@ public partial class MainViewModel : ViewModelBase
         //     .Subscribe();
 
         //LoadIconPacksAsync().SafeFireAndForget();
-        
+
         AppVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
     }
 
-    [ObservableProperty]
-    public partial int TotalItems { get; set; }
+    [ObservableProperty] public partial int TotalItems { get; set; }
 
     public async Task LoadIconPacksAsync()
     {
@@ -159,7 +154,7 @@ public partial class MainViewModel : ViewModelBase
 
         var loadIconsTasks = availableIconPacks.Select(ip => ip.LoadIconsAsync(ip.EnumType, ip.PackType));
         _iconsCache.AddRange((await Task.WhenAll(loadIconsTasks)).SelectMany(x => x));
-        
+
         //Dispatcher.UIThread.Post(() => TotalItems = _iconsCache.Count);
         TotalItems = _iconsCache.Count;
         SelectedIcon = SelectedIconPack?.Icons.FirstOrDefault() ?? _iconsCache.FirstOrDefault();
@@ -181,7 +176,7 @@ public partial class MainViewModel : ViewModelBase
     [
         new SettingsNavigationItem()
     ];
-    
+
     private readonly ObservableList<IIconViewModel> _iconsCache = new();
 
     /// <summary>
@@ -226,12 +221,30 @@ public partial class MainViewModel : ViewModelBase
     {
         public bool IsMatch(IIconViewModel icon, IIconViewModel transformedIcon)
         {
-            return
-                // Filter for IconPackType
-                (viewModel.SelectedNavigationItem is AllIconPacksNavigationItemViewModel
-                 || icon.IconPackType == (viewModel.SelectedNavigationItem as IconPackNavigationItemViewModel)?.IconPack.PackType)
-                // Filter for IconName
-                && (string.IsNullOrWhiteSpace(viewModel.FilterText) || icon.Name.Contains(viewModel.FilterText.Trim(), StringComparison.OrdinalIgnoreCase));
+            // first let's see if the icon is inside the currently selected icon pack
+            var isInIconPack = (viewModel.SelectedNavigationItem is AllIconPacksNavigationItemViewModel
+                                || icon.IconPackType == (viewModel.SelectedNavigationItem as IconPackNavigationItemViewModel)?.IconPack.PackType);
+
+            if (!isInIconPack)
+                return false;
+
+            // we have no filter text, so this icon should be visible
+            if (string.IsNullOrWhiteSpace(viewModel.FilterText))
+                return true;
+
+            var filterSubStrings = viewModel.FilterText.Split(new[] { '+', ',', ';', '&' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var filterSubString in filterSubStrings)
+            {
+                var filterOrSubStrings = filterSubString.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                var isInName = filterOrSubStrings.Exists(x => icon.Name.Contains(x.Trim(), StringComparison.CurrentCultureIgnoreCase));
+                var isInDescription = filterOrSubStrings.Exists(x => icon.Description.Contains(x.Trim(), StringComparison.CurrentCultureIgnoreCase));
+
+                if (!(isInName || isInDescription)) return false;
+            }
+
+            return true;
         }
     };
 

@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using Avalonia.Data.Converters;
-using IconPacks.Avalonia.Material;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Converters;
 
