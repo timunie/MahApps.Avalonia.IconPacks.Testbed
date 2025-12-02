@@ -66,19 +66,27 @@ public partial class MainViewModel : ViewModelBase
         this.AppVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion!;
         SelectedNavigationItem = AvailableIconPacks[0];
 
+        // Throttle text filter to avoid filtering on every keystroke
         var filterByText = this.WhenAnyValue(x => x.FilterText)
+            .Throttle(TimeSpan.FromMilliseconds(300))
             .DistinctUntilChanged()
             .Select(FilterIconsByStringPredicate);
 
+        // Icon pack filter doesn't need throttling (changes infrequently)
         var filterByIconPack = this.WhenAnyValue(x => x.SelectedIconPack)
             .DistinctUntilChanged()
             .Select(FilterIconsByTypePredicate);
 
+        // Combine both filters into a single observable for better performance
+        var combinedFilter = Observable.CombineLatest(
+                filterByIconPack,
+                filterByText,
+                (packFilter, textFilter) => new Func<IIconViewModel, bool>(icon => 
+                    packFilter(icon) && textFilter(icon)))
+            .StartWith(new Func<IIconViewModel, bool>(_ => true));
 
         _iconsCache.Connect()
-            .ObserveOn(RxApp.TaskpoolScheduler)
-            .Filter(filterByIconPack)
-            .Filter(filterByText)
+            .Filter(combinedFilter)
             .ObserveOn(RxApp.MainThreadScheduler)
             .SortAndBind(out _visibleIcons, 
                 SortExpressionComparer<IIconViewModel>
@@ -241,28 +249,12 @@ public partial class MainViewModel : ViewModelBase
         if (_filterItems is null)
             return true;
 
-        for (var index = 0; index < _filterItems.Length; index++)
-        {
-            var outer = _filterItems[index];
-            
-            var found = false;
-
-            for (var i = 0; i < outer.Length; i++)
-            {
-                var searchStr = outer[i];
-                
-                if (icon.Name.Contains(searchStr, StringComparison.CurrentCultureIgnoreCase) 
-                    || icon.Description.Contains(searchStr, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) return false;
-        }
-
-        return true;
+        // All outer groups must match (AND logic)
+        return _filterItems.All(outerGroup =>
+            // At least one term in the group must match (OR logic)
+            outerGroup.Any(searchStr =>
+                icon.Name.Contains(searchStr, StringComparison.OrdinalIgnoreCase) 
+                || icon.Description.Contains(searchStr, StringComparison.OrdinalIgnoreCase)));
     };
 
     private Func<IIconViewModel, bool> FilterIconsByTypePredicate(IconPackViewModel? selectedIconPack) => icon =>
