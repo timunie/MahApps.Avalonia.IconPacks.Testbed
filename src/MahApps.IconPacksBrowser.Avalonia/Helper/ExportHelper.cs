@@ -34,46 +34,46 @@ namespace MahApps.IconPacksBrowser.Avalonia.Helper;
 internal static class ExportHelper
 {
     // SVG-File
-    private static string? _SvgFileTemplate;
+    private static string? _svgFileTemplate;
 
-    internal static string? SvgFileTemplate => _SvgFileTemplate ??= LoadTemplateString("SVG.xml");
-
-    // XAML-File (WPF)
-    private static string? _WpfFileTemplate;
-
-    internal static string? WpfFileTemplate => _WpfFileTemplate ??= LoadTemplateString("WPF.xml");
+    internal static string SvgFileTemplate => _svgFileTemplate ??= LoadTemplateString("SVG.xml");
 
     // XAML-File (WPF)
-    private static string? _UwpFileTemplate;
+    private static string? _wpfFileTemplate;
 
-    internal static string? UwpFileTemplate => _UwpFileTemplate ??= LoadTemplateString("WPF.xml");
+    internal static string WpfFileTemplate => _wpfFileTemplate ??= LoadTemplateString("WPF.xml");
+
+    // XAML-File (WPF)
+    private static string? _uwpFileTemplate;
+
+    internal static string UwpFileTemplate => _uwpFileTemplate ??= LoadTemplateString("WPF.xml");
 
     // Clipboard - WPF
-    private static string? _ClipboardWpf;
+    private static string? _clipboardWpf;
 
-    internal static string ClipboardWpf => _ClipboardWpf ??= LoadTemplateString("Clipboard.WPF.xml");
+    internal static string ClipboardWpf => _clipboardWpf ??= LoadTemplateString("Clipboard.WPF.xml");
 
     // Clipboard - WPF
-    private static string? _ClipboardWpfGeometry;
+    private static string? _clipboardWpfGeometry;
 
-    internal static string ClipboardWpfGeometry => _ClipboardWpfGeometry ??= LoadTemplateString("Clipboard.WPF.Geometry.xml");
+    internal static string ClipboardWpfGeometry => _clipboardWpfGeometry ??= LoadTemplateString("Clipboard.WPF.Geometry.xml");
 
     // Clipboard - UWP
-    private static string? _ClipboardUwp;
+    private static string? _clipboardUwp;
 
-    internal static string ClipboardUwp => _ClipboardUwp ??= LoadTemplateString("Clipboard.UWP.xml");
+    internal static string ClipboardUwp => _clipboardUwp ??= LoadTemplateString("Clipboard.UWP.xml");
 
     // Clipboard - Content
-    private static string? _ClipboardContent;
+    private static string? _clipboardContent;
 
-    internal static string ClipboardContent => _ClipboardContent ??= LoadTemplateString("Clipboard.Content.xml");
+    internal static string ClipboardContent => _clipboardContent ??= LoadTemplateString("Clipboard.Content.xml");
 
     // Clipboard - PathData
-    private static string? _ClipboardData;
+    private static string? _clipboardData;
 
-    internal static string ClipboardData => _ClipboardData ??= LoadTemplateString("Clipboard.PathData.xml");
+    internal static string ClipboardData => _clipboardData ??= LoadTemplateString("Clipboard.PathData.xml");
 
-    internal static string? FillTemplate(string template, ExportParameters parameters)
+    internal static string FillTemplate(string template, ExportParameters parameters)
     {
         return template.Replace("@IconKind", parameters.IconKind)
             .Replace("@IconPackName", parameters.IconPackName)
@@ -91,7 +91,7 @@ internal static class ExportHelper
             .Replace("@TransformMatrix", parameters.TransformMatrix);
     }
 
-    internal static string? LoadTemplateString(string fileName)
+    internal static string LoadTemplateString(string fileName)
     {
         if (string.IsNullOrWhiteSpace(Settings.Default.ExportTemplatesDir) || !File.Exists(Path.Combine(Settings.Default.ExportTemplatesDir, fileName)))
         {
@@ -155,13 +155,16 @@ internal static class ExportHelper
         }
     }
 
-    internal static SKPath MoveIntoBounds(this SKPath path, float width, float height)
+    internal static SKPath MoveIntoBounds(this SKPath path, float width, float height, int padding)
     {
-        var scale = Math.Max(width, height) / Math.Max(path.Bounds.Width, path.Bounds.Height);
+        
+        var scale = Math.Max(width - padding, height - padding) 
+                    / Math.Max(path.Bounds.Width, path.Bounds.Height);
+        
         path.Transform(SKMatrix.CreateScale(scale, scale));
         path.Transform(SKMatrix.CreateTranslation(
-            - path.Bounds.Left - (path.Bounds.Width - width) / 2, 
-            - path.Bounds.Top - (path.Bounds.Width - width) / 2));
+            - path.Bounds.Left - (path.Bounds.Width - width) / 2 + padding, 
+            - path.Bounds.Top - (path.Bounds.Height - height) / 2 + padding));
         
         return path;
     }
@@ -170,13 +173,42 @@ internal static class ExportHelper
     {
         await using var saveFileStream = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
         {
-            new FilePickerFileType("svg")
-            {
-                Patterns = ["*.svg"]
-            }
+            FilePickerHelper.ImageSvg
         });
 
-        var fileContent = FillTemplate(SvgFileTemplate!, new ExportParameters(iconViewModel));
+        var fileContent = FillTemplate(SvgFileTemplate, new ExportParameters(iconViewModel));
+
+        if (saveFileStream is { CanWrite: true } && fileContent is { Length: > 0 })
+        {
+            await using var streamWriter = new StreamWriter(saveFileStream);
+            await streamWriter.WriteAsync(fileContent);
+        }
+    }
+    
+    internal static async Task SaveAsWpfXamlAsync(IIconViewModel iconViewModel)
+    {
+        await using var saveFileStream = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
+        {
+            FilePickerHelper.XamlWpf
+        });
+
+        var fileContent = FillTemplate(WpfFileTemplate, new ExportParameters(iconViewModel));
+
+        if (saveFileStream is { CanWrite: true } && fileContent is { Length: > 0 })
+        {
+            await using var streamWriter = new StreamWriter(saveFileStream);
+            await streamWriter.WriteAsync(fileContent);
+        }
+    }
+    
+    internal static async Task SaveAsAvaloniaXamlAsync(IIconViewModel iconViewModel)
+    {
+        await using var saveFileStream = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
+        {
+            FilePickerHelper.XamlAvalonia
+        });
+
+        var fileContent = FillTemplate(WpfFileTemplate, new ExportParameters(iconViewModel));
 
         if (saveFileStream is { CanWrite: true } && fileContent is { Length: > 0 })
         {
@@ -185,17 +217,21 @@ internal static class ExportHelper
         }
     }
 
-    internal static async Task SaveAsPngAsync(IIconViewModel icon)
+    internal static async Task SaveAsBitmapAsync(IIconViewModel icon)
     {
         await using var saveFileStream = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
         {
-            FilePickerFileTypes.ImagePng
+            FilePickerFileTypes.ImagePng,
+            FilePickerFileTypes.ImageJpg,
+            FilePickerFileTypes.ImageWebp,
+            FilePickerHelper.ImageBmp,
         });
         
         int renderWidth = Settings.Default.IconPreviewSize;
         int renderHeight = Settings.Default.IconPreviewSize;
+        int padding = Settings.Default.IconPreviewPadding;
         
-        using var path = GetPath(icon.Value)?.MoveIntoBounds(renderWidth, renderHeight);
+        using var path = GetPath(icon.Value)?.MoveIntoBounds(renderWidth, renderHeight, padding);
 
         using var bitmap = new SKBitmap(new SKImageInfo(renderWidth, renderHeight));
         using var canvas = new SKCanvas(bitmap);
@@ -242,10 +278,10 @@ internal struct ExportParameters
         this.StrokeWidth = icon.Value is PackIconFeatherIconsKind ? "2" : "0"; // TODO: We need an API to read these values
         this.StrokeLineCap = nameof(PenLineCap.Round);
         this.StrokeLineJoin = nameof(PenLineJoin.Round);
-        this.TransformMatrix = Matrix.Identity.ToString();
+        this.TransformMatrix = Matrix.Identity.ToString(); // TODO Get correct Matrix
 
-        this.IconPackHomepage = metaData?.ProjectUrl;
-        this.IconPackLicense = metaData?.LicenseUrl;
+        this.IconPackHomepage = metaData.ProjectUrl;
+        this.IconPackLicense = metaData.LicenseUrl;
 
         this.PathData = ExportHelper.GetPath(icon.Value)?.ToSvgPathData() ?? string.Empty;
     }

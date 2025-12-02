@@ -83,18 +83,16 @@ public partial class MainViewModel : ViewModelBase
                 filterByText,
                 (packFilter, textFilter) => new Func<IIconViewModel, bool>(icon => 
                     packFilter(icon) && textFilter(icon)))
-            .StartWith(new Func<IIconViewModel, bool>(_ => true));
+            .StartWith(_ => true);
 
         _iconsCache.Connect()
             .Filter(combinedFilter)
             .ObserveOn(RxApp.MainThreadScheduler)
             .SortAndBind(out _visibleIcons, 
-                SortExpressionComparer<IIconViewModel>
-                    .Ascending(e => e.IconPackName)
-                    .ThenByAscending(e => e.Name))
+                SortExpressionComparer<IIconViewModel>.Ascending(e => e.Identifier))
             .DisposeMany()
             .Subscribe();
-
+        
         //LoadIconPacksAsync().SafeFireAndForget();
 
         AppVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
@@ -208,7 +206,9 @@ public partial class MainViewModel : ViewModelBase
     /// </summary>
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveAsSvgCommand))]
-    [NotifyCanExecuteChangedFor(nameof(SaveAsPngCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveAsBitmapCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveAsWpfCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveAsAvaloniaCommand))]
     public partial IIconViewModel? SelectedIcon { get; set; }
 
     /// <summary>
@@ -228,14 +228,14 @@ public partial class MainViewModel : ViewModelBase
         var outer = value?.Split(['+', ',', ';', '&'], StringSplitOptions.RemoveEmptyEntries);
         string[][]? inner =
             outer?.Select(x => x.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(y => y.Trim())
+                    .Select(y => y.Trim().ToLowerInvariant())
                     .ToArray())
                 .ToArray();
 
         _filterItems = inner;
     }
 
-    private string[][]? _filterItems = null;
+    private string[][]? _filterItems;
 
     /// <summary>
     /// Gets the App version of this Application
@@ -253,8 +253,7 @@ public partial class MainViewModel : ViewModelBase
         return _filterItems.All(outerGroup =>
             // At least one term in the group must match (OR logic)
             outerGroup.Any(searchStr =>
-                icon.Name.Contains(searchStr, StringComparison.OrdinalIgnoreCase) 
-                || icon.Description.Contains(searchStr, StringComparison.OrdinalIgnoreCase)));
+                icon.FilterString.Contains(searchStr)));
     };
 
     private Func<IIconViewModel, bool> FilterIconsByTypePredicate(IconPackViewModel? selectedIconPack) => icon =>
@@ -317,8 +316,20 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand(CanExecute = nameof(CanExport))]
-    private async Task SaveAsPngAsync(IIconViewModel icon)
+    private async Task SaveAsBitmapAsync(IIconViewModel icon)
     {
-        await ExportHelper.SaveAsPngAsync(icon);
+        await ExportHelper.SaveAsBitmapAsync(icon);
+    }
+    
+    [RelayCommand(CanExecute = nameof(CanExport))]
+    private async Task SaveAsWpfAsync(IIconViewModel icon)
+    {
+        await ExportHelper.SaveAsWpfXamlAsync(icon);
+    }
+    
+    [RelayCommand(CanExecute = nameof(CanExport))]
+    private async Task SaveAsAvaloniaAsync(IIconViewModel icon)
+    {
+        await ExportHelper.SaveAsAvaloniaXamlAsync(icon);
     }
 }

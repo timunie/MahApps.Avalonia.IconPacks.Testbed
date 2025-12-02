@@ -8,7 +8,6 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
-        <None Include="Assets\ExportTemplates\**" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,7 +22,6 @@
         <PackageReference Include="ReactiveUI.Avalonia" Version="11.3.8" />
         <PackageReference Include="SkiaSharp" Version="3.119.1" />
     </ItemGroup>
-
     <ItemGroup>
       <Folder Include="Controls\Helper\" />
     </ItemGroup>

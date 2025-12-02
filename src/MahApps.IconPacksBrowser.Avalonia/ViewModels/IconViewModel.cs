@@ -24,6 +24,11 @@ public interface IIconViewModel
     string? CopyToClipboardAsContentText { get; }
     string? CopyToClipboardAsPathIconText { get; }
     string? CopyToClipboardAsGeometryText { get; }
+
+    /// <summary>
+    /// Gets a lowercase filter string.
+    /// </summary>
+    string FilterString { get; }
 }
 
 public class IconViewModel : ViewModelBase, IIconViewModel
@@ -35,6 +40,7 @@ public class IconViewModel : ViewModelBase, IIconViewModel
         IconType = enumType;
         Value = k;
         MetaData = metaData;
+        FilterString = (Name.ToLowerInvariant() + " " + Description.ToLowerInvariant());
     }
 
     public string? CopyToClipboardText => ExportHelper.FillTemplate(ExportHelper.ClipboardWpf, new ExportParameters(this)); // $"<iconPacks:{IconPackType.Name} Kind=\"{Name}\" />";
@@ -69,4 +75,6 @@ public class IconViewModel : ViewModelBase, IIconViewModel
         var fieldInfo = value.GetType().GetField(value.ToString());
         return fieldInfo?.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() is DescriptionAttribute attribute ? attribute.Description : value.ToString();
     }
+
+    public string FilterString { get; }
 }

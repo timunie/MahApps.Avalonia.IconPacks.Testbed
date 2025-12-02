@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Platform;
 using CommunityToolkit.Mvvm.Input;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
 using MahApps.IconPacksBrowser.Avalonia.Properties;
@@ -64,21 +65,33 @@ public partial class SettingsViewModel
         try
         {
             var failedItems = new List<string>();
-            var originalTemplates = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "ExportTemplates"));
+            var originalTemplates = AssetLoader.GetAssets(
+                new Uri("ExportTemplates", UriKind.Relative),
+                new Uri("avares://MahApps.IconPacksBrowser.Avalonia/Assets/", UriKind.Absolute));
+            
+                // Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "ExportTemplates"));
 
             foreach (var template in originalTemplates)
             {
-                if (string.IsNullOrEmpty(Settings.ExportTemplatesDir)) throw new ArgumentException("ExportTemplatesDir is empty");
+                if (string.IsNullOrEmpty(Settings.ExportTemplatesDir)) 
+                    throw new ArgumentException("ExportTemplatesDir is not specified");
 
                 //Do your job with "file"  
-                var destination = Path.Combine(Settings.ExportTemplatesDir, Path.GetFileName(template));
+                var destination = Path.Combine(Settings.ExportTemplatesDir, Path.GetFileName(template.LocalPath));
                 if (!File.Exists(destination))
                 {
-                    File.Copy(template, destination);
+                    await using (var fs = File.Create(destination))
+                    {
+                        await using (var assetStream = AssetLoader.Open(template))
+                        {
+                            assetStream.Seek(0, SeekOrigin.Begin);
+                            await assetStream.CopyToAsync(fs);
+                        }
+                    }
                 }
                 else
                 {
-                    failedItems.Add("• " + Path.GetFileName(template));
+                    failedItems.Add("• " + Path.GetFileName(template.LocalPath));
                 }
             }
 

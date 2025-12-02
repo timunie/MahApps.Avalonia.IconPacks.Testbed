@@ -375,17 +375,29 @@
                           Header="Export"
                           IsExpanded="True">
                     <StackPanel>
+                        <!-- SVG -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsSvgCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
                                 Content="Save as svg" />
-                        <!--     <Button Command="{Binding SaveAsWpfCommand}" Content="Save as XAML (WPF)" /> -->
-                        <!--     <Button Command="{Binding SaveAsUwpCommand}" Content="Save as XAML (UWP)" /> -->
+                        
+                        <!-- WPF -->
                         <Button HorizontalAlignment="Stretch"
-                                Command="{Binding SaveAsPngCommand}"
+                                Command="{Binding SaveAsWpfCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
-                                Content="Save as Png" />
-                        <!--     <Button Command="{Binding SaveAsBmpCommand}" Content="Save as Bmp" /> -->
+                                Content="Save as XAML (WPF)" />
+                        
+                        <!-- Avalonia -->
+                        <Button HorizontalAlignment="Stretch"
+                                Command="{Binding SaveAsAvaloniaCommand}"
+                                CommandParameter="{Binding SelectedIcon}"
+                                Content="Save as XAML (Avalonia)" />
+                        
+                        <!-- Bitmap -->
+                        <Button HorizontalAlignment="Stretch"
+                                Command="{Binding SaveAsBitmapCommand}"
+                                CommandParameter="{Binding SelectedIcon}"
+                                Content="Save as Bitmap" />
                     </StackPanel>
                 </Expander>
             </StackPanel>
