@@ -13,33 +13,40 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
     internal class RealizedWrapElements
     {
         private int _firstIndex;
-        private List<Control?>? _elements;
-        private List<Size>? _sizes;
+        private readonly List<Control?> _elements;
+        private readonly List<Size> _sizes;
+
+        public RealizedWrapElements()
+        {
+            // Pre-allocate with reasonable capacity to reduce reallocations
+            _elements = new List<Control?>(32);
+            _sizes = new List<Size>(32);
+        }
 
         /// <summary>
         /// Gets the number of realized elements.
         /// </summary>
-        public int Count => _elements?.Count ?? 0;
+        public int Count => _elements.Count;
 
         /// <summary>
         /// Gets the index of the first realized element, or -1 if no elements are realized.
         /// </summary>
-        public int FirstIndex => _elements?.Count > 0 ? _firstIndex : -1;
+        public int FirstIndex => _elements.Count > 0 ? _firstIndex : -1;
 
         /// <summary>
         /// Gets the index of the last realized element, or -1 if no elements are realized.
         /// </summary>
-        public int LastIndex => _elements?.Count > 0 ? _firstIndex + _elements.Count - 1 : -1;
+        public int LastIndex => _elements.Count > 0 ? _firstIndex + _elements.Count - 1 : -1;
 
         /// <summary>
         /// Gets the elements.
         /// </summary>
-        public IReadOnlyList<Control?> Elements => _elements ??= new List<Control?>();
+        public IReadOnlyList<Control?> Elements => _elements;
 
         /// <summary>
         /// Gets the sizes of the elements on the primary axis.
         /// </summary>
-        public IReadOnlyList<Size> Sizes => _sizes ??= new List<Size>();
+        public IReadOnlyList<Size> Sizes => _sizes;
         
         /// <summary>
         /// Adds a newly realized element to the collection.
@@ -52,21 +59,20 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            _elements ??= new List<Control?>();
-            _sizes ??= new List<Size>();
+            var count = _elements.Count;
 
-            if (Count == 0)
+            if (count == 0)
             {
                 _elements.Add(element);
                 _sizes.Add(size);
                 _firstIndex = index;
             }
-            else if (index == LastIndex + 1)
+            else if (index == _firstIndex + count)
             {
                 _elements.Add(element);
                 _sizes.Add(size);
             }
-            else if (index == FirstIndex - 1)
+            else if (index == _firstIndex - 1)
             {
                 --_firstIndex;
                 _elements.Insert(0, element);
@@ -85,8 +91,9 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <returns>The element if realized; otherwise null.</returns>
         public Control? GetElement(int index)
         {
-            var i = index - FirstIndex;
-            if (i >= 0 && i < _elements?.Count)
+            var i = index - _firstIndex;
+            var count = _elements.Count;
+            if (i >= 0 && i < count)
                 return _elements[i];
             return null;
         }
@@ -103,24 +110,26 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             
             var index = GetIndex(child);
             
-            if (index < FirstIndex || _sizes is null)
+            if (index < 0)
                 return null;
 
-            if (index >= _sizes.Count - 1)
+            var localIndex = index - _firstIndex;
+            if (localIndex < 0 || localIndex >= _sizes.Count)
                 return null;
-            
-            return _sizes[index];
+
+            return _sizes[localIndex];
         }
-        
+
         public Size? GetElementSize(int index)
         {
-            if (index < FirstIndex || _sizes is null)
+            if (index < FirstIndex)
                 return null;
 
-            if (index >= _sizes.Count - 1)
+            var localIndex = index - _firstIndex;
+            if (localIndex >= _sizes.Count)
                 return null;
-            
-            return _sizes[index];
+
+            return _sizes[localIndex];
         }
 
         /// <summary>
@@ -130,7 +139,8 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <returns>The index or -1 if the element is not present in the collection.</returns>
         public int GetIndex(Control element)
         {
-            return _elements?.IndexOf(element) is { } index and >= 0 ? index + FirstIndex : -1;
+            var index = _elements.IndexOf(element);
+            return index >= 0 ? index + _firstIndex : -1;
         }
 
         /// <summary>
@@ -143,18 +153,19 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         {
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
-            if (_elements is null || _elements.Count == 0)
+
+            var elementCount = _elements.Count;
+            if (elementCount == 0)
                 return;
 
             // Get the index within the realized _elements collection.
-            var first = FirstIndex;
+            var first = _firstIndex;
             var realizedIndex = index - first;
 
-            if (realizedIndex < Count)
+            if (realizedIndex < elementCount)
             {
                 // The insertion point affects the realized elements. Update the index of the
                 // elements after the insertion point.
-                var elementCount = _elements.Count;
                 var start = Math.Max(realizedIndex, 0);
 
                 for (var i = start; i < elementCount; ++i)
@@ -174,8 +185,8 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 {
                     // The insertion point was within the realized elements, insert an empty space
                     // in _elements and _sizes.
-                    _elements!.InsertMany(realizedIndex, null, count);
-                    _sizes!.InsertMany(realizedIndex, Size.Infinity, count);
+                    _elements.InsertMany(realizedIndex, null, count);
+                    _sizes.InsertMany(realizedIndex, Size.Infinity, count);
                 }
             }
         }
@@ -195,12 +206,14 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         {
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
-            if (_elements is null || _elements.Count == 0)
+
+            var elementCount = _elements.Count;
+            if (elementCount == 0)
                 return;
 
             // Get the removal start and end index within the realized _elements collection.
-            var first = FirstIndex;
-            var last = LastIndex;
+            var first = _firstIndex;
+            var last = first + elementCount - 1;
             var startIndex = index - first;
             var endIndex = (index + count) - first;
 
@@ -211,18 +224,18 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 _firstIndex -= count;
 
                 var newIndex = _firstIndex;
-                for (var i = 0; i < _elements.Count; ++i)
+                for (var i = 0; i < elementCount; ++i)
                 {
                     if (_elements[i] is { } element)
                         updateElementIndex(element, newIndex + count, newIndex);
                     ++newIndex;
                 }
             }
-            else if (startIndex < _elements.Count)
+            else if (startIndex < elementCount)
             {
                 // Recycle and remove the affected elements.
                 var start = Math.Max(startIndex, 0);
-                var end = Math.Min(endIndex, _elements.Count);
+                var end = Math.Min(endIndex, elementCount);
 
                 for (var i = start; i < end; ++i)
                 {
@@ -234,7 +247,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 }
 
                 _elements.RemoveRange(start, end - start);
-                _sizes!.RemoveRange(start, end - start);
+                _sizes.RemoveRange(start, end - start);
 
                 // If the remove started before and ended within our realized elements, then our new
                 // first index will be the index where the remove started. Mark StartU as unstable
@@ -266,12 +279,14 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         {
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
-            if (_elements is null || _elements.Count == 0)
+
+            var elementCount = _elements.Count;
+            if (elementCount == 0)
                 return;
 
             // Get the index within the realized _elements collection.
-            var startIndex = index - FirstIndex;
-            var endIndex = Math.Min(startIndex + count, Count);
+            var startIndex = index - _firstIndex;
+            var endIndex = Math.Min(startIndex + count, elementCount);
 
             if (startIndex >= 0 && endIndex > startIndex)
             {
@@ -281,7 +296,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                     {
                         recycleElement(element);
                         _elements[i] = null;
-                        _sizes![i] = Size.Infinity;
+                        _sizes[i] = Size.Infinity;
                     }
                 }
             }
@@ -293,10 +308,11 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <param name="recycleElement">A method used to recycle elements.</param>
         public void ItemsReset(Action<Control> recycleElement)
         {
-            if (_elements is null || _elements.Count == 0)
+            var count = _elements.Count;
+            if (count == 0)
                 return;
 
-            for (var i = 0; i < _elements.Count; i++)
+            for (var i = 0; i < count; i++)
             {
                 if (_elements[i] is { } e)
                 {
@@ -305,9 +321,8 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 }
             }
 
-            _elements?.Clear();
-            _sizes?.Clear();
-
+            _elements.Clear();
+            _sizes.Clear();
         }
 
         /// <summary>
@@ -317,28 +332,31 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <param name="recycleElement">A method used to recycle elements.</param>
         public void RecycleElementsBefore(int index, Action<Control, int> recycleElement)
         {
-            if (index <= FirstIndex || _elements is null || _elements.Count == 0)
+            var count = _elements.Count;
+            var first = _firstIndex;
+
+            if (index <= first || count == 0)
                 return;
 
-            if (index > LastIndex)
+            if (index > first + count - 1)
             {
                 RecycleAllElements(recycleElement);
             }
             else
             {
-                var endIndex = index - FirstIndex;
+                var endIndex = index - first;
 
                 for (var i = 0; i < endIndex; ++i)
                 {
                     if (_elements[i] is { } e)
                     {
                         _elements[i] = null;
-                        recycleElement(e, i + FirstIndex);
+                        recycleElement(e, i + first);
                     }
                 }
 
                 _elements.RemoveRange(0, endIndex);
-                _sizes!.RemoveRange(0, endIndex);
+                _sizes.RemoveRange(0, endIndex);
                 _firstIndex = index;
             }
         }
@@ -350,29 +368,32 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <param name="recycleElement">A method used to recycle elements.</param>
         public void RecycleElementsAfter(int index, Action<Control, int> recycleElement)
         {
-            if (index >= LastIndex || _elements is null || _elements.Count == 0)
+            var count = _elements.Count;
+            var first = _firstIndex;
+
+            if (index >= first + count - 1 || count == 0)
                 return;
 
-            if (index < FirstIndex)
+            if (index < first)
             {
                 RecycleAllElements(recycleElement);
             }
             else
             {
-                var startIndex = (index + 1) - FirstIndex;
-                var count = _elements.Count;
+                var startIndex = (index + 1) - first;
 
                 for (var i = startIndex; i < count; ++i)
                 {
                     if (_elements[i] is { } e)
                     {
                         _elements[i] = null;
-                        recycleElement(e, i + FirstIndex);
+                        recycleElement(e, i + first);
                     }
                 }
 
-                _elements.RemoveRange(startIndex, _elements.Count - startIndex);
-                _sizes!.RemoveRange(startIndex, _sizes.Count - startIndex);
+                var removeCount = count - startIndex;
+                _elements.RemoveRange(startIndex, removeCount);
+                _sizes.RemoveRange(startIndex, removeCount);
             }
         }
 
@@ -382,21 +403,23 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <param name="recycleElement">A method used to recycle elements.</param>
         public void RecycleAllElements(Action<Control, int> recycleElement)
         {
-            if (_elements is null || _elements.Count == 0)
+            var count = _elements.Count;
+            if (count == 0)
                 return;
 
-            for (var i = 0; i < _elements.Count; i++)
+            var first = _firstIndex;
+            for (var i = 0; i < count; i++)
             {
                 if (_elements[i] is { } e)
                 {
                     _elements[i] = null;
-                    recycleElement(e, i + FirstIndex);
+                    recycleElement(e, i + first);
                 }
             }
 
             _firstIndex = 0;
-            _elements?.Clear();
-            _sizes?.Clear();
+            _elements.Clear();
+            _sizes.Clear();
         }
 
         /// <summary>
@@ -405,8 +428,8 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         public void ResetForReuse()
         {
             _firstIndex = 0;
-            _elements?.Clear();
-            _sizes?.Clear();
+            _elements.Clear();
+            _sizes.Clear();
         }
     }
 }
