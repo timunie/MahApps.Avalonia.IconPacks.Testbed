@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
@@ -157,16 +156,17 @@ public static class DialogHelper
 
         return null;
     }
-    
+
     /// <summary>
     /// Shows a save file dialog for a registered context, most likely a ViewModel
     /// </summary>
     /// <param name="context">The context</param>
     /// <param name="title">The dialog title or a default is null</param>
     /// <param name="filters">The filter to use</param>
-    /// <returns>The chosen file name</returns>
+    /// <returns>The chosen file as storage item</returns>
     /// <exception cref="ArgumentNullException">if context was null</exception>
-    public static async Task<Stream?> SaveFileDialogAsync(this object? context, string? title = null, IReadOnlyList<FilePickerFileType>? filters = null)
+    public static async Task<IStorageFile?> SaveFileDialogAsync(this object? context, string? title = null, IReadOnlyList<FilePickerFileType>? filters = null,
+        string? fileNameSuggestion = null)
     {
         if (context == null)
         {
@@ -184,15 +184,17 @@ public static class DialogHelper
                 {
                     ShowOverwritePrompt = true,
                     FileTypeChoices = filters,
-                    Title = title ?? "Save File As"
+                    Title = title ?? "Save File As", 
+                    SuggestedFileName = fileNameSuggestion
                 });
 
             // return the result
-            if (storageFile != null) return await storageFile.OpenWriteAsync();
+            if (storageFile != null) return storageFile;
         }
 
         return null;
     }
+
 
     public static async Task<ContentDialogResult> ShowMessageAsync(this object? context, string? title, object? content)
     {
@@ -207,7 +209,7 @@ public static class DialogHelper
             Content = content,
             PrimaryButtonText = "OK",
         };
-        
+
         return await dialog.ShowAsync(topLevel);
     }
 
@@ -229,12 +231,13 @@ public static class DialogHelper
         ArgumentNullException.ThrowIfNull(context);
 
         var topLevel = DialogManager.GetTopLevelForContext(context);
-        Uri? navigateUri = uri switch {
+        Uri? navigateUri = uri switch
+        {
             Uri u => u,
             string s => new Uri(s),
             _ => null
         };
-        
+
         if (navigateUri is not null)
         {
             await topLevel!.Launcher.LaunchUriAsync(navigateUri);

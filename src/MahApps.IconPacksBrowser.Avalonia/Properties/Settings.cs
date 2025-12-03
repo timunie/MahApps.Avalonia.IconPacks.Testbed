@@ -35,7 +35,7 @@ public partial class Settings : ObservableObject
     /// Gets or sets the preview background
     /// </summary>
     [ObservableProperty]
-    public partial Color? IconBackground { get; set; }
+    public partial Color IconBackground { get; set; } = Colors.Transparent;
 
     /// <summary>
     /// Gets or sets the preview foreground

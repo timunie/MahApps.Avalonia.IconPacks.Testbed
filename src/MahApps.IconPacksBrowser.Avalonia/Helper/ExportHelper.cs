@@ -158,25 +158,30 @@ internal static class ExportHelper
     internal static SKPath MoveIntoBounds(this SKPath path, float width, float height, int padding)
     {
         
-        var scale = Math.Max(width - padding, height - padding) 
+        var scale = Math.Max(width - padding * 2, height - padding * 2) 
                     / Math.Max(path.Bounds.Width, path.Bounds.Height);
         
         path.Transform(SKMatrix.CreateScale(scale, scale));
         path.Transform(SKMatrix.CreateTranslation(
-            - path.Bounds.Left - (path.Bounds.Width - width) / 2 + padding, 
-            - path.Bounds.Top - (path.Bounds.Height - height) / 2 + padding));
+            - path.Bounds.Left - (path.Bounds.Width - width) / 2, 
+            - path.Bounds.Top - (path.Bounds.Height - height) / 2));
         
         return path;
     }
 
-    internal static async Task SaveAsSvgAsync(IIconViewModel iconViewModel)
+    internal static async Task SaveAsSvgAsync(IIconViewModel icon)
     {
-        await using var saveFileStream = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
+        var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
         {
             FilePickerHelper.ImageSvg
-        });
+        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}");
+        
+        if (saveFile is null) 
+            return;
 
-        var fileContent = FillTemplate(SvgFileTemplate, new ExportParameters(iconViewModel));
+        await using var saveFileStream = await saveFile.OpenWriteAsync();
+        
+        var fileContent = FillTemplate(SvgFileTemplate, new ExportParameters(icon));
 
         if (saveFileStream is { CanWrite: true } && fileContent is { Length: > 0 })
         {
@@ -185,14 +190,19 @@ internal static class ExportHelper
         }
     }
     
-    internal static async Task SaveAsWpfXamlAsync(IIconViewModel iconViewModel)
+    internal static async Task SaveAsWpfXamlAsync(IIconViewModel icon)
     {
-        await using var saveFileStream = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
+        var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
         {
             FilePickerHelper.XamlWpf
-        });
+        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}");
 
-        var fileContent = FillTemplate(WpfFileTemplate, new ExportParameters(iconViewModel));
+        if (saveFile is null) 
+            return;
+
+        await using var saveFileStream = await saveFile.OpenWriteAsync(); 
+        
+        var fileContent = FillTemplate(WpfFileTemplate, new ExportParameters(icon));
 
         if (saveFileStream is { CanWrite: true } && fileContent is { Length: > 0 })
         {
@@ -201,14 +211,19 @@ internal static class ExportHelper
         }
     }
     
-    internal static async Task SaveAsAvaloniaXamlAsync(IIconViewModel iconViewModel)
+    internal static async Task SaveAsAvaloniaXamlAsync(IIconViewModel icon)
     {
-        await using var saveFileStream = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
+        var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
         {
             FilePickerHelper.XamlAvalonia
-        });
+        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}");
 
-        var fileContent = FillTemplate(WpfFileTemplate, new ExportParameters(iconViewModel));
+        if (saveFile is null) 
+            return;
+        
+        await using var saveFileStream = await saveFile.OpenWriteAsync();
+        
+        var fileContent = FillTemplate(WpfFileTemplate, new ExportParameters(icon));
 
         if (saveFileStream is { CanWrite: true } && fileContent is { Length: > 0 })
         {
@@ -219,13 +234,18 @@ internal static class ExportHelper
 
     internal static async Task SaveAsBitmapAsync(IIconViewModel icon)
     {
-        await using var saveFileStream = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
+        var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
         {
             FilePickerFileTypes.ImagePng,
             FilePickerFileTypes.ImageJpg,
             FilePickerFileTypes.ImageWebp,
             FilePickerHelper.ImageBmp,
-        });
+        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}");
+
+        if (saveFile is null) 
+            return;
+        
+        await using var saveFileStream = await saveFile.OpenWriteAsync();
         
         int renderWidth = Settings.Default.IconPreviewSize;
         int renderHeight = Settings.Default.IconPreviewSize;
@@ -241,7 +261,7 @@ internal static class ExportHelper
         
         if (Settings.Default.IconBackground != null)
         {
-            canvas.DrawColor(Settings.Default.IconBackground.Value.ToSKColor());
+            canvas.DrawColor(Settings.Default.IconBackground.ToSKColor());
         }
 
         paint.Color = Settings.Default.IconForeground.ToSKColor();
@@ -249,10 +269,18 @@ internal static class ExportHelper
 
         canvas.DrawPath(path, paint);
 
+        var encoding = Path.GetExtension(saveFile.Name) switch
+        {
+            ".jpg" => SKEncodedImageFormat.Jpeg,
+            ".webp" => SKEncodedImageFormat.Webp,
+            ".bmp" => SKEncodedImageFormat.Bmp,
+            _ => SKEncodedImageFormat.Png
+        };
+        
         if (saveFileStream is { CanWrite: true })
         {
             using var image = SKImage.FromBitmap(bitmap);
-            using var encodedImage = image.Encode(SKEncodedImageFormat.Png, 100);
+            using var encodedImage = image.Encode(encoding, 100);
             encodedImage.SaveTo(saveFileStream);
         }
     }
@@ -273,7 +301,7 @@ internal struct ExportParameters
         this.PageWidth = Settings.Default.IconPreviewSize.ToString(CultureInfo.InvariantCulture);
         this.PageHeight = Settings.Default.IconPreviewSize.ToString(CultureInfo.InvariantCulture);
         this.FillColor = Settings.Default.IconForeground.ToString();
-        this.Background = Settings.Default.IconBackground.ToString() ?? Colors.Black.ToString();
+        this.Background = Settings.Default.IconBackground.ToString();
         this.StrokeColor = Settings.Default.IconForeground.ToString();
         this.StrokeWidth = icon.Value is PackIconFeatherIconsKind ? "2" : "0"; // TODO: We need an API to read these values
         this.StrokeLineCap = nameof(PenLineCap.Round);
@@ -283,7 +311,9 @@ internal struct ExportParameters
         this.IconPackHomepage = metaData.ProjectUrl;
         this.IconPackLicense = metaData.LicenseUrl;
 
-        this.PathData = ExportHelper.GetPath(icon.Value)?.ToSvgPathData() ?? string.Empty;
+        this.PathData = ExportHelper.GetPath(icon.Value)?
+            .MoveIntoBounds(Settings.Default.IconPreviewSize, Settings.Default.IconPreviewSize, Settings.Default.IconPreviewPadding)
+            .ToSvgPathData() ?? string.Empty;
     }
 
     internal string IconKind { get; set; }
