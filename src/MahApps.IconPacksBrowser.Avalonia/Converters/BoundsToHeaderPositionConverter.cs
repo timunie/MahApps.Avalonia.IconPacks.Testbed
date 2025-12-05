@@ -10,7 +10,7 @@ public class BoundsToHeaderPositionConverter : IValueConverter
 {
     public static BoundsToHeaderPositionConverter Instance { get; } = new BoundsToHeaderPositionConverter();
     
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         var threshold = parameter as double? ?? 300;
         
@@ -26,7 +26,7 @@ public class BoundsToHeaderPositionConverter : IValueConverter
         }
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }

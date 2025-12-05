@@ -10,19 +10,12 @@
              xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls"
              xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
              xmlns:views="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Views"
-             xmlns:properties="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Properties"
              d:DesignWidth="800"
              d:DesignHeight="450"
              helper:DialogManager.Register="{Binding}"
              x:DataType="vm:MainViewModel"
+             Design.DataContext="{x:Static vm:MainViewModel.Instance}"
              mc:Ignorable="d">
-    <Design.DataContext>
-        <!--
-            This only sets the DataContext for the previewer in an IDE,
-            to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs)
-        -->
-        <vm:MainViewModel />
-    </Design.DataContext>
 
     <Grid RowDefinitions="Auto,*,Auto">
         <Border Grid.Row="0"
@@ -43,7 +36,7 @@
                 </ToggleButton>
 
                 <TextBox x:Name="FilterTextBox"
-                         MinWidth="{OnFormFactor Desktop=400, Default=200}"
+                         MinWidth="{OnFormFactor Desktop=400, Default=50}"
                          Margin="5"
                          VerticalContentAlignment="Center"
                          Watermark="{OnFormFactor Desktop='Filter by... (Ctrl + F)', Default='Filter by...'}"
@@ -79,7 +72,7 @@
                 <TransitioningContentControl Margin="15,0"
                                              VerticalAlignment="Center"
                                              Foreground="{DynamicResource AccentFillColorDefaultBrush}"
-                                             FontSize="30"
+                                             FontSize="{OnFormFactor Mobile=20, Default=30}"
                                              FontWeight="DemiBold"
                                              Content="{Binding SelectedNavigationItem.Title}" />
             </DockPanel>
@@ -103,7 +96,7 @@
                             <fa:NavigationViewItem>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Spacing="5">
                                     <fa:IconSourceElement IconSource="{Binding Icon}" />
-                                    <ContentControl Content="{Binding Title}" />
+                                    <ContentControl Content="{Binding Title}"/>
                                 </StackPanel>
                             </fa:NavigationViewItem>
                         </DataTemplate>
@@ -185,22 +178,21 @@
                 </Style>
             </StackPanel.Styles>
 
-            <ContentControl Content="{Binding AppVersion, Mode=OneWay, StringFormat='{}Browser version v{0}'}" />
-            <Separator />
-
-            <ContentControl
-                Content="{Binding SelectedNavigationItem.Tag, Converter={x:Static converters:GetAssemblyVersionConverter.Instance}, Mode=OneWay, StringFormat='{}IconPack version v{0}'}"
-                IsVisible="{Binding SelectedNavigationItem.Tag, Converter={x:Static ObjectConverters.IsNotNull}}" />
-            <Separator IsVisible="{Binding SelectedNavigationItem, Converter={x:Static ObjectConverters.IsNotNull}}" />
-
+            <!-- Hide this on Mobile due to small screen size -->
+            <ContentControl Content="{Binding AppVersion, Mode=OneWay, StringFormat='{}Browser version v{0}'}"
+                            IsVisible="{OnFormFactor Default=true, Mobile=false}"/>
+            <Separator IsVisible="{OnFormFactor Default=true, Mobile=false}"/>
+            
             <ContentControl Content="{Binding SelectedNavigationItem, Mode=OneWay}">
                 <ContentControl.DataTemplates>
                     <DataTemplate DataType="{x:Type vm:IconPackNavigationItemViewModel}">
                         <TextBlock>
                             <TextBlock.Text>
-                                <MultiBinding StringFormat="{}{0} with {1:N0} icons">
+                                <MultiBinding StringFormat="{}{0} (v{2}) with {1:N0} icons">
                                     <Binding Mode="OneWay" Path="Title" />
                                     <Binding Mode="OneWay" Path="IconPack.IconCount" />
+                                    <Binding Mode="OneWay" Path="Tag" 
+                                             Converter="{x:Static converters:GetAssemblyVersionConverter.Instance}" />
                                 </MultiBinding>
                             </TextBlock.Text>
                         </TextBlock>

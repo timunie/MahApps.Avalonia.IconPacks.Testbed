@@ -22,7 +22,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <summary>
         /// Gets an empty size
         /// </summary>
-        private static readonly Size EmptySize = new Size(0, 0);
+        private static readonly Size _EmptySize = new Size(0, 0);
 
         static VirtualizingWrapPanel()
         {
@@ -43,7 +43,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 new StyledPropertyMetadata<Orientation>(Orientation.Horizontal));
 
         public static readonly StyledProperty<Size> ItemSizeProperty =
-            AvaloniaProperty.Register<VirtualizingWrapPanel, Size>(nameof(ItemSize), EmptySize);
+            AvaloniaProperty.Register<VirtualizingWrapPanel, Size>(nameof(ItemSize), _EmptySize);
 
         public static readonly StyledProperty<bool> AllowDifferentSizedItemsProperty =
             AvaloniaProperty.Register<VirtualizingWrapPanel, bool>(nameof(AllowDifferentSizedItems));
@@ -60,7 +60,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         public static readonly StyledProperty<bool> IsGridLayoutEnabledProperty =
             AvaloniaProperty.Register<VirtualizingWrapPanel, bool>(nameof(IsGridLayoutEnabled), true);
 
-        private static readonly AttachedProperty<object?> RecycleKeyProperty =
+        private static readonly AttachedProperty<object?> _RecycleKeyProperty =
             AvaloniaProperty.RegisterAttached<VirtualizingStackPanel, Control, object?>("RecycleKey");
 
         // ReSharper disable once InconsistentNaming
@@ -79,7 +79,6 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         private Dictionary<object, Stack<Control>>? _recyclePool;
         private Control? _focusedElement;
         private int _focusedIndex = -1;
-        private int _realizingIndex = -1;
 
         public VirtualizingWrapPanel()
         {
@@ -100,8 +99,8 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         }
 
         /// <summary>
-        /// Gets or sets a value that specifies the size of the items. The default value is <see cref="EmptySize"/>.
-        /// If the value is <see cref="EmptySize"/> the item size is determined by measuring the first realized item.
+        /// Gets or sets a value that specifies the size of the items. The default value is <see cref="_EmptySize"/>.
+        /// If the value is <see cref="_EmptySize"/> the item size is determined by measuring the first realized item.
         /// </summary>
         public Size ItemSize
         {
@@ -180,7 +179,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <summary>
         /// The fallback size in case size calculation went wrong
         /// </summary>
-        private static readonly Size FallbackItemSize = new Size(48, 48);
+        private static readonly Size _FallbackItemSize = new Size(48, 48);
 
         private Size? _sizeOfFirstItem;
 
@@ -267,7 +266,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 double x = _startItemOffsetX; // + GetX(_viewport.TopLeft);
                 double y = _startItemOffsetY; // - GetY(_viewport.TopLeft);
                 double rowHeight = 0;
-                double maxRowHeight = 0;
+                double maxRowHeight;
                 var finalWidth = GetWidth(finalSize);
                 var items = Items;
 
@@ -284,7 +283,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                     Size? upfrontKnownItemSize = GetUpfrontKnownItemSize(item);
 
                     Size childSize = upfrontKnownItemSize ??
-                                     _realizedElements.GetElementSize(child) ?? FallbackItemSize;
+                                     _realizedElements.GetElementSize(child) ?? _FallbackItemSize;
 
                     if (rowChilds.Count > 0 && x + GetWidth(childSize) > finalWidth)
                     {
@@ -500,7 +499,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 return _focusedElement;
             if (GetRealizedElement(index) is { } realized)
                 return realized;
-            if (Items[index] is Control c && c.GetValue(RecycleKeyProperty) == s_itemIsItsOwnContainer)
+            if (Items[index] is Control c && c.GetValue(_RecycleKeyProperty) == s_itemIsItsOwnContainer)
                 return c;
             return null;
         }
@@ -603,7 +602,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <returns>the desired size</returns>
         private Size CalculateDesiredSize(Orientation orientation, int itemCount)
         {
-            if (itemCount == 0) return EmptySize;
+            if (itemCount == 0) return _EmptySize;
 
             var avarageItemSize = GetAverageItemSize();
 
@@ -612,7 +611,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             var itemWidth = GetWidth(avarageItemSize);
             var itemHeight = GetHeight(avarageItemSize);
 
-            if (itemWidth == 0 || itemHeight == 0) return EmptySize;
+            if (itemWidth == 0 || itemHeight == 0) return _EmptySize;
 
             var itemsPerRow = Math.Max(Math.Floor(viewportWidth / itemWidth), 1);
 
@@ -720,13 +719,13 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <returns>the estimated avarage Size</returns>
         private Size GetAverageItemSize()
         {
-            if (!ItemSize.NearlyEquals(EmptySize))
+            if (!ItemSize.NearlyEquals(_EmptySize))
             {
                 return ItemSize;
             }
             else if (!AllowDifferentSizedItems)
             {
-                return _sizeOfFirstItem ?? FallbackItemSize;
+                return _sizeOfFirstItem ?? _FallbackItemSize;
             }
             else
             {
@@ -1005,7 +1004,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 return null;
             }
 
-            if (!ItemSize.NearlyEquals(EmptySize))
+            if (!ItemSize.NearlyEquals(_EmptySize))
             {
                 return ItemSize;
             }
@@ -1030,7 +1029,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <returns>the assumed size of the item</returns>
         private Size GetAssumedItemSize(object? item)
         {
-            if (item is null) return EmptySize;
+            if (item is null) return _EmptySize;
 
             if (GetUpfrontKnownItemSize(item) is { } upfrontKnownItemSize)
             {
@@ -1181,7 +1180,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <summary>
         /// Calculates the avarage item size of all realized items
         /// </summary>
-        /// <returns>the avarage item size or <see cref="FallbackItemSize"/> if no items are available</returns>
+        /// <returns>the avarage item size or <see cref="_FallbackItemSize"/> if no items are available</returns>
         private Size CalculateAverageItemSize()
         {
             var sizes = _realizedElements!.Sizes;
@@ -1203,7 +1202,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                     Math.Round(totalHeight / count));
             }
 
-            return FallbackItemSize;
+            return _FallbackItemSize;
         }
 
         /// <summary>
@@ -1446,11 +1445,11 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             var controlItem = (Control)item!;
             var generator = ItemContainerGenerator!;
 
-            if (!controlItem.IsSet(RecycleKeyProperty))
+            if (!controlItem.IsSet(_RecycleKeyProperty))
             {
                 generator.PrepareItemContainer(controlItem, controlItem, index);
                 AddInternalChild(controlItem);
-                controlItem.SetValue(RecycleKeyProperty, s_itemIsItsOwnContainer);
+                controlItem.SetValue(_RecycleKeyProperty, s_itemIsItsOwnContainer);
                 generator.ItemContainerPrepared(controlItem, item, index);
             }
 
@@ -1500,7 +1499,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             var generator = ItemContainerGenerator!;
             var container = generator.CreateContainer(item, index, recycleKey);
 
-            container.SetValue(RecycleKeyProperty, recycleKey);
+            container.SetValue(_RecycleKeyProperty, recycleKey);
             generator.PrepareItemContainer(container, item, index);
             AddInternalChild(container);
             generator.ItemContainerPrepared(container, item, index);
@@ -1520,7 +1519,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
 
             _scrollAnchorProvider?.UnregisterAnchorCandidate(element);
 
-            var recycleKey = element.GetValue(RecycleKeyProperty);
+            var recycleKey = element.GetValue(_RecycleKeyProperty);
 
             if (recycleKey is null)
             {
@@ -1551,7 +1550,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         {
             Debug.Assert(ItemContainerGenerator is not null);
 
-            var recycleKey = element.GetValue(RecycleKeyProperty);
+            var recycleKey = element.GetValue(_RecycleKeyProperty);
 
             if (recycleKey is null || recycleKey == s_itemIsItsOwnContainer)
             {

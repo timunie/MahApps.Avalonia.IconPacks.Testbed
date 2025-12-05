@@ -43,18 +43,18 @@ public class IconViewModel : ViewModelBase, IIconViewModel
         FilterString = (Name.ToLowerInvariant() + " " + Description.ToLowerInvariant());
     }
 
-    public string? CopyToClipboardText => ExportHelper.FillTemplate(ExportHelper.ClipboardWpf, new ExportParameters(this)); // $"<iconPacks:{IconPackType.Name} Kind=\"{Name}\" />";
+    public string CopyToClipboardText => ExportHelper.FillTemplate(ExportHelper.ClipboardWpf, new ExportParameters(this)); // $"<iconPacks:{IconPackType.Name} Kind=\"{Name}\" />";
 
-    public string? CopyToClipboardWpfGeometry =>
+    public string CopyToClipboardWpfGeometry =>
         ExportHelper.FillTemplate(ExportHelper.ClipboardWpfGeometry, new ExportParameters(this)); // $"<iconPacks:{IconPackType.Name} Kind=\"{Name}\" />";
 
-    public string? CopyToClipboardAsContentText =>
+    public string CopyToClipboardAsContentText =>
         ExportHelper.FillTemplate(ExportHelper.ClipboardContent, new ExportParameters(this)); // $"{{iconPacks:{IconPackType.Name.Replace("PackIcon", "")} Kind={Name}}}";
 
-    public string? CopyToClipboardAsPathIconText =>
+    public string CopyToClipboardAsPathIconText =>
         ExportHelper.FillTemplate(ExportHelper.ClipboardUwp, new ExportParameters(this)); // $"<iconPacks:{IconPackType.Name.Replace("PackIcon", "PathIcon")} Kind=\"{Name}\" />";
 
-    public string? CopyToClipboardAsGeometryText => ExportHelper.FillTemplate(ExportHelper.ClipboardData, new ExportParameters(this)); // GetPackIconControlBase().Data;
+    public string CopyToClipboardAsGeometryText => ExportHelper.FillTemplate(ExportHelper.ClipboardData, new ExportParameters(this)); // GetPackIconControlBase().Data;
 
     public string Name { get; set; }
 

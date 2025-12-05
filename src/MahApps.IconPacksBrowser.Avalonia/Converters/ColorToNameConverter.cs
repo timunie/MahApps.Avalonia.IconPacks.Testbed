@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Avalonia.Data.Converters;
 using Avalonia.Media;
 using IconPacks.Avalonia.Core.Converter;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Converters;
 
-public class ColorToNameConverter : MarkupConverter, IValueConverter
+public class ColorToNameConverter : MarkupConverter
 {
     static ColorToNameConverter()
     {
@@ -47,7 +46,7 @@ public class ColorToNameConverter : MarkupConverter, IValueConverter
         return AccentColorNames.TryGetValue(color,  out var name) ? name : value;
     }
 
-    protected override object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    protected override object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotSupportedException();
     }

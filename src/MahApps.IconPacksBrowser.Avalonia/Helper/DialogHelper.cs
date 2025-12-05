@@ -11,7 +11,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Helper;
 
 public class DialogManager
 {
-    private static readonly Dictionary<object, Visual> RegistrationMapper =
+    private static readonly Dictionary<object, Visual> _RegistrationMapper =
         new Dictionary<object, Visual>();
 
     static DialogManager()
@@ -29,13 +29,13 @@ public class DialogManager
         // Unregister any old registered context
         if (e.OldValue != null)
         {
-            RegistrationMapper.Remove(e.OldValue);
+            _RegistrationMapper.Remove(e.OldValue);
         }
 
         // Register any new context
         if (e.NewValue != null)
         {
-            RegistrationMapper.Add(e.NewValue, sender);
+            _RegistrationMapper.Add(e.NewValue, sender);
         }
     }
 
@@ -68,7 +68,7 @@ public class DialogManager
     /// <returns>The registered Visual for the context or null if none was found</returns>
     public static Visual? GetVisualForContext(object context)
     {
-        return RegistrationMapper.TryGetValue(context, out var result) ? result : null;
+        return _RegistrationMapper.TryGetValue(context, out var result) ? result : null;
     }
 
     /// <summary>
@@ -163,10 +163,12 @@ public static class DialogHelper
     /// <param name="context">The context</param>
     /// <param name="title">The dialog title or a default is null</param>
     /// <param name="filters">The filter to use</param>
+    /// <param name="fileNameSuggestion">the suggested file name</param>
+    /// <param name="defaultExtension">the default extension</param>
     /// <returns>The chosen file as storage item</returns>
     /// <exception cref="ArgumentNullException">if context was null</exception>
     public static async Task<IStorageFile?> SaveFileDialogAsync(this object? context, string? title = null, IReadOnlyList<FilePickerFileType>? filters = null,
-        string? fileNameSuggestion = null)
+        string? fileNameSuggestion = null, string? defaultExtension = null)
     {
         if (context == null)
         {

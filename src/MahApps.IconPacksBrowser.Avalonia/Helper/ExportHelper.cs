@@ -174,7 +174,8 @@ internal static class ExportHelper
         var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
         {
             FilePickerHelper.ImageSvg
-        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}");
+        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}",
+            defaultExtension: ".svg");
         
         if (saveFile is null) 
             return;
@@ -195,7 +196,8 @@ internal static class ExportHelper
         var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
         {
             FilePickerHelper.XamlWpf
-        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}");
+        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}",
+            defaultExtension: ".xaml");
 
         if (saveFile is null) 
             return;
@@ -216,7 +218,8 @@ internal static class ExportHelper
         var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
         {
             FilePickerHelper.XamlAvalonia
-        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}");
+        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}",
+            defaultExtension: ".axaml");
 
         if (saveFile is null) 
             return;
@@ -240,7 +243,8 @@ internal static class ExportHelper
             FilePickerFileTypes.ImageJpg,
             FilePickerFileTypes.ImageWebp,
             FilePickerHelper.ImageBmp,
-        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}");
+        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}", 
+            defaultExtension: ".png");
 
         if (saveFile is null) 
             return;
@@ -259,7 +263,7 @@ internal static class ExportHelper
 
         paint.IsAntialias = true;
         
-        if (Settings.Default.IconBackground != null)
+        if (Settings.Default.IconBackground.A > 0)
         {
             canvas.DrawColor(Settings.Default.IconBackground.ToSKColor());
         }

@@ -149,7 +149,7 @@ public partial class MainViewModel : ViewModelBase
             ])
             .Select(tuple =>
             {
-                var iconPack = new IconPackViewModel(this, tuple.EnumType, tuple.IconPackType);
+                var iconPack = new IconPackViewModel(tuple.EnumType, tuple.IconPackType);
                 AvailableIconPacks.Add(new IconPackNavigationItemViewModel(iconPack));
                 return iconPack;
             });
