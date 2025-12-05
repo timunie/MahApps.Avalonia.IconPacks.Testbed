@@ -1,0 +1,7 @@
+<linker>
+  <!-- Preserve members accessed via reflection in ExportHelper.GetPath -->
+  <assembly fullname="IconPacks.Avalonia.Core">
+    <!-- PackIconDataFactory`1 exposes a static DataIndex property that we access via reflection -->
+    <type fullname="IconPacks.Avalonia.Core.PackIconDataFactory`1" preserve="publicProperties" />
+  </assembly>
+</linker>

@@ -84,7 +84,7 @@ public partial class Settings : ObservableObject
             Directory.CreateDirectory(settingsDir);
         }
         
-        var json = JsonSerializer.Serialize(this, JsonHelper.SettingsOptions);
+        var json = JsonSerializer.Serialize(this, SettingsJsonContext.Default.Settings);
         File.WriteAllText(settingsFile, json);
     }
 
@@ -94,7 +94,7 @@ public partial class Settings : ObservableObject
         {
             var settingsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MahApps.IconPacksBrowser", "Settings.json");
             var json = File.ReadAllText(settingsFile);
-            var settings = JsonSerializer.Deserialize<Settings>(json, JsonHelper.SettingsOptions) ?? new Settings();
+            var settings = JsonSerializer.Deserialize(json, SettingsJsonContext.Default.Settings) ?? new Settings();
             
             Default.AccentColor = settings.AccentColor;
             Default.AppTheme = settings.AppTheme;

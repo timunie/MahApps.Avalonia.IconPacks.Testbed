@@ -54,6 +54,7 @@ using IconPacks.Avalonia.WeatherIcons;
 using IconPacks.Avalonia.Zondicons;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
 using ReactiveUI;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
@@ -61,6 +62,7 @@ public partial class MainViewModel : ViewModelBase
 {
     public static MainViewModel Instance { get; } = new();
 
+    [RequiresDynamicCode("ReactiveUI.WhenAnyValue uses expression trees which require dynamic code in AOT scenarios.")]
     public MainViewModel()
     {
         this.AppVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion!;

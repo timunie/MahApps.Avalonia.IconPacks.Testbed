@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -106,8 +107,11 @@ internal static class ExportHelper
             return File.ReadAllText(Path.Combine(Settings.Default.ExportTemplatesDir, fileName));
         }
     }
-
-
+    
+    // This method uses reflection on IconPacks.Avalonia.Core.PackIconDataFactory`1 which can be unsafe for trimming
+    // and Native AOT. Declare the dynamic dependencies so the trimmer preserves required members.
+    [RequiresUnreferencedCode("Reflects over IconPacks.Avalonia.Core.PackIconDataFactory`1 to get the DataIndex property.")]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, "IconPacks.Avalonia.Core.PackIconDataFactory`1", "IconPacks.Avalonia.Core")]
     internal static SKPath? GetPath(Enum kind)
     {
         try

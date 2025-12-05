@@ -4,6 +4,9 @@
         <Nullable>enable</Nullable>
         <LangVersion>preview</LangVersion>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <!-- Mark this assembly as trimmable and AOT-compatible so the app can be trimmed and ahead-of-time compiled -->
+        <IsTrimmable>true</IsTrimmable>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,5 +26,10 @@
         <PackageReference Include="SkiaSharp" Version="3.119.1" />
         <PackageReference Include="LiveMarkdown.Avalonia" Version="1.5.3" />
     </ItemGroup>
+
+  <!-- Ensure members used via reflection survive trimming/AOT -->
+  <ItemGroup>
+    <TrimmerRootDescriptor Include="roots.xml" />
+  </ItemGroup>
 
 </Project>
