@@ -60,6 +60,13 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         public static readonly StyledProperty<bool> IsGridLayoutEnabledProperty =
             AvaloniaProperty.Register<VirtualizingWrapPanel, bool>(nameof(IsGridLayoutEnabled), true);
 
+        /// <summary>
+        /// Gets or sets the number of additional rows to cache above and below the viewport.
+        /// Increasing this can reduce layout recalculations while scrolling at the cost of extra realized work.
+        /// </summary>
+        public static readonly StyledProperty<int> CacheRowsProperty =
+            AvaloniaProperty.Register<VirtualizingWrapPanel, int>(nameof(CacheRows), 2);
+
         private static readonly AttachedProperty<object?> _RecycleKeyProperty =
             AvaloniaProperty.RegisterAttached<VirtualizingStackPanel, Control, object?>("RecycleKey");
 
@@ -78,7 +85,42 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         private Rect _viewport;
         private Dictionary<object, Stack<Control>>? _recyclePool;
         private Control? _focusedElement;
+        
+        // Row caching to reduce calculations when scrolling with differently sized items
+        // We cache a small window of rows (start index, y-offset, height, count) discovered during realization
+        private sealed class RowInfo
+        {
+            public int StartIndex;
+            public double Y;
+            public double Height;
+            public int Count;
+        }
+
+        private readonly List<RowInfo> _rowCache = new();
+        private const int RowCacheCapacity = 256; // "some rows" to improve performance without excessive memory
+        private double _lastViewportWidth;
         private int _focusedIndex = -1;
+
+        private void ClearRowCache()
+        {
+            _rowCache.Clear();
+        }
+
+        private void AddRowCacheEntry(int startIndex, double y, double height, int count)
+        {
+            if (count <= 0)
+                return;
+
+            // Append in increasing Y order
+            _rowCache.Add(new RowInfo { StartIndex = startIndex, Y = y, Height = height, Count = count });
+
+            // Trim from start if exceeding capacity (keep most recent rows)
+            if (_rowCache.Count > RowCacheCapacity)
+            {
+                var remove = _rowCache.Count - RowCacheCapacity;
+                _rowCache.RemoveRange(0, remove);
+            }
+        }
 
         public VirtualizingWrapPanel()
         {
@@ -164,6 +206,15 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         {
             get => GetValue(IsGridLayoutEnabledProperty);
             set => SetValue(IsGridLayoutEnabledProperty, value);
+        }
+
+        /// <summary>
+        /// Number of rows to keep cached above and below the visible viewport.
+        /// </summary>
+        public int CacheRows
+        {
+            get => GetValue(CacheRowsProperty);
+            set => SetValue(CacheRowsProperty, value);
         }
 
         /// <summary>
@@ -378,6 +429,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <inheritdoc />
         protected override void OnItemsChanged(IReadOnlyList<object?> items, NotifyCollectionChangedEventArgs e)
         {
+            ClearRowCache();
             InvalidateMeasure();
 
             if (_realizedElements is null)
@@ -682,18 +734,21 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             if (change.Property == OrientationProperty)
             {
                 ScrollIntoView(0);
+                ClearRowCache();
                 InvalidateMeasure();
                 InvalidateArrange();
             }
 
             if (change.Property == AllowDifferentSizedItemsProperty || change.Property == ItemSizeProperty ||
-                change.Property == IsGridLayoutEnabledProperty || change.Property == StretchItemsProperty)
+                change.Property == IsGridLayoutEnabledProperty || change.Property == StretchItemsProperty ||
+                change.Property == CacheRowsProperty)
             {
                 foreach (var child in Children)
                 {
                     child.InvalidateMeasure();
                 }
 
+                ClearRowCache();
                 InvalidateMeasure();
                 InvalidateArrange();
             }
@@ -808,6 +863,41 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
 
             int itemIndex = 0;
 
+            // Use cached rows if available to quickly resolve the starting row
+            if (_rowCache.Count > 0)
+            {
+                int lo = 0, hi = _rowCache.Count - 1, found = -1;
+                while (lo <= hi)
+                {
+                    int mid = (lo + hi) >> 1;
+                    var r = _rowCache[mid];
+                    if (startOffsetY < r.Y)
+                    {
+                        hi = mid - 1;
+                    }
+                    else if (startOffsetY >= r.Y + r.Height)
+                    {
+                        lo = mid + 1;
+                    }
+                    else
+                    {
+                        found = mid;
+                        break;
+                    }
+                }
+
+                if (found >= 0)
+                {
+                    // Move up by CacheRows if we have cached rows above
+                    var targetIndex = Math.Max(0, found - Math.Max(0, CacheRows));
+                    var r = _rowCache[targetIndex];
+                    _startItemIndex = r.StartIndex;
+                    _startItemOffsetX = 0;
+                    _startItemOffsetY = r.Y;
+                    return;
+                }
+            }
+
             if (!AllowDifferentSizedItems && Items.Count > 0)
             {
                 var itemWidth = GetWidth(GetAssumedItemSize(Items[0]));
@@ -871,6 +961,11 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 return;
             }
 
+            // Rebuild the row cache for the currently realized window only.
+            // This keeps the cache ordered by Y and prevents stale/duplicated rows
+            // that could confuse the binary search when resolving the start index.
+            _rowCache.Clear();
+
             int newEndItemIndex = Items.Count - 1;
             bool endItemIndexFound = false;
 
@@ -879,6 +974,10 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             double x = _startItemOffsetX;
             double y = _startItemOffsetY;
             double rowHeight = 0;
+            int currentRowStartIndex = _startItemIndex;
+            int currentRowCount = 0;
+            bool endRowReached = false;
+            int extraRowsToRealize = Math.Max(0, CacheRows);
 
             _knownExtendX = 0;
 
@@ -914,14 +1013,31 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
 
                 if (x != 0 && x + GetWidth(containerSize) > GetWidth(_viewport.Size))
                 {
+                    // finalize previous row in cache
+                    AddRowCacheEntry(currentRowStartIndex, y, rowHeight, currentRowCount);
+
+                    // If we've already reached the viewport end row earlier, count down extra rows
+                    if (endRowReached)
+                    {
+                        if (extraRowsToRealize <= 0)
+                        {
+                            newEndItemIndex = itemIndex - 1;
+                            break;
+                        }
+                        extraRowsToRealize--;
+                    }
+
                     x = 0;
                     y += rowHeight;
                     rowHeight = 0;
+                    currentRowStartIndex = itemIndex;
+                    currentRowCount = 0;
                 }
 
                 x += GetWidth(containerSize);
                 _knownExtendX = Math.Max(x, _knownExtendX);
                 rowHeight = Math.Max(rowHeight, GetHeight(containerSize));
+                currentRowCount++;
 
                 if (endItemIndexFound == false)
                 {
@@ -931,11 +1047,14 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                             && y + rowHeight >= endOffsetY))
                     {
                         endItemIndexFound = true;
-
+                        endRowReached = true;
                         newEndItemIndex = itemIndex;
                     }
                 }
             }
+
+            // finalize last row
+            AddRowCacheEntry(currentRowStartIndex, y, rowHeight, currentRowCount);
 
             _endItemIndex = newEndItemIndex;
             Debug.WriteLine($"Start: {_startItemIndex} - End: {_endItemIndex}");
@@ -1226,12 +1345,35 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             var newViewportEndX = GetX(_viewport.BottomRight);
             var newViewportEndY = GetY(_viewport.BottomRight); // ? _viewport.Bottom : _viewport.Right);
 
+            var newViewportWidth = GetWidth(_viewport.Size);
+            if (!_lastViewportWidth.IsCloseTo(newViewportWidth))
+            {
+                _lastViewportWidth = newViewportWidth;
+                ClearRowCache();
+            }
+
             if (!oldViewportStartX.IsCloseTo(newViewportStartX) ||
                 !oldViewportEndX.IsCloseTo(newViewportEndX) ||
                 !oldViewportStartY.IsCloseTo(newViewportStartY) ||
                 !oldViewportEndY.IsCloseTo(newViewportEndY))
             {
-                InvalidateMeasure();
+                // Only invalidate if the new viewport is outside our cached window
+                bool withinCached = false;
+                if (_rowCache.Count > 0)
+                {
+                    // Cache now reflects the currently realized rows (in Y order).
+                    // Consider viewport "within cache" if it stays between first.Y and last.Y+last.Height.
+                    var firstRow = _rowCache[0];
+                    var lastRow = _rowCache[_rowCache.Count - 1];
+                    double minY = firstRow.Y;
+                    double maxY = lastRow.Y + lastRow.Height;
+                    withinCached = newViewportStartY >= minY && newViewportEndY <= maxY;
+                }
+
+                if (!withinCached)
+                {
+                    InvalidateMeasure();
+                }
             }
         }
 
