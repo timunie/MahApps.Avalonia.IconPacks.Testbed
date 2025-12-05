@@ -24,6 +24,7 @@
                 Margin="0,0,0,1"
                 DockPanel.Dock="Top">
             <DockPanel LastChildFill="True">
+                <!-- Loading indicator -->
                 <ProgressBar DockPanel.Dock="Bottom" 
                              Height="3" 
                              IsIndeterminate="{Binding !TotalItems}"
@@ -100,7 +101,8 @@
                         <DataTemplate DataType="vm:IconPackNavigationItemViewModel">
                             <fa:NavigationViewItem>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Spacing="5">
-                                    <fa:IconSourceElement IconSource="{Binding Icon}" />
+                                    <fa:IconSourceElement IconSource="{Binding Icon}" 
+                                                          MaxWidth="{DynamicResource ControlContentThemeFontSize}"/>
                                     <ContentControl Content="{Binding Title}"/>
                                 </StackPanel>
                             </fa:NavigationViewItem>
@@ -118,6 +120,10 @@
                 <!-- We have to use specialized DataTemplates bevore any other since these will be resolved first -->
                 <DataTemplate DataType="vm:SettingsNavigationItem">
                     <views:SettingsView DataContext="{Binding Tag}"/>
+                </DataTemplate>
+                
+                <DataTemplate DataType="vm:AboutNavigationItem">
+                    <views:AboutView />
                 </DataTemplate>
                 
                 <DataTemplate DataType="vm:NavigationItemViewModelBase">

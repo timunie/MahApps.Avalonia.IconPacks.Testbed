@@ -175,6 +175,7 @@ public partial class MainViewModel : ViewModelBase
     /// </summary>
     public List<NavigationItemViewModelBase> OptionNavigationItems { get; } =
     [
+        new AboutNavigationItem(),
         new SettingsNavigationItem()
     ];
 

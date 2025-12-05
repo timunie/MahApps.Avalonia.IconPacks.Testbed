@@ -1,3 +1,5 @@
+using Avalonia;
+using Avalonia.Controls;
 using FluentAvalonia.UI.Controls;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
@@ -42,5 +44,15 @@ public class SettingsNavigationItem : NavigationItemViewModelBase
         Title = "Settings";
         Icon = new SymbolIconSource(){Symbol = Symbol.Settings};
         Tag = new SettingsViewModel();
+    }
+}
+
+public class AboutNavigationItem : NavigationItemViewModelBase
+{
+    public AboutNavigationItem()
+    {
+        Title = "About";
+        Icon = Application.Current?.FindResource("AboutIcon");
+        Tag = new AboutViewModel();
     }
 }
