@@ -24,7 +24,7 @@ public partial class IconPackViewModel : ViewModelBase
         this.MetaData = Attribute.GetCustomAttribute(packType, typeof(MetaDataAttribute)) as MetaDataAttribute;
 
         this.Caption = this.MetaData?.Name;
-        this.IconPacksVersion = FileVersionInfo.GetVersionInfo(Assembly.GetAssembly(packType)!.Location).FileVersion;
+        this.IconPacksVersion = GetAssemblyVersionSafe(packType.Assembly);
     }
     
     public async Task<IEnumerable<IIconViewModel>> LoadIconsAsync(Type enumType, Type packType)
@@ -68,4 +68,14 @@ public partial class IconPackViewModel : ViewModelBase
     /// Gets the Version info for this pack
     /// </summary>
     public string? IconPacksVersion { get; }
+
+    private static string? GetAssemblyVersionSafe(Assembly asm)
+    {
+        // Prefer informational version if present
+        var info = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (!string.IsNullOrWhiteSpace(info))
+            return info;
+
+        return asm.GetName().Version?.ToString();
+    }
 }

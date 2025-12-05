@@ -12,9 +12,17 @@ public class GetAssemblyVersionConverter : IValueConverter
     
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        return value == null 
-            ? null 
-            : FileVersionInfo.GetVersionInfo(Assembly.GetAssembly(value.GetType())!.Location).FileVersion;
+        if (value is null)
+            return null;
+
+        // Browser/WASM does not support FileVersionInfo or Assembly.Location.
+        // Prefer informational version; fall back to assembly version.
+        var asm = value.GetType().Assembly;
+        var info = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (!string.IsNullOrWhiteSpace(info))
+            return info;
+
+        return asm.GetName().Version?.ToString();
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

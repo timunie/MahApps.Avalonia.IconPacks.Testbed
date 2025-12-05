@@ -76,6 +76,11 @@ public partial class Settings : ObservableObject
 
     public void SaveSettings()
     {
+        // Browser/WASM doesn't support Environment.SpecialFolder paths or regular file I/O.
+        // Silently no-op to avoid blocking startup/shutdown.
+        if (OperatingSystem.IsBrowser())
+            return;
+
         var settingsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MahApps.IconPacksBrowser");
         var settingsFile = Path.Combine(settingsDir, "Settings.json");
 
@@ -92,6 +97,10 @@ public partial class Settings : ObservableObject
     {
         try
         {
+            // Browser/WASM can't read from the local file system; use defaults.
+            if (OperatingSystem.IsBrowser())
+                return;
+
             var settingsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MahApps.IconPacksBrowser", "Settings.json");
             var json = File.ReadAllText(settingsFile);
             var settings = JsonSerializer.Deserialize(json, SettingsJsonContext.Default.Settings) ?? new Settings();

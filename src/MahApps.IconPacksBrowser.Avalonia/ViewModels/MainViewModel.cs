@@ -55,6 +55,8 @@ using IconPacks.Avalonia.Zondicons;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
 using ReactiveUI;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
@@ -65,7 +67,7 @@ public partial class MainViewModel : ViewModelBase
     [RequiresDynamicCode("ReactiveUI.WhenAnyValue uses expression trees which require dynamic code in AOT scenarios.")]
     public MainViewModel()
     {
-        this.AppVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion!;
+        this.AppVersion = GetAppVersion();
         SelectedNavigationItem = AvailableIconPacks[0];
 
         // Throttle text filter to avoid filtering on every keystroke
@@ -97,7 +99,38 @@ public partial class MainViewModel : ViewModelBase
         
         //LoadIconPacksAsync().SafeFireAndForget();
 
-        AppVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+        AppVersion = GetAppVersion();
+    }
+
+    private static string GetAppVersion()
+    {
+        // FileVersionInfo is not supported on Browser/WASM and throws PlatformNotSupportedException.
+        // Prefer it on supported platforms, and gracefully fall back to assembly attributes otherwise.
+        try
+        {
+            if (!OperatingSystem.IsBrowser())
+            {
+                var loc = Assembly.GetExecutingAssembly().Location;
+                if (!string.IsNullOrEmpty(loc))
+                {
+                    var fvi = FileVersionInfo.GetVersionInfo(loc);
+                    if (!string.IsNullOrWhiteSpace(fvi.FileVersion))
+                        return fvi.FileVersion!;
+                }
+            }
+        }
+        catch (PlatformNotSupportedException)
+        {
+            // ignore – fall back below
+        }
+
+        // Fallbacks that work in Browser/WASM
+        var asm = Assembly.GetExecutingAssembly();
+        var infoVersion = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (!string.IsNullOrWhiteSpace(infoVersion))
+            return infoVersion!;
+
+        return asm.GetName().Version?.ToString() ?? "unknown";
     }
 
     [ObservableProperty] public partial int TotalItems { get; set; }

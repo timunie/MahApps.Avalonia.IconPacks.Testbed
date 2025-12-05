@@ -94,10 +94,19 @@ internal static class ExportHelper
 
     internal static string LoadTemplateString(string fileName)
     {
-        if (string.IsNullOrWhiteSpace(Settings.Default.ExportTemplatesDir) || !File.Exists(Path.Combine(Settings.Default.ExportTemplatesDir, fileName)))
+        // In Browser/WASM, prefer embedded assets and avoid any File.* APIs.
+        if (OperatingSystem.IsBrowser())
         {
             var uri = new Uri($"avares://MahApps.IconPacksBrowser.Avalonia/Assets/ExportTemplates/{fileName}", UriKind.RelativeOrAbsolute);
+            using var stream = AssetLoader.Open(uri);
+            using var streamReader = new StreamReader(stream);
+            return streamReader.ReadToEnd();
+        }
 
+        if (string.IsNullOrWhiteSpace(Settings.Default.ExportTemplatesDir) ||
+            !File.Exists(Path.Combine(Settings.Default.ExportTemplatesDir, fileName)))
+        {
+            var uri = new Uri($"avares://MahApps.IconPacksBrowser.Avalonia/Assets/ExportTemplates/{fileName}", UriKind.RelativeOrAbsolute);
             using var stream = AssetLoader.Open(uri);
             using var streamReader = new StreamReader(stream);
             return streamReader.ReadToEnd();
