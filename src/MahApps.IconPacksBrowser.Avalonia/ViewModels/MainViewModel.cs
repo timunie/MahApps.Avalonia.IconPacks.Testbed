@@ -156,8 +156,7 @@ public partial class MainViewModel : ViewModelBase
 
         var loadIconsTasks = availableIconPacks.Select(ip => ip.LoadIconsAsync(ip.EnumType, ip.PackType));
         _iconsCache.AddOrUpdate((await Task.WhenAll(loadIconsTasks)).SelectMany(x => x));
-
-        //Dispatcher.UIThread.Post(() => TotalItems = _iconsCache.Count);
+        
         TotalItems = _iconsCache.Count;
         SelectedIcon = SelectedIconPack?.Icons.FirstOrDefault() ?? _iconsCache.Items.FirstOrDefault();
     }

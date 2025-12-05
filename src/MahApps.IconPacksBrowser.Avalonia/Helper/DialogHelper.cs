@@ -21,6 +21,7 @@ public class DialogManager
 
     private static void RegisterChanged(Visual sender, AvaloniaPropertyChangedEventArgs e)
     {
+        if (Design.IsDesignMode) return;
         if (sender is null)
         {
             throw new InvalidOperationException("The DialogManager can only be registered on a Visual");

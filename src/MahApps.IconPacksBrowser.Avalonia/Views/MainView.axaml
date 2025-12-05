@@ -12,7 +12,7 @@
              xmlns:views="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Views"
              d:DesignWidth="800"
              d:DesignHeight="450"
-             helper:DialogManager.Register="{Binding}"
+             helper:DialogManager.Register="{Binding Mode=OneTime}"
              x:DataType="vm:MainViewModel"
              Design.DataContext="{x:Static vm:MainViewModel.Instance}"
              mc:Ignorable="d">
@@ -21,15 +21,20 @@
         <Border Grid.Row="0"
                 Height="48"
                 BorderBrush="{DynamicResource AccentFillColorDefaultBrush}"
-                BorderThickness="0,0,0,3"
                 Margin="0,0,0,1"
                 DockPanel.Dock="Top">
             <DockPanel LastChildFill="True">
+                <ProgressBar DockPanel.Dock="Bottom" 
+                             Height="3" 
+                             IsIndeterminate="{Binding !TotalItems}"
+                             Value="100"
+                             HorizontalAlignment="Stretch"  />
+
                 <!-- Placeholder for WindowButtons -->
                 <Border x:Name="WindowButtonsPlaceHolder"
                         DockPanel.Dock="Right"
                         Width="0" />
-
+                
                 <!-- HamburgerMenuControls -->
                 <ToggleButton IsChecked="{Binding #NavigationView.IsPaneOpen}"
                               Theme="{StaticResource PaneToggleButtonStyle}">
