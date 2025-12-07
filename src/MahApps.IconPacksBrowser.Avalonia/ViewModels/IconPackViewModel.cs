@@ -27,7 +27,7 @@ public partial class IconPackViewModel : ViewModelBase
         this.IconPacksVersion = GetAssemblyVersionSafe(packType.Assembly);
     }
     
-    public async Task<IEnumerable<IIconViewModel>> LoadIconsAsync(Type enumType, Type packType)
+    public async Task<IList<IIconViewModel>> LoadIconsAsync(Type enumType, Type packType)
     {
         var collection = await Task.Run(() => GetIcons(enumType, packType).OrderBy(i => i.Name, StringComparer.InvariantCultureIgnoreCase).ToList());
 
@@ -37,13 +37,13 @@ public partial class IconPackViewModel : ViewModelBase
         return Icons;
     }
 
-    [ObservableProperty]
-    private IList<IIconViewModel> _icons = [];
+    [ObservableProperty] 
+    public partial IList<IIconViewModel> Icons { get; set; } = [];
 
+    
     [ObservableProperty]
-    private int _iconCount;
-    
-    
+    public partial int IconCount { get; set; }
+
     private static MetaDataAttribute? GetMetaData(Type packType)
     {
         var metaData = Attribute.GetCustomAttribute(packType, typeof(MetaDataAttribute)) as MetaDataAttribute;

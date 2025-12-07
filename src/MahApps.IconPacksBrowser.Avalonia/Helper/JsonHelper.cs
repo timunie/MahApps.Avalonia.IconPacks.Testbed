@@ -2,6 +2,7 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Avalonia.Media;
+using MahApps.IconPacksBrowser.Avalonia.Properties;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Helper;
 
@@ -25,3 +26,8 @@ public class JsonColorConverter : JsonConverter<Color>
         writer.WriteStringValue(value.ToString());
     }
 }
+
+[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSerializable(typeof(Settings))]
+public partial class SettingsGenerationContext : JsonSerializerContext { }
+
