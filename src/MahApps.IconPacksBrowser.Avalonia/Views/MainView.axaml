@@ -27,7 +27,7 @@
                 <!-- Loading indicator -->
                 <ProgressBar DockPanel.Dock="Bottom" 
                              Height="3" 
-                             IsIndeterminate="{Binding !TotalItems}"
+                             IsIndeterminate="{Binding IsLoading}"
                              Value="100"
                              HorizontalAlignment="Stretch"  />
 

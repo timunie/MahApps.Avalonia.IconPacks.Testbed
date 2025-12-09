@@ -32,7 +32,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <ContentPresenter Name="PART_HeaderPresenter"
+                        <Label Name="PART_HeaderLabel"
                                           Margin="{DynamicResource HeaderedControl.HeaderMargin}"
                                           HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -42,17 +42,17 @@
                                           FontSize="{TemplateBinding FontSize}"
                                           FontStyle="{TemplateBinding FontStyle}"
                                           FontWeight="{TemplateBinding FontWeight}"
-                                          RecognizesAccessKey="True" />
-                        <ContentPresenter Name="PART_ContentPresenter"
-                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          Content="{TemplateBinding Content}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          FontFamily="{TemplateBinding FontFamily}"
-                                          FontSize="{TemplateBinding FontSize}"
-                                          FontStyle="{TemplateBinding FontStyle}"
-                                          FontWeight="{TemplateBinding FontWeight}"
-                                          RecognizesAccessKey="True" />
+                                          Target="{Binding #PART_ContentPresenter.Child}" />
+                        <ContentPresenter  Name="PART_ContentPresenter"
+                                           HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                           VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                           Content="{TemplateBinding Content}"
+                                           ContentTemplate="{TemplateBinding ContentTemplate}"
+                                           FontFamily="{TemplateBinding FontFamily}"
+                                           FontSize="{TemplateBinding FontSize}"
+                                           FontStyle="{TemplateBinding FontStyle}"
+                                           FontWeight="{TemplateBinding FontWeight}"
+                                           RecognizesAccessKey="True" />
                     </Grid>
                 </Border>
             </ControlTemplate>
@@ -66,7 +66,7 @@
             <Setter Property="Grid.ColumnSpan" Value="1" />
         </Style>
 
-        <Style Selector="^[HeaderPosition=Left] /template/ ContentPresenter#PART_HeaderPresenter">
+        <Style Selector="^[HeaderPosition=Left] /template/ Label#PART_HeaderLabel">
             <Setter Property="Grid.RowSpan" Value="2" />
             <Setter Property="Grid.ColumnSpan" Value="1" />
             <Setter Property="Grid.Column" Value="0" />
@@ -81,7 +81,7 @@
             <Setter Property="Grid.RowSpan" Value="1" />
         </Style>
 
-        <Style Selector="^[HeaderPosition=Top] /template/ ContentPresenter#PART_HeaderPresenter">
+        <Style Selector="^[HeaderPosition=Top] /template/ Label#PART_HeaderLabel">
             <Setter Property="Grid.Column" Value="0" />
             <Setter Property="Grid.Row" Value="0" />
             <Setter Property="Grid.ColumnSpan" Value="2" />

@@ -55,8 +55,6 @@ using IconPacks.Avalonia.Zondicons;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
 using ReactiveUI;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
@@ -135,6 +133,8 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty] public partial int TotalItems { get; set; }
 
+    [ObservableProperty] public partial bool IsLoading { get; private set; } = true;
+
     public async Task LoadIconPacksAsync()
     {
         var availableIconPacks = new List<(Type EnumType, Type IconPackType)>(
@@ -194,6 +194,8 @@ public partial class MainViewModel : ViewModelBase
         
         TotalItems = _iconsCache.Count;
         SelectedIcon = SelectedIconPack?.Icons.FirstOrDefault() ?? _iconsCache.Items.FirstOrDefault();
+        
+        IsLoading = false;
     }
 
     /// <summary>
