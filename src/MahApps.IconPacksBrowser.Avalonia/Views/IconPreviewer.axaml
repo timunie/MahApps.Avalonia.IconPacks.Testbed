@@ -4,7 +4,6 @@
              xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls"
              xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:fa="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prop="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Properties"
@@ -184,8 +183,7 @@
                     <StackPanel>
                         <controls:HeaderedControl Header="Icon-Size ">
                             <Grid ColumnDefinitions="*, Auto">
-                                <fa:NumberBox HorizontalAlignment="Stretch"
-                                              SpinButtonPlacementMode="Inline"
+                                <NumericUpDown HorizontalAlignment="Stretch"
                                               Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}" />
                                 <DropDownButton Grid.Column="1"
                                                 Width="{Binding $self.Bounds.Height}"
@@ -210,8 +208,7 @@
                         </controls:HeaderedControl>
                         <controls:HeaderedControl Header="Icon-Padding ">
                             <Grid ColumnDefinitions="*, Auto">
-                                <fa:NumberBox HorizontalAlignment="Stretch"
-                                              SpinButtonPlacementMode="Inline"
+                                <NumericUpDown HorizontalAlignment="Stretch"
                                               Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Mode=TwoWay}" />
                                 <DropDownButton Grid.Column="1"
                                                 Width="{Binding $self.Bounds.Height}"

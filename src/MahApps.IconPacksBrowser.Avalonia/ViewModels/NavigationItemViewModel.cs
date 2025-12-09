@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
-using FluentAvalonia.UI.Controls;
+using IconPacks.Avalonia.MaterialDesign;
+using System;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
@@ -10,7 +11,7 @@ public partial class NavigationItemViewModelBase : ViewModelBase
 
     public string? Title { get; init; }
     
-    public object? Icon { get; init; }
+    public Enum? Icon { get; init; }
 }
 
 public class SeparatorNavigationItemViewModel : NavigationItemViewModelBase;
@@ -42,7 +43,7 @@ public class SettingsNavigationItem : NavigationItemViewModelBase
     public SettingsNavigationItem()
     {
         Title = "Settings";
-        Icon = new SymbolIconSource(){Symbol = Symbol.Settings};
+        Icon = PackIconMaterialDesignKind.Settings;
         Tag = new SettingsViewModel();
     }
 }
@@ -52,7 +53,7 @@ public class AboutNavigationItem : NavigationItemViewModelBase
     public AboutNavigationItem()
     {
         Title = "About";
-        Icon = Application.Current?.FindResource("AboutIcon");
+        Icon = PackIconMaterialDesignKind.InfoOutline;
         Tag = new AboutViewModel();
     }
 }

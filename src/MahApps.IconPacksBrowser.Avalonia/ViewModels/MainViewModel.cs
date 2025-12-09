@@ -231,12 +231,12 @@ public partial class MainViewModel : ViewModelBase
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedIconPack))]
-    public partial NavigationItemViewModelBase SelectedNavigationItem { get; set; }
+    public partial NavigationItemViewModelBase? SelectedNavigationItem { get; set; }
 
     /// <summary>
     /// Gets the selected IconPack
     /// </summary>
-    public IconPackViewModel? SelectedIconPack => SelectedNavigationItem.Tag as IconPackViewModel;
+    public IconPackViewModel? SelectedIconPack => SelectedNavigationItem?.Tag as IconPackViewModel;
 
     /// <summary>
     /// Gets or sets the selected icon

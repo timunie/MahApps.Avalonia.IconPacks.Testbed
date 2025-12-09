@@ -3,7 +3,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using FluentAvalonia.Styling;
+using Avalonia.Themes.Fluent;
 using MahApps.IconPacksBrowser.Avalonia.Properties;
 using MahApps.IconPacksBrowser.Avalonia.ViewModels;
 using MahApps.IconPacksBrowser.Avalonia.Views;
@@ -25,8 +25,9 @@ public partial class App : Application
         switch (e.PropertyName)
         {
             case (nameof(Settings.AccentColor)):
-                var fluentTheme = this.Styles.OfType<FluentAvaloniaTheme>().Single();
-                fluentTheme.CustomAccentColor = Settings.Default.AccentColor;
+                var fluentTheme = this.Styles.OfType<FluentTheme>().Single();
+                // TODO 
+
                 break;
         }
     }

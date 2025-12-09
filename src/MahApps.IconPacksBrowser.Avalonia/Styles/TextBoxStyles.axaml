@@ -22,7 +22,7 @@
                         Command="{Binding Source={x:Static vm:MainViewModel.Instance}, Path=CopyTextToClipboardCommand}"
                         CommandParameter="{Binding $parent[TextBox].Text}"
                         Content="{iconPacks:Octicons Kind=Copy,
-                                                     Height={StaticResource TextBoxIconFontSize}}"
+                                                     Height={StaticResource ControlContentThemeFontSize}}"
                         Theme="{DynamicResource TextBoxButtonStyle}"
                         ToolTip.Tip="Copy" />
             </Template>
@@ -39,14 +39,14 @@
                             Command="{Binding Source={x:Static vm:MainViewModel.Instance}, Path=LaunchUriCommand}"
                             CommandParameter="{Binding $parent[TextBox].Text}"
                             Content="{iconPacks:RadixIcons Kind=ExternalLink,
-                                                           Height={StaticResource TextBoxIconFontSize}}"
+                                                           Height={StaticResource ControlContentThemeFontSize}}"
                             Theme="{DynamicResource TextBoxButtonStyle}"
                             ToolTip.Tip="Visit Url" />
                     <Button Padding="0"
                             Command="{Binding Source={x:Static vm:MainViewModel.Instance}, Path=CopyTextToClipboardCommand}"
                             CommandParameter="{Binding $parent[TextBox].Text}"
                             Content="{iconPacks:Octicons Kind=Copy,
-                                                         Height={StaticResource TextBoxIconFontSize}}"
+                                                         Height={StaticResource ControlContentThemeFontSize}}"
                             Theme="{DynamicResource TextBoxButtonStyle}"
                             ToolTip.Tip="Copy" />
                 </StackPanel>

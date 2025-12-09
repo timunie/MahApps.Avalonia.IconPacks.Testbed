@@ -4,7 +4,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels"
-             xmlns:fa="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:helper="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Helper"
              xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
              xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls"
@@ -25,17 +24,17 @@
                 DockPanel.Dock="Top">
             <DockPanel LastChildFill="True">
                 <!-- Loading indicator -->
-                <ProgressBar DockPanel.Dock="Bottom" 
-                             Height="3" 
+                <ProgressBar DockPanel.Dock="Bottom"
+                             Height="3"
                              IsIndeterminate="{Binding IsLoading}"
                              Value="100"
-                             HorizontalAlignment="Stretch"  />
+                             HorizontalAlignment="Stretch" />
 
                 <!-- Placeholder for WindowButtons -->
                 <Border x:Name="WindowButtonsPlaceHolder"
                         DockPanel.Dock="Right"
                         Width="0" />
-                
+
                 <!-- HamburgerMenuControls -->
                 <ToggleButton IsChecked="{Binding #NavigationView.IsPaneOpen}"
                               Theme="{StaticResource PaneToggleButtonStyle}">
@@ -83,49 +82,44 @@
                                              Content="{Binding SelectedNavigationItem.Title}" />
             </DockPanel>
         </Border>
-        
-        <fa:NavigationView x:Name="NavigationView"
-                           Grid.Row="1"
-                           PaneDisplayMode="Auto"
-                           OpenPaneLength="205"
-                           CompactPaneLength="0"
-                           IsPaneToggleButtonVisible="False"
-                           MenuItemsSource="{Binding AvailableIconPacks}"
-                           FooterMenuItemsSource="{Binding OptionNavigationItems}"
-                           IsSettingsVisible="False"
-                           SelectedItem="{Binding SelectedNavigationItem}"
-                           Content="{Binding SelectedNavigationItem}">
-            <fa:NavigationView.MenuItemTemplateSelector>
-                <helper:MenuItemTemplateSelector>
-                    <helper:MenuItemTemplateSelector.ItemTemplate>
-                        <DataTemplate DataType="vm:IconPackNavigationItemViewModel">
-                            <fa:NavigationViewItem>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Spacing="5">
-                                    <fa:IconSourceElement IconSource="{Binding Icon}" 
-                                                          MaxWidth="{DynamicResource ControlContentThemeFontSize}"/>
-                                    <ContentControl Content="{Binding Title}"/>
-                                </StackPanel>
-                            </fa:NavigationViewItem>
-                        </DataTemplate>
-                    </helper:MenuItemTemplateSelector.ItemTemplate>
-                    <helper:MenuItemTemplateSelector.SeparatorTemplate>
-                        <DataTemplate DataType="vm:SeparatorNavigationItemViewModel">
-                            <fa:NavigationViewItemSeparator />
-                        </DataTemplate>
-                    </helper:MenuItemTemplateSelector.SeparatorTemplate>
-                </helper:MenuItemTemplateSelector>
-            </fa:NavigationView.MenuItemTemplateSelector>
 
-            <fa:NavigationView.DataTemplates>
+        <SplitView x:Name="NavigationView"
+                   Grid.Row="1"
+                   PanePlacement="Left"
+                   DisplayMode="Inline"
+                   OpenPaneLength="205"
+                   Content="{Binding SelectedNavigationItem}">
+            <SplitView.Pane>
+                <Grid>
+                    <Grid.DataTemplates>
+                        <DataTemplate DataType="vm:SeparatorNavigationItemViewModel">
+                            <Separator />
+                        </DataTemplate>
+                        
+                        <DataTemplate DataType="vm:NavigationItemViewModelBase">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Spacing="5">
+                                <!-- <ContentControl Content="{iconPacks:PackIcon Kind={Binding Icon}, Width={StaticResource ControlContentThemeFontSize}}"></ContentControl> -->
+                                <ContentControl Content="{Binding Title}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </Grid.DataTemplates>
+                    
+                    <ListBox ItemsSource="{Binding AvailableIconPacks}"
+                             SelectedValue="{Binding SelectedNavigationItem}">
+                    </ListBox>
+                </Grid>
+            </SplitView.Pane>
+
+            <SplitView.DataTemplates>
                 <!-- We have to use specialized DataTemplates bevore any other since these will be resolved first -->
                 <DataTemplate DataType="vm:SettingsNavigationItem">
-                    <views:SettingsView DataContext="{Binding Tag}"/>
+                    <views:SettingsView DataContext="{Binding Tag}" />
                 </DataTemplate>
-                
+
                 <DataTemplate DataType="vm:AboutNavigationItem">
                     <views:AboutView />
                 </DataTemplate>
-                
+
                 <DataTemplate DataType="vm:NavigationItemViewModelBase">
                     <Grid ColumnDefinitions="*,Auto" DataContext="{x:Static vm:MainViewModel.Instance}"
                           x:DataType="vm:MainViewModel">
@@ -146,10 +140,10 @@
                         <views:IconPreviewer Grid.Column="1" />
                     </Grid>
                 </DataTemplate>
-            </fa:NavigationView.DataTemplates>
+            </SplitView.DataTemplates>
 
 
-        </fa:NavigationView>
+        </SplitView>
 
         <StackPanel Grid.Row="2"
                     Height="24"
@@ -177,7 +171,8 @@
                     <Setter Property="VerticalAlignment" Value="Center" />
                     <Setter Property="Margin" Value="8,0" />
                     <Setter Property="Foreground" Value="White" />
-                    <Setter Property="IsEnabled" Value="{Binding $self.NavigateUri, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    <Setter Property="IsEnabled"
+                            Value="{Binding $self.NavigateUri, Converter={x:Static ObjectConverters.IsNotNull}}" />
                     <Style Selector="^:pointerover /template/ ContentPresenter#ContentPresenter">
                         <Setter Property="Foreground" Value="White" />
                         <Setter Property="TextBlock.TextDecorations" Value="{x:Static TextDecorations.Underline}" />
@@ -191,9 +186,9 @@
 
             <!-- Hide this on Mobile due to small screen size -->
             <ContentControl Content="{Binding AppVersion, Mode=OneWay, StringFormat='{}Browser version v{0}'}"
-                            IsVisible="{OnFormFactor Default=true, Mobile=false}"/>
-            <Separator IsVisible="{OnFormFactor Default=true, Mobile=false}"/>
-            
+                            IsVisible="{OnFormFactor Default=true, Mobile=false}" />
+            <Separator IsVisible="{OnFormFactor Default=true, Mobile=false}" />
+
             <ContentControl Content="{Binding SelectedNavigationItem, Mode=OneWay}">
                 <ContentControl.DataTemplates>
                     <DataTemplate DataType="{x:Type vm:IconPackNavigationItemViewModel}">
@@ -202,7 +197,7 @@
                                 <MultiBinding StringFormat="{}{0} (v{2}) with {1:N0} icons">
                                     <Binding Mode="OneWay" Path="Title" />
                                     <Binding Mode="OneWay" Path="IconPack.IconCount" />
-                                    <Binding Mode="OneWay" Path="Tag" 
+                                    <Binding Mode="OneWay" Path="Tag"
                                              Converter="{x:Static converters:GetAssemblyVersionConverter.Instance}" />
                                 </MultiBinding>
                             </TextBlock.Text>
@@ -239,7 +234,8 @@
                     </DataTemplate>
                 </Button.ContentTemplate>
                 <ToolTip.Tip>
-                    <TextBlock Text="{Binding SelectedIcon.MetaData.ProjectUrl, Mode=OneWay, StringFormat='{}Visit: {0}'}" />
+                    <TextBlock
+                        Text="{Binding SelectedIcon.MetaData.ProjectUrl, Mode=OneWay, StringFormat='{}Visit: {0}'}" />
                 </ToolTip.Tip>
             </HyperlinkButton>
 
@@ -261,7 +257,8 @@
                     </DataTemplate>
                 </Button.ContentTemplate>
                 <ToolTip.Tip>
-                    <TextBlock Text="{Binding SelectedIcon.MetaData.LicenseUrl, Mode=OneWay, StringFormat='{}License: {0}'}" />
+                    <TextBlock
+                        Text="{Binding SelectedIcon.MetaData.LicenseUrl, Mode=OneWay, StringFormat='{}License: {0}'}" />
                 </ToolTip.Tip>
             </HyperlinkButton>
         </StackPanel>

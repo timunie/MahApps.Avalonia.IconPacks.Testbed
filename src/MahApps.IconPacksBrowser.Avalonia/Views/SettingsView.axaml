@@ -4,7 +4,6 @@
              xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls"
              xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:fa="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:helper="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Helper"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
@@ -43,8 +42,7 @@
 
     <ScrollViewer Grid.IsSharedSizeScope="True" VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="20" Spacing="15">
-            <fa:SettingsExpander Description="Configure the appearance of the App"
-                                 Header="Design"
+            <Expander Header="Design"
                                  IsExpanded="True">
                 <StackPanel Spacing="5">
                     <controls:HeaderedControl Header="App Color">
@@ -60,10 +58,9 @@
                         </ComboBox>
                     </controls:HeaderedControl>
                 </StackPanel>
-            </fa:SettingsExpander>
+            </Expander>
 
-            <fa:SettingsExpander Description="Directory for custom export templates"
-                                 Header="Export"
+            <Expander Header="Export"
                                  IsExpanded="True">
 
                 <StackPanel Spacing="5">
@@ -84,7 +81,7 @@
                             Command="{Binding CopyOriginalTemplatesCommand}"
                             Content="Copy original templates to custom folder" />
                 </StackPanel>
-            </fa:SettingsExpander>
+            </Expander>
 
         </StackPanel>
     </ScrollViewer>

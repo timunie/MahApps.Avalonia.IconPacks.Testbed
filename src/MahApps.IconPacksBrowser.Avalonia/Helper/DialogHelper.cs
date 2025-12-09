@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using FluentAvalonia.UI.Controls;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Helper;
 
@@ -201,21 +200,22 @@ public static class DialogHelper
     }
 
 
-    public static async Task<ContentDialogResult> ShowMessageAsync(this object? context, string? title, object? content)
+    // TODO: Implement ShowMessageAsync with Avalonia dialogs
+    public static async Task ShowMessageAsync(this object? context, string? title, object? content)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         // lookup the TopLevel for the context
         var topLevel = DialogManager.GetTopLevelForContext(context);
 
-        var dialog = new ContentDialog
-        {
-            Title = title,
-            Content = content,
-            PrimaryButtonText = "OK",
-        };
+        //var dialog = new ContentDialog
+        //{
+        //    Title = title,
+        //    Content = content,
+        //    PrimaryButtonText = "OK",
+        //};
 
-        return await dialog.ShowAsync(topLevel);
+        //return await dialog.ShowAsync(topLevel);
     }
 
     public static async Task SetClipboardContentAsync(this object? context, string content)
