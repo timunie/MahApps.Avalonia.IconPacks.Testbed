@@ -27,7 +27,15 @@ public class JsonColorConverter : JsonConverter<Color>
     }
 }
 
-[JsonSourceGenerationOptions(WriteIndented = true)]
+
+// System.Text.Json source-generation context for trim/AOT-safe serialization of Settings
+[JsonSourceGenerationOptions(WriteIndented = true, GenerationMode = JsonSourceGenerationMode.Metadata)]
 [JsonSerializable(typeof(Settings))]
-public partial class SettingsGenerationContext : JsonSerializerContext { }
+[JsonSerializable(typeof(Color))]
+[JsonSerializable(typeof(int))]
+[JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(bool))]
+internal partial class SettingsJsonContext : JsonSerializerContext
+{
+}
 

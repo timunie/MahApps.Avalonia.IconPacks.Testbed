@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -17,6 +18,7 @@ public partial class Settings : ObservableObject
     /// Gets or sets the accent color of the App
     /// </summary>
     [ObservableProperty]
+    [JsonConverter(typeof(JsonColorConverter))]
     public partial Color AccentColor { get; set; } = Color.Parse("#FF008A00");
 
     /// <summary>
@@ -35,12 +37,14 @@ public partial class Settings : ObservableObject
     /// Gets or sets the preview background
     /// </summary>
     [ObservableProperty]
+    [JsonConverter(typeof(JsonColorConverter))]
     public partial Color IconBackground { get; set; } = Colors.Transparent;
 
     /// <summary>
     /// Gets or sets the preview foreground
     /// </summary>
     [ObservableProperty]
+    [JsonConverter(typeof(JsonColorConverter))]
     public partial Color IconForeground { get; set; } = Application.Current?.FindResource("SystemAccentColor") as Color?
                                                         ?? Colors.Green;
 
@@ -113,6 +117,10 @@ public partial class Settings : ObservableObject
             Default.IconPreviewSize = settings.IconPreviewSize;
             Default.IconPreviewPadding = settings.IconPreviewPadding;
             Default.IsPreviewerVisible = settings.IsPreviewerVisible;
+
+            // Reset colors if unable to read.
+            if (Default.AccentColor.A < 255) Default.AccentColor = Color.Parse("#FF008A00");
+            if (Default.IconForeground.A < 255) Default.IconForeground = Color.Parse("#FF008A00");
         }
         catch
         {
