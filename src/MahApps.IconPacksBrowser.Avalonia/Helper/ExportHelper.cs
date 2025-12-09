@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,22 +9,47 @@ using Avalonia.Platform.Storage;
 using Avalonia.Skia;
 using IconPacks.Avalonia.BootstrapIcons;
 using IconPacks.Avalonia.BoxIcons;
+using IconPacks.Avalonia.BoxIcons2;
+using IconPacks.Avalonia.CircumIcons;
 using IconPacks.Avalonia.Codicons;
 using IconPacks.Avalonia.Coolicons;
 using IconPacks.Avalonia.Core;
+using IconPacks.Avalonia.Entypo;
 using IconPacks.Avalonia.EvaIcons;
 using IconPacks.Avalonia.FeatherIcons;
 using IconPacks.Avalonia.FileIcons;
 using IconPacks.Avalonia.Fontaudio;
+using IconPacks.Avalonia.FontAwesome;
+using IconPacks.Avalonia.FontAwesome5;
+using IconPacks.Avalonia.FontAwesome6;
 using IconPacks.Avalonia.Fontisto;
 using IconPacks.Avalonia.ForkAwesome;
+using IconPacks.Avalonia.GameIcons;
+using IconPacks.Avalonia.Ionicons;
 using IconPacks.Avalonia.JamIcons;
+using IconPacks.Avalonia.KeyruneIcons;
 using IconPacks.Avalonia.Lucide;
+using IconPacks.Avalonia.Material;
+using IconPacks.Avalonia.MaterialDesign;
+using IconPacks.Avalonia.MaterialLight;
+using IconPacks.Avalonia.MemoryIcons;
+using IconPacks.Avalonia.Microns;
 using IconPacks.Avalonia.MingCuteIcons;
+using IconPacks.Avalonia.Modern;
 using IconPacks.Avalonia.MynaUIIcons;
+using IconPacks.Avalonia.Octicons;
+using IconPacks.Avalonia.PhosphorIcons;
+using IconPacks.Avalonia.PicolIcons;
+using IconPacks.Avalonia.PixelartIcons;
+using IconPacks.Avalonia.RadixIcons;
+using IconPacks.Avalonia.RemixIcon;
 using IconPacks.Avalonia.RPGAwesome;
+using IconPacks.Avalonia.SimpleIcons;
 using IconPacks.Avalonia.Typicons;
+using IconPacks.Avalonia.Unicons;
 using IconPacks.Avalonia.VaadinIcons;
+using IconPacks.Avalonia.WeatherIcons;
+using IconPacks.Avalonia.Zondicons;
 using MahApps.IconPacksBrowser.Avalonia.Properties;
 using MahApps.IconPacksBrowser.Avalonia.ViewModels;
 using SkiaSharp;
@@ -116,23 +140,70 @@ internal static class ExportHelper
             return File.ReadAllText(Path.Combine(Settings.Default.ExportTemplatesDir, fileName));
         }
     }
-    
-    // This method uses reflection on IconPacks.Avalonia.Core.PackIconDataFactory`1 which can be unsafe for trimming
-    // and Native AOT. Declare the dynamic dependencies so the trimmer preserves required members.
-    [RequiresUnreferencedCode("Reflects over IconPacks.Avalonia.Core.PackIconDataFactory`1 to get the DataIndex property.")]
-    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, "IconPacks.Avalonia.Core.PackIconDataFactory`1", "IconPacks.Avalonia.Core")]
+
+    // Make trimming/AOT-safe by avoiding reflection entirely. We pattern-match the known icon-pack enum
+    // types and call a generic helper that accesses PackIconDataFactory<TEnum> directly, so the linker
+    // can see all needed generic instantiations.
     internal static SKPath? GetPath(Enum kind)
     {
         try
         {
-            var packIconDataFactory = typeof(PackIconDataFactory<>).MakeGenericType(kind.GetType());
-            var dataIndex = packIconDataFactory.GetProperty("DataIndex")!.GetValue(null);
-            var dictionary = dataIndex!.GetType().GetProperty("Value")!.GetValue(dataIndex)!;
+            SKPath? skPath = kind switch
+            {
+                PackIconBootstrapIconsKind k => GetPathCore(k),
+                PackIconBoxIconsKind k => GetPathCore(k),
+                PackIconBoxIcons2Kind k => GetPathCore(k),
+                PackIconCircumIconsKind k => GetPathCore(k),
+                PackIconCodiconsKind k => GetPathCore(k),
+                PackIconCooliconsKind k => GetPathCore(k),
+                PackIconEntypoKind k => GetPathCore(k),
+                PackIconEvaIconsKind k => GetPathCore(k),
+                PackIconFeatherIconsKind k => GetPathCore(k),
+                PackIconFileIconsKind k => GetPathCore(k),
+                PackIconFontaudioKind k => GetPathCore(k),
+                PackIconFontAwesomeKind k => GetPathCore(k),
+                PackIconFontAwesome5Kind k => GetPathCore(k),
+                PackIconFontAwesome6Kind k => GetPathCore(k),
+                PackIconFontistoKind k => GetPathCore(k),
+                PackIconForkAwesomeKind k => GetPathCore(k),
+                PackIconGameIconsKind k => GetPathCore(k),
+                PackIconIoniconsKind k => GetPathCore(k),
+                PackIconJamIconsKind k => GetPathCore(k),
+                PackIconKeyruneIconsKind k => GetPathCore(k),
+                PackIconLucideKind k => GetPathCore(k),
+                PackIconMaterialKind k => GetPathCore(k),
+                PackIconMaterialDesignKind k => GetPathCore(k),
+                PackIconMaterialLightKind k => GetPathCore(k),
+                PackIconMemoryIconsKind k => GetPathCore(k),
+                PackIconMicronsKind k => GetPathCore(k),
+                PackIconMingCuteIconsKind k => GetPathCore(k),
+                PackIconModernKind k => GetPathCore(k),
+                PackIconMynaUIIconsKind k => GetPathCore(k),
+                PackIconOcticonsKind k => GetPathCore(k),
+                PackIconPhosphorIconsKind k => GetPathCore(k),
+                PackIconPicolIconsKind k => GetPathCore(k),
+                PackIconPixelartIconsKind k => GetPathCore(k),
+                PackIconRadixIconsKind k => GetPathCore(k),
+                PackIconRemixIconKind k => GetPathCore(k),
+                PackIconRPGAwesomeKind k => GetPathCore(k),
+                PackIconSimpleIconsKind k => GetPathCore(k),
+                PackIconTypiconsKind k => GetPathCore(k),
+                PackIconUniconsKind k => GetPathCore(k),
+                PackIconVaadinIconsKind k => GetPathCore(k),
+                PackIconWeatherIconsKind k => GetPathCore(k),
+                PackIconZondiconsKind k => GetPathCore(k),
+                _ => null
+            };
 
-            object[] args = [kind, string.Empty];
-            dictionary.GetType().GetMethod("TryGetValue")!.Invoke(dictionary, args);
-
-            var skPath = SKPath.ParseSvgPathData(args[1] as string);
+#if DEBUG
+            if (skPath is null)
+            {
+                throw new MissingMemberException($"No path found for {kind}");
+            }
+#else
+            if (skPath is null)
+                return null;
+#endif
 
             // Transform if needed
             // TODO: Would be great to have an upstream API to get this information to not duplicate the code elsewhere
@@ -159,7 +230,7 @@ internal static class ExportHelper
             }
 
             skPath.FillType = SKPathFillType.EvenOdd;
-            
+
             return skPath;
         }
         catch (Exception)
@@ -168,33 +239,43 @@ internal static class ExportHelper
         }
     }
 
+    private static SKPath? GetPathCore<TEnum>(TEnum kind)
+        where TEnum : struct, Enum
+    {
+        // Access the typed data index directly without reflection. The Value is expected to be a
+        // dictionary mapping enum -> SVG path data string.
+        var dictionary = PackIconDataFactory<TEnum>.DataIndex.Value;
+        return dictionary.TryGetValue(kind, out var data)
+            ? SKPath.ParseSvgPathData(data)
+            : null;
+    }
+
     internal static SKPath MoveIntoBounds(this SKPath path, float width, float height, int padding)
     {
-        
-        var scale = Math.Max(width - padding * 2, height - padding * 2) 
+        var scale = Math.Max(width - padding * 2, height - padding * 2)
                     / Math.Max(path.Bounds.Width, path.Bounds.Height);
-        
+
         path.Transform(SKMatrix.CreateScale(scale, scale));
         path.Transform(SKMatrix.CreateTranslation(
-            - path.Bounds.Left - (path.Bounds.Width - width) / 2, 
-            - path.Bounds.Top - (path.Bounds.Height - height) / 2));
-        
+            -path.Bounds.Left - (path.Bounds.Width - width) / 2,
+            -path.Bounds.Top - (path.Bounds.Height - height) / 2));
+
         return path;
     }
 
     internal static async Task SaveAsSvgAsync(IIconViewModel icon)
     {
         var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
-        {
-            FilePickerHelper.ImageSvg
-        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}",
+            {
+                FilePickerHelper.ImageSvg
+            }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}",
             defaultExtension: ".svg");
-        
-        if (saveFile is null) 
+
+        if (saveFile is null)
             return;
 
         await using var saveFileStream = await saveFile.OpenWriteAsync();
-        
+
         var fileContent = FillTemplate(SvgFileTemplate, new ExportParameters(icon));
 
         if (saveFileStream is { CanWrite: true } && fileContent is { Length: > 0 })
@@ -203,20 +284,20 @@ internal static class ExportHelper
             await streamWriter.WriteAsync(fileContent);
         }
     }
-    
+
     internal static async Task SaveAsWpfXamlAsync(IIconViewModel icon)
     {
         var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
-        {
-            FilePickerHelper.XamlWpf
-        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}",
+            {
+                FilePickerHelper.XamlWpf
+            }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}",
             defaultExtension: ".xaml");
 
-        if (saveFile is null) 
+        if (saveFile is null)
             return;
 
-        await using var saveFileStream = await saveFile.OpenWriteAsync(); 
-        
+        await using var saveFileStream = await saveFile.OpenWriteAsync();
+
         var fileContent = FillTemplate(WpfFileTemplate, new ExportParameters(icon));
 
         if (saveFileStream is { CanWrite: true } && fileContent is { Length: > 0 })
@@ -225,20 +306,20 @@ internal static class ExportHelper
             await streamWriter.WriteAsync(fileContent);
         }
     }
-    
+
     internal static async Task SaveAsAvaloniaXamlAsync(IIconViewModel icon)
     {
         var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
-        {
-            FilePickerHelper.XamlAvalonia
-        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}",
+            {
+                FilePickerHelper.XamlAvalonia
+            }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}",
             defaultExtension: ".axaml");
 
-        if (saveFile is null) 
+        if (saveFile is null)
             return;
-        
+
         await using var saveFileStream = await saveFile.OpenWriteAsync();
-        
+
         var fileContent = FillTemplate(WpfFileTemplate, new ExportParameters(icon));
 
         if (saveFileStream is { CanWrite: true } && fileContent is { Length: > 0 })
@@ -251,23 +332,23 @@ internal static class ExportHelper
     internal static async Task SaveAsBitmapAsync(IIconViewModel icon)
     {
         var saveFile = await MainViewModel.Instance.SaveFileDialogAsync(filters: new[]
-        {
-            FilePickerFileTypes.ImagePng,
-            FilePickerFileTypes.ImageJpg,
-            FilePickerFileTypes.ImageWebp,
-            FilePickerHelper.ImageBmp,
-        }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}", 
+            {
+                FilePickerFileTypes.ImagePng,
+                FilePickerFileTypes.ImageJpg,
+                FilePickerFileTypes.ImageWebp,
+                FilePickerHelper.ImageBmp,
+            }, fileNameSuggestion: $"{icon.IconPackName}-{icon.Name}",
             defaultExtension: ".png");
 
-        if (saveFile is null) 
+        if (saveFile is null)
             return;
-        
+
         await using var saveFileStream = await saveFile.OpenWriteAsync();
-        
+
         int renderWidth = Settings.Default.IconPreviewSize;
         int renderHeight = Settings.Default.IconPreviewSize;
         int padding = Settings.Default.IconPreviewPadding;
-        
+
         using var path = GetPath(icon.Value)?.MoveIntoBounds(renderWidth, renderHeight, padding);
 
         using var bitmap = new SKBitmap(new SKImageInfo(renderWidth, renderHeight));
@@ -275,7 +356,7 @@ internal static class ExportHelper
         using var paint = new SKPaint();
 
         paint.IsAntialias = true;
-        
+
         if (Settings.Default.IconBackground.A > 0)
         {
             canvas.DrawColor(Settings.Default.IconBackground.ToSKColor());
@@ -293,7 +374,7 @@ internal static class ExportHelper
             ".bmp" => SKEncodedImageFormat.Bmp,
             _ => SKEncodedImageFormat.Png
         };
-        
+
         if (saveFileStream is { CanWrite: true })
         {
             using var image = SKImage.FromBitmap(bitmap);
