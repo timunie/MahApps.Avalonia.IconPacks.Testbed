@@ -10,6 +10,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="/Styles/FluentAliasedResources.axaml" />
                 <ResourceInclude Source="/Styles/ButtonStyles.axaml" />
                 <ResourceInclude Source="/Styles/ListBoxStyles.axaml" />
                 <ResourceInclude Source="/Styles/HeaderedControlStyles.axaml" />

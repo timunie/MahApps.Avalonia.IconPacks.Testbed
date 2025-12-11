@@ -2,6 +2,7 @@
     <Design.PreviewWith>
         <Button Theme="{StaticResource TextBoxButtonStyle}" Content="Hello" />
     </Design.PreviewWith>
+    <Thickness x:Key="TextBoxInnerButtonMargin">2,0</Thickness>
     <ControlTheme x:Key="TextBoxButtonStyle" TargetType="Button">
         <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForeground}" />
         <Setter Property="Background" Value="Transparent" />

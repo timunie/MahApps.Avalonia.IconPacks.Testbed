@@ -33,7 +33,7 @@
     <StreamGeometry x:Key="Bia.Geometries.ResizeGrip">M 40 0 L 40 10 L 50 10 L 50 0 L 40 0 z M 20 20 L 20 30 L 30 30 L 30 20 L 20 20 z M 40 20 L 40 30 L 50 30 L 50 20 L 40 20 z M 0 40 L 0 50 L 10 50 L 10 40 L 0 40 z M 20 40 L 20 50 L 30 50 L 30 40 L 20 40 z M 40 40 L 40 50 L 50 50 L 50 40 L 40 40 z</StreamGeometry>
 
     <ControlTheme x:Key="{x:Type controls:PropertyResizer}" TargetType="controls:PropertyResizer">
-        <Setter Property="Background" Value="{DynamicResource DividerStrokeColorDefaultBrush}" />
+        <Setter Property="Background" Value="{DynamicResource SystemControlPageBackgroundChromeLowBrush}" />
         <Setter Property="Cursor" Value="SizeAll" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -63,11 +63,11 @@
         </Style>
 
         <Style Selector="^:pointerover">
-            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAccentBrush}" />
         </Style>
         
         <Style Selector="^.both">
-            <Setter Property="Foreground" Value="{DynamicResource ControlStrongStrokeColorDefaultBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlPageBackgroundChromeLowBrush}" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Width" Value="15" />
             <Setter Property="Height" Value="15" />
@@ -81,7 +81,7 @@
                 </ControlTemplate>
             </Setter>
             <Style Selector="^:pointerover">
-                <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource SystemControlBackgroundAccentBrush}" />
                 <Setter Property="Background" Value="Transparent" />
             </Style>
         </Style>
