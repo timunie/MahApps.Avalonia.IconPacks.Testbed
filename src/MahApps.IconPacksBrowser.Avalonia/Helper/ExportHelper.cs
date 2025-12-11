@@ -3,12 +3,10 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia;
-using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Skia;
 using IconPacks.Avalonia;
-using IconPacks.Avalonia.Core;
 using MahApps.IconPacksBrowser.Avalonia.Properties;
 using MahApps.IconPacksBrowser.Avalonia.ViewModels;
 using SkiaSharp;
@@ -68,10 +66,6 @@ internal static class ExportHelper
             .CheckedReplace("@PathData", () => parameters.PathData) // avoid allocation of Lazy<string>
             .Replace("@FillColor", parameters.FillColor)
             .Replace("@Background", parameters.Background)
-            .Replace("@StrokeColor", parameters.StrokeColor)
-            .Replace("@StrokeWidth", parameters.StrokeWidth)
-            .Replace("@StrokeLineCap", parameters.StrokeLineCap)
-            .Replace("@StrokeLineJoin", parameters.StrokeLineJoin)
             .Replace("@TransformMatrix", parameters.TransformMatrix);
     }
 
@@ -128,17 +122,6 @@ internal static class ExportHelper
         {
             return null;
         }
-    }
-
-    private static SKPath? GetPathCore<TEnum>(TEnum kind)
-        where TEnum : struct, Enum
-    {
-        // Access the typed data index directly without reflection. The Value is expected to be a
-        // dictionary mapping enum -> SVG path data string.
-        var dictionary = PackIconDataFactory<TEnum>.DataIndex.Value;
-        return dictionary.TryGetValue(kind, out var data)
-            ? SKPath.ParseSvgPathData(data)
-            : null;
     }
 
     internal static SKPath MoveIntoBounds(this SKPath path, float width, float height, int padding)
@@ -291,10 +274,6 @@ internal struct ExportParameters
         this.PageHeight = Settings.Default.IconPreviewSize.ToString(CultureInfo.InvariantCulture);
         this.FillColor = Settings.Default.IconForeground.ToString();
         this.Background = Settings.Default.IconBackground.ToString();
-        this.StrokeColor = Settings.Default.IconForeground.ToString();
-        // this.StrokeWidth = icon.Value is PackIconFeatherIconsKind ? "2" : "0"; // TODO: We need an API to read these values
-        this.StrokeLineCap = nameof(PenLineCap.Round);
-        this.StrokeLineJoin = nameof(PenLineJoin.Round);
         this.TransformMatrix = Matrix.Identity.ToString(); // TODO Get correct Matrix
 
         this.IconPackHomepage = metaData.ProjectUrl;
@@ -314,10 +293,6 @@ internal struct ExportParameters
     internal string? PathData { get; set; }
     internal string FillColor { get; set; }
     internal string Background { get; set; }
-    internal string StrokeColor { get; set; }
-    internal string StrokeWidth { get; set; }
-    internal string StrokeLineCap { get; set; }
-    internal string StrokeLineJoin { get; set; }
     internal string TransformMatrix { get; set; }
 }
 

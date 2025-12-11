@@ -5,10 +5,6 @@ You can use the following parameters inside the template:
   - @PageHeight
   - @PathData
   - @FillColor
-  - @StrokeColor
-  - @StrokeWidth
-  - @StrokeLineCap
-  - @StrokeLineJoin
   - @TransformMatrix
   - @Background
   

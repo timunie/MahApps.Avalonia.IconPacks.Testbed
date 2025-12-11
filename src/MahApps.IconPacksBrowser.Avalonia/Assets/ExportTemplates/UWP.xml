@@ -24,14 +24,9 @@ Iconpack-License:	@IconPackLicense
         <MatrixTransform Matrix="@TransformMatrix" />
     </Canvas.RenderTransform>
     <Path Data="@PathData"
-          Stroke="@StrokeColor"
           Fill="@FillColor"
           Stretch="Uniform" 
           Width="@PageWidth" 
           Height="@PageHeight"
-          UseLayoutRounding="False"
-          StrokeThickness="@StrokeWidth"
-          StrokeStartLineCap="@StrokeLineCap"
-          StrokeEndLineCap="@StrokeLineCap"
-          StrokeLineJoin="@StrokeLineJoin"/>
+          UseLayoutRounding="False"/>
 </Canvas>

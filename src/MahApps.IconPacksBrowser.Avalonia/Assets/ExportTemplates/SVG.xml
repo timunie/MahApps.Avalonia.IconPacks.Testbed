@@ -23,10 +23,6 @@ Iconpack-License:	@IconPackLicense
      width="@PageWidth"
      height="@PageHeight">
     <path d="@PathData"
-          style="fill:@FillColor;
-                 stroke:@StrokeColor
-                 stroke-width:@StrokeWidth;
-                 stroke-linecap:@StrokeLineCap;
-                 stroke-linejoin:@StrokeLineJoin;"
+          style="fill:@FillColor;"
           transform="matrix(@TransformMatrix)" />
 </svg>

@@ -24,15 +24,10 @@ Iconpack-License:	@IconPackLicense
         <MatrixTransform Matrix="@TransformMatrix" />
     </Canvas.LayoutTransform>
     <Path Data="@PathData"
-          Stroke="@StrokeColor"
           Fill="@FillColor"
           Stretch="Uniform"
           Width="@PageWidth"
           Height="@PageHeight"
           SnapsToDevicePixels="False"
-          UseLayoutRounding="False"
-          StrokeThickness="@StrokeWidth"
-          StrokeStartLineCap="@StrokeLineCap"
-          StrokeEndLineCap="@StrokeLineCap"
-          StrokeLineJoin="@StrokeLineJoin"/>
+          UseLayoutRounding="False"/>
 </Canvas>
