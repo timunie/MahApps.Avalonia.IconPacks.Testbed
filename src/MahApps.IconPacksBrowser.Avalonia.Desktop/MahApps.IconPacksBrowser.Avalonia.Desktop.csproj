@@ -18,12 +18,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia.Desktop" />
-        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" />
-    </ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" />
+    <!-- Ensure Skia native binaries are present at runtime under NativeAOT -->
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
+    <!-- Logging -->
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.Sinks.File" />
+    <PackageReference Include="SerilogTraceListener" />
+  </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\ext\src\IconPacks.Avalonia\IconPacks.Avalonia.csproj" />
         <ProjectReference Include="..\MahApps.IconPacksBrowser.Avalonia\MahApps.IconPacksBrowser.Avalonia.csproj" />
     </ItemGroup>
 </Project>

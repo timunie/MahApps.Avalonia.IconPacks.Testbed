@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -53,8 +52,8 @@ using IconPacks.Avalonia.VaadinIcons;
 using IconPacks.Avalonia.WeatherIcons;
 using IconPacks.Avalonia.Zondicons;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
-using ReactiveUI;
-using System.Diagnostics.CodeAnalysis;
+using System.Reactive.Concurrency;
+using System.Threading;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
@@ -62,20 +61,26 @@ public partial class MainViewModel : ViewModelBase
 {
     public static MainViewModel Instance { get; } = new();
 
-    [RequiresDynamicCode("ReactiveUI.WhenAnyValue uses expression trees which require dynamic code in AOT scenarios.")]
+    private readonly IScheduler _uiScheduler;
+
     public MainViewModel()
     {
+        // Capture the current SynchronizationContext to route Rx back to the UI thread without ReactiveUI.
+        _uiScheduler = SynchronizationContext.Current != null
+            ? new SynchronizationContextScheduler(SynchronizationContext.Current)
+            : CurrentThreadScheduler.Instance;
+
         this.AppVersion = GetAppVersion();
         SelectedNavigationItem = AvailableIconPacks[0];
 
         // Throttle text filter to avoid filtering on every keystroke
-        var filterByText = this.WhenAnyValue(x => x.FilterText)
+        var filterByText = this.ObserveValue(nameof(FilterText), () => FilterText)
             .Throttle(TimeSpan.FromMilliseconds(300))
             .DistinctUntilChanged()
             .Select(FilterIconsByStringPredicate);
 
         // Icon pack filter doesn't need throttling (changes infrequently)
-        var filterByIconPack = this.WhenAnyValue(x => x.SelectedIconPack)
+        var filterByIconPack = this.ObserveValue(nameof(SelectedIconPack), () => SelectedIconPack)
             .DistinctUntilChanged()
             .Select(FilterIconsByTypePredicate);
 
@@ -89,7 +94,7 @@ public partial class MainViewModel : ViewModelBase
 
         _iconsCache.Connect()
             .Filter(combinedFilter)
-            .ObserveOn(RxApp.MainThreadScheduler)
+            .ObserveOn(_uiScheduler)
             .SortAndBind(out _visibleIcons, 
                 SortExpressionComparer<IIconViewModel>.Ascending(e => e.Identifier))
             .DisposeMany()
@@ -102,31 +107,11 @@ public partial class MainViewModel : ViewModelBase
 
     private static string GetAppVersion()
     {
-        // FileVersionInfo is not supported on Browser/WASM and throws PlatformNotSupportedException.
-        // Prefer it on supported platforms, and gracefully fall back to assembly attributes otherwise.
-        try
-        {
-            if (!OperatingSystem.IsBrowser())
-            {
-                var loc = Assembly.GetExecutingAssembly().Location;
-                if (!string.IsNullOrEmpty(loc))
-                {
-                    var fvi = FileVersionInfo.GetVersionInfo(loc);
-                    if (!string.IsNullOrWhiteSpace(fvi.FileVersion))
-                        return fvi.FileVersion!;
-                }
-            }
-        }
-        catch (PlatformNotSupportedException)
-        {
-            // ignore – fall back below
-        }
-
         // Fallbacks that work in Browser/WASM
         var asm = Assembly.GetExecutingAssembly();
         var infoVersion = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         if (!string.IsNullOrWhiteSpace(infoVersion))
-            return infoVersion!;
+            return infoVersion;
 
         return asm.GetName().Version?.ToString() ?? "unknown";
     }

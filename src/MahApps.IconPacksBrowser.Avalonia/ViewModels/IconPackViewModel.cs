@@ -52,8 +52,12 @@ public partial class IconPackViewModel : ViewModelBase
     private static IEnumerable<IIconViewModel> GetIcons(Type enumType, Type packType)
     {
         var metaData = GetMetaData(packType);
-        return Enum.GetValues(enumType)
-            .OfType<Enum>()
+        // AOT-friendly enumeration of enum values:
+        // Use GetValuesAsUnderlyingType (safe for AOT) and convert each value back to the enum via Enum.ToObject.
+        // Avoid Enum.GetValues(Type) which may require dynamic code (IL3050 in trimmed/AOT builds).
+        return Enum.GetValuesAsUnderlyingType(enumType)
+            .Cast<object>()
+            .Select(v => (Enum)Enum.ToObject(enumType, v))
             .Where(k => k.ToString() != "None")
             .Select(k => new IconViewModel(enumType, packType, k, metaData!));
     }

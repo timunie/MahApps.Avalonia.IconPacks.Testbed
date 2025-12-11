@@ -22,19 +22,22 @@
         <PackageReference Include="Avalonia" />
         <PackageReference Include="Avalonia.Fonts.Inter" />
         <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Include="Avalonia.Controls.ColorPicker" />
         <PackageReference Include="Avalonia.Skia" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics"/>
-        <PackageReference Include="IconPacks.Avalonia" />
+
+        <!--        <PackageReference Include="IconPacks.Avalonia" />-->
         <PackageReference Include="CommunityToolkit.Mvvm" />
-        <PackageReference Include="ReactiveUI.Avalonia" />
+        <!-- Removed ReactiveUI to reduce trim/AOT problems; use System.Reactive + DynamicData directly -->
+        <PackageReference Include="System.Reactive" />
+        <PackageReference Include="DynamicData" />
         <PackageReference Include="SkiaSharp" />
         <PackageReference Include="LiveMarkdown.Avalonia" />
     </ItemGroup>
 
-  <!-- Ensure members used via reflection survive trimming/AOT -->
-  <ItemGroup>
-    <TrimmerRootDescriptor Include="roots.xml" />
-  </ItemGroup>
-
+    <ItemGroup>
+      <ProjectReference Include="..\..\ext\src\IconPacks.Avalonia.Core\IconPacks.Avalonia.Core.csproj" />
+      <ProjectReference Include="..\..\ext\src\IconPacks.Avalonia\IconPacks.Avalonia.csproj" />
+    </ItemGroup>
 </Project>

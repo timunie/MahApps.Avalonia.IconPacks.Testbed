@@ -7,49 +7,8 @@ using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Skia;
-using IconPacks.Avalonia.BootstrapIcons;
-using IconPacks.Avalonia.BoxIcons;
-using IconPacks.Avalonia.BoxIcons2;
-using IconPacks.Avalonia.CircumIcons;
-using IconPacks.Avalonia.Codicons;
-using IconPacks.Avalonia.Coolicons;
+using IconPacks.Avalonia;
 using IconPacks.Avalonia.Core;
-using IconPacks.Avalonia.Entypo;
-using IconPacks.Avalonia.EvaIcons;
-using IconPacks.Avalonia.FeatherIcons;
-using IconPacks.Avalonia.FileIcons;
-using IconPacks.Avalonia.Fontaudio;
-using IconPacks.Avalonia.FontAwesome;
-using IconPacks.Avalonia.FontAwesome5;
-using IconPacks.Avalonia.FontAwesome6;
-using IconPacks.Avalonia.Fontisto;
-using IconPacks.Avalonia.ForkAwesome;
-using IconPacks.Avalonia.GameIcons;
-using IconPacks.Avalonia.Ionicons;
-using IconPacks.Avalonia.JamIcons;
-using IconPacks.Avalonia.KeyruneIcons;
-using IconPacks.Avalonia.Lucide;
-using IconPacks.Avalonia.Material;
-using IconPacks.Avalonia.MaterialDesign;
-using IconPacks.Avalonia.MaterialLight;
-using IconPacks.Avalonia.MemoryIcons;
-using IconPacks.Avalonia.Microns;
-using IconPacks.Avalonia.MingCuteIcons;
-using IconPacks.Avalonia.Modern;
-using IconPacks.Avalonia.MynaUIIcons;
-using IconPacks.Avalonia.Octicons;
-using IconPacks.Avalonia.PhosphorIcons;
-using IconPacks.Avalonia.PicolIcons;
-using IconPacks.Avalonia.PixelartIcons;
-using IconPacks.Avalonia.RadixIcons;
-using IconPacks.Avalonia.RemixIcon;
-using IconPacks.Avalonia.RPGAwesome;
-using IconPacks.Avalonia.SimpleIcons;
-using IconPacks.Avalonia.Typicons;
-using IconPacks.Avalonia.Unicons;
-using IconPacks.Avalonia.VaadinIcons;
-using IconPacks.Avalonia.WeatherIcons;
-using IconPacks.Avalonia.Zondicons;
 using MahApps.IconPacksBrowser.Avalonia.Properties;
 using MahApps.IconPacksBrowser.Avalonia.ViewModels;
 using SkiaSharp;
@@ -148,52 +107,8 @@ internal static class ExportHelper
     {
         try
         {
-            SKPath? skPath = kind switch
-            {
-                PackIconBootstrapIconsKind k => GetPathCore(k),
-                PackIconBoxIconsKind k => GetPathCore(k),
-                PackIconBoxIcons2Kind k => GetPathCore(k),
-                PackIconCircumIconsKind k => GetPathCore(k),
-                PackIconCodiconsKind k => GetPathCore(k),
-                PackIconCooliconsKind k => GetPathCore(k),
-                PackIconEntypoKind k => GetPathCore(k),
-                PackIconEvaIconsKind k => GetPathCore(k),
-                PackIconFeatherIconsKind k => GetPathCore(k),
-                PackIconFileIconsKind k => GetPathCore(k),
-                PackIconFontaudioKind k => GetPathCore(k),
-                PackIconFontAwesomeKind k => GetPathCore(k),
-                PackIconFontAwesome5Kind k => GetPathCore(k),
-                PackIconFontAwesome6Kind k => GetPathCore(k),
-                PackIconFontistoKind k => GetPathCore(k),
-                PackIconForkAwesomeKind k => GetPathCore(k),
-                PackIconGameIconsKind k => GetPathCore(k),
-                PackIconIoniconsKind k => GetPathCore(k),
-                PackIconJamIconsKind k => GetPathCore(k),
-                PackIconKeyruneIconsKind k => GetPathCore(k),
-                PackIconLucideKind k => GetPathCore(k),
-                PackIconMaterialKind k => GetPathCore(k),
-                PackIconMaterialDesignKind k => GetPathCore(k),
-                PackIconMaterialLightKind k => GetPathCore(k),
-                PackIconMemoryIconsKind k => GetPathCore(k),
-                PackIconMicronsKind k => GetPathCore(k),
-                PackIconMingCuteIconsKind k => GetPathCore(k),
-                PackIconModernKind k => GetPathCore(k),
-                PackIconMynaUIIconsKind k => GetPathCore(k),
-                PackIconOcticonsKind k => GetPathCore(k),
-                PackIconPhosphorIconsKind k => GetPathCore(k),
-                PackIconPicolIconsKind k => GetPathCore(k),
-                PackIconPixelartIconsKind k => GetPathCore(k),
-                PackIconRadixIconsKind k => GetPathCore(k),
-                PackIconRemixIconKind k => GetPathCore(k),
-                PackIconRPGAwesomeKind k => GetPathCore(k),
-                PackIconSimpleIconsKind k => GetPathCore(k),
-                PackIconTypiconsKind k => GetPathCore(k),
-                PackIconUniconsKind k => GetPathCore(k),
-                PackIconVaadinIconsKind k => GetPathCore(k),
-                PackIconWeatherIconsKind k => GetPathCore(k),
-                PackIconZondiconsKind k => GetPathCore(k),
-                _ => null
-            };
+            var pathData = PackIconControlDataFactory.DataIndex.Value[kind];
+            SKPath? skPath = SKPath.ParseSvgPathData(pathData);
 
 #if DEBUG
             if (skPath is null)
@@ -204,30 +119,6 @@ internal static class ExportHelper
             if (skPath is null)
                 return null;
 #endif
-
-            // Transform if needed
-            // TODO: Would be great to have an upstream API to get this information to not duplicate the code elsewhere
-            switch (kind)
-            {
-                case PackIconBootstrapIconsKind:
-                case PackIconBoxIconsKind:
-                case PackIconCodiconsKind:
-                case PackIconCooliconsKind:
-                case PackIconEvaIconsKind:
-                case PackIconFileIconsKind:
-                case PackIconFontaudioKind:
-                case PackIconFontistoKind:
-                case PackIconForkAwesomeKind:
-                case PackIconJamIconsKind:
-                case PackIconLucideKind:
-                case PackIconMingCuteIconsKind:
-                case PackIconMynaUIIconsKind:
-                case PackIconRPGAwesomeKind:
-                case PackIconTypiconsKind:
-                case PackIconVaadinIconsKind:
-                    skPath.Transform(SKMatrix.CreateScale(1, -1));
-                    break;
-            }
 
             skPath.FillType = SKPathFillType.EvenOdd;
 
@@ -363,7 +254,7 @@ internal static class ExportHelper
         }
 
         paint.Color = Settings.Default.IconForeground.ToSKColor();
-        paint.IsStroke = icon.Value is PackIconFeatherIconsKind;
+        // TODO: Needed? paint.IsStroke = icon.Value is PackIconFeatherIconsKind;
 
         canvas.DrawPath(path, paint);
 
@@ -401,7 +292,7 @@ internal struct ExportParameters
         this.FillColor = Settings.Default.IconForeground.ToString();
         this.Background = Settings.Default.IconBackground.ToString();
         this.StrokeColor = Settings.Default.IconForeground.ToString();
-        this.StrokeWidth = icon.Value is PackIconFeatherIconsKind ? "2" : "0"; // TODO: We need an API to read these values
+        // this.StrokeWidth = icon.Value is PackIconFeatherIconsKind ? "2" : "0"; // TODO: We need an API to read these values
         this.StrokeLineCap = nameof(PenLineCap.Round);
         this.StrokeLineJoin = nameof(PenLineJoin.Round);
         this.TransformMatrix = Matrix.Identity.ToString(); // TODO Get correct Matrix
