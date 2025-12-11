@@ -68,7 +68,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             AvaloniaProperty.Register<VirtualizingWrapPanel, int>(nameof(CacheRows), 2);
 
         private static readonly AttachedProperty<object?> _RecycleKeyProperty =
-            AvaloniaProperty.RegisterAttached<VirtualizingStackPanel, Control, object?>("RecycleKey");
+            AvaloniaProperty.RegisterAttached<VirtualizingWrapPanel, Control, object?>("RecycleKey");
 
         // ReSharper disable once InconsistentNaming
         private static readonly object s_itemIsItsOwnContainer = new object();
@@ -715,10 +715,14 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 // We have an element to scroll to, so we can estimate the desired size based on the
                 // element's position and the remaining elements.
                 var remainingItems = itemCount - _scrollToIndex - 1;
-                var itemsPerRow = Math.Max(Math.Floor(GetWidth(_viewport.Size) / GetWidth(GetAverageItemSize())), 1);
+                // Hoist computations to locals to avoid repeated calls
+                var viewportWidth = GetWidth(_viewport.Size);
+                var avgSize = GetAverageItemSize();
+                var avgWidth = GetWidth(avgSize);
+                var itemsPerRow = Math.Max(Math.Floor(viewportWidth / avgWidth), 1);
                 var remainingRows = (int)Math.Ceiling(remainingItems / itemsPerRow);
                 var u = GetY(_scrollToElement.Bounds.BottomRight);
-                var sizeU = u + (remainingRows * GetHeight(GetAverageItemSize()));
+                var sizeU = u + (remainingRows * GetHeight(avgSize));
                 return orientation == Orientation.Horizontal ?
                     new(sizeU, DesiredSize.Height) :
                     new(DesiredSize.Width, sizeU);
@@ -804,7 +808,8 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
 
                 if (itemWidth == 0 || itemHeight == 0) return new Point();
 
-                var itemsPerRow = Math.Max(Math.Floor(GetWidth(_viewport.Size) / itemWidth), 1);
+                var viewportWidth = GetWidth(_viewport.Size);
+                var itemsPerRow = Math.Max(Math.Floor(viewportWidth / itemWidth), 1);
 
                 var itemRowIndex = (int)Math.Floor(itemIndex * 1.0 / itemsPerRow);
                 x = (itemIndex - itemRowIndex * itemsPerRow) * itemWidth;
@@ -812,25 +817,80 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 return CreatePoint(x, y);
             }
 
-            for (int i = 0; i <= itemIndex; i++)
+            // Try to use row cache to quickly jump to the correct row and then accumulate within the row
+            if (_rowCache.Count > 0)
             {
-                Size itemSize = GetAssumedItemSize(Items[i]);
-
-                if (x != 0 && x + GetWidth(itemSize) > GetWidth(_viewport.Size))
+                int lo = 0, hi = _rowCache.Count - 1, best = -1;
+                while (lo <= hi)
                 {
-                    x = 0;
-                    y += rowHeight;
-                    rowHeight = 0;
+                    int mid = (lo + hi) >> 1;
+                    var r = _rowCache[mid];
+                    if (r.StartIndex <= itemIndex)
+                    {
+                        best = mid;
+                        lo = mid + 1;
+                    }
+                    else
+                    {
+                        hi = mid - 1;
+                    }
                 }
 
-                if (i != itemIndex)
+                if (best >= 0)
                 {
-                    x += GetWidth(itemSize);
-                    rowHeight = Math.Max(rowHeight, GetHeight(itemSize));
+                    var row = _rowCache[best];
+                    y = row.Y;
+                    rowHeight = row.Height;
+                    x = 0;
+
+                    // Accumulate widths from the row start to the requested index
+                    var start = row.StartIndex;
+                    var end = Math.Min(itemIndex, start + row.Count - 1);
+                    var viewportWidth = GetWidth(_viewport.Size);
+                    for (int i = start; i <= end; i++)
+                    {
+                        var size = GetAssumedItemSize(i, Items[i]);
+                        if (i != itemIndex)
+                        {
+                            if (x != 0 && x + GetWidth(size) > viewportWidth)
+                            {
+                                // Should not normally happen inside a single cached row, but guard anyway
+                                x = 0;
+                                y += rowHeight;
+                                rowHeight = 0;
+                            }
+                            x += GetWidth(size);
+                            rowHeight = Math.Max(rowHeight, GetHeight(size));
+                        }
+                    }
+
+                    return CreatePoint(x, y);
                 }
             }
 
-            return CreatePoint(x, y);
+            // Fallback: linear accumulation (no cache available)
+            {
+                var viewportWidth = GetWidth(_viewport.Size);
+                for (int i = 0; i <= itemIndex; i++)
+                {
+                    Size itemSize = GetAssumedItemSize(i, Items[i]);
+
+                    if (x != 0 && x + GetWidth(itemSize) > viewportWidth)
+                    {
+                        x = 0;
+                        y += rowHeight;
+                        rowHeight = 0;
+                    }
+
+                    if (i != itemIndex)
+                    {
+                        x += GetWidth(itemSize);
+                        rowHeight = Math.Max(rowHeight, GetHeight(itemSize));
+                    }
+                }
+
+                return CreatePoint(x, y);
+            }
         }
 
         /// <summary>
@@ -1000,7 +1060,12 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
 
                 Size? upfrontKnownItemSize = GetUpfrontKnownItemSize(item);
 
-                container.Measure(upfrontKnownItemSize ?? Size.Infinity);
+                // Prefer measuring with a concrete size when truly known (ItemSize, _sizeOfFirstItem, or provider).
+                // If unknown, use Size.Infinity so the template can produce its natural DesiredSize.
+                Size? measureSize = upfrontKnownItemSize
+                                    ?? _sizeOfFirstItem
+                                    ?? (!ItemSize.NearlyEquals(_EmptySize) ? ItemSize : (Size?)null);
+                container.Measure(measureSize ?? Size.Infinity);
 
                 var containerSize = DetermineContainerSize(item, container, upfrontKnownItemSize);
 
@@ -1057,7 +1122,8 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             AddRowCacheEntry(currentRowStartIndex, y, rowHeight, currentRowCount);
 
             _endItemIndex = newEndItemIndex;
-            Debug.WriteLine($"Start: {_startItemIndex} - End: {_endItemIndex}");
+            // Debug logging disabled in hot path
+            // Debug.WriteLine($"Start: {_startItemIndex} - End: {_endItemIndex}");
         }
 
         /// <summary>
@@ -1156,6 +1222,24 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             }
 
             var index = Items.IndexOf(item);
+            if (_realizedElements!.GetElementSize(index) is { } cachedItemSize)
+            {
+                return cachedItemSize;
+            }
+
+            return GetAverageItemSize();
+        }
+
+        // Index-aware overload to avoid O(n) IndexOf calls on hot paths
+        private Size GetAssumedItemSize(int index, object? item)
+        {
+            if (item is null) return _EmptySize;
+
+            if (GetUpfrontKnownItemSize(item) is { } upfrontKnownItemSize)
+            {
+                return upfrontKnownItemSize;
+            }
+
             if (_realizedElements!.GetElementSize(index) is { } cachedItemSize)
             {
                 return cachedItemSize;

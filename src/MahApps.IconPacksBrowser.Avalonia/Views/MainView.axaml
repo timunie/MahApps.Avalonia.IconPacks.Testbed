@@ -132,7 +132,8 @@
 
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <controls:VirtualizingWrapPanel SpacingMode="Uniform" />
+                                    <controls:VirtualizingWrapPanel ItemSize="128,128" 
+                                                                    SpacingMode="Uniform" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
