@@ -21,12 +21,18 @@
         <!--  Our ToggleButton should look like a normal button  -->
         <ControlTheme x:Key="PreviewExpanderToggleButtonTheme"
                       BasedOn="{StaticResource {x:Type Button}}"
-                      TargetType="ToggleButton" />
+                      TargetType="ToggleButton" >
+            <Style Selector="^:pointerover /template/ ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}"></Setter>
+            </Style>
+            <Style Selector="^:pressed /template/ ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightHighBrush}"></Setter>
+            </Style>
+        </ControlTheme>
 
     </UserControl.Resources>
 
-    <DockPanel HorizontalAlignment="Right" 
-               Background="{DynamicResource SolidBackgroundFillColorBaseBrush}">
+    <DockPanel HorizontalAlignment="Right" >
 
         <controls:PropertyResizer Classes="horizontal"
                                   DockPanel.Dock="Left"
@@ -38,8 +44,9 @@
 
         <ToggleButton Padding="2"
                       VerticalAlignment="Stretch"
-                      Background="Transparent"
+                      Background="{DynamicResource ThemeControlHighlightLowBrush}"
                       BorderBrush="Transparent"
+                      BorderThickness="0"
                       DockPanel.Dock="Left"
                       CornerRadius="0"
                       IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsPreviewerVisible}"
@@ -60,42 +67,43 @@
             </LayoutTransformControl>
         </ToggleButton>
 
-        <ScrollViewer Padding="0,0,12,0"
-                      Grid.IsSharedSizeScope="True"
+        <ScrollViewer Grid.IsSharedSizeScope="True"
                       IsVisible="{Binding Source={x:Static prop:Settings.Default}, Path=IsPreviewerVisible}"
                       VerticalScrollBarVisibility="Auto">
             <StackPanel x:Name="Panel"
+                        Margin="5"
                         Width="400"
                         MaxWidth="{Binding $parent[TopLevel].Bounds.Width, Converter={x:Static converters:MathConverters.Multiply}, ConverterParameter=.75}"
                         Spacing="5">
                 <Expander x:Name="PreviewExpander"
                           DataContext="{Binding SelectedIcon}"
                           Header="Preview"
+                          Padding="0"
                           IsExpanded="True">
-                    <Expander.Background>
-                        <DrawingBrush AlignmentX="Left"
-                                      AlignmentY="Top"
-                                      DestinationRect="0,0,20,20"
-                                      SourceRect="0,0,20,20"
-                                      Stretch="None"
-                                      TileMode="Tile">
-                            <DrawingBrush.Drawing>
-                                <GeometryDrawing Brush="{DynamicResource SubtleFillColorSecondaryBrush}">
-                                    <GeometryDrawing.Geometry>
-                                        <GeometryGroup>
-                                            <RectangleGeometry Rect="0,0,10,10" />
-                                            <RectangleGeometry Rect="10,10,10,10" />
-                                        </GeometryGroup>
-                                    </GeometryDrawing.Geometry>
-                                </GeometryDrawing>
-                            </DrawingBrush.Drawing>
-                        </DrawingBrush>
-                    </Expander.Background>
                     <ScrollViewer x:Name="PreviewScrollViewer"
                                   Height="200"
                                   Padding="2"
                                   HorizontalScrollBarVisibility="Auto"
                                   VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer.Background>
+                            <DrawingBrush AlignmentX="Left"
+                                          AlignmentY="Top"
+                                          DestinationRect="0,0,20,20"
+                                          SourceRect="0,0,20,20"
+                                          Stretch="None"
+                                          TileMode="Tile">
+                                <DrawingBrush.Drawing>
+                                    <GeometryDrawing Brush="{DynamicResource ThemeControlHighlightLowBrush}">
+                                        <GeometryDrawing.Geometry>
+                                            <GeometryGroup>
+                                                <RectangleGeometry Rect="0,0,10,10" />
+                                                <RectangleGeometry Rect="10,10,10,10" />
+                                            </GeometryGroup>
+                                        </GeometryDrawing.Geometry>
+                                    </GeometryDrawing>
+                                </DrawingBrush.Drawing>
+                            </DrawingBrush>
+                        </ScrollViewer.Background>
                         <ScrollViewer.ContextFlyout>
                             <MenuFlyout>
                                 <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardTextCommand}"

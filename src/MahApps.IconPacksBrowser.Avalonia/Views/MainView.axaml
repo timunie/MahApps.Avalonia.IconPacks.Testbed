@@ -19,13 +19,14 @@
     <Grid RowDefinitions="Auto,*,Auto">
         <Border Grid.Row="0"
                 Height="48"
-                BorderBrush="{DynamicResource AccentFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource ThemeAccentBrush}"
                 Margin="0,0,0,1"
                 DockPanel.Dock="Top">
             <DockPanel LastChildFill="True">
                 <!-- Loading indicator -->
                 <ProgressBar DockPanel.Dock="Bottom"
-                             Height="3"
+                             Height="3" 
+                             MinHeight="3"
                              IsIndeterminate="{Binding IsLoading}"
                              Value="100"
                              HorizontalAlignment="Stretch" />
@@ -42,10 +43,11 @@
 
                 <TextBox x:Name="FilterTextBox"
                          MinWidth="{OnFormFactor Desktop=400, Default=50}"
+                         MinHeight="25"
                          Margin="5"
                          VerticalContentAlignment="Center"
                          Watermark="{OnFormFactor Desktop='Filter by... (Ctrl + F)', Default='Filter by...'}"
-                         BorderBrush="{DynamicResource SurfaceStrokeColorDefaultBrush}"
+                         BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                          CornerRadius="{Binding $self.Bounds, Converter={x:Static converters:BoundsToCornerRadiusConverter.Instance}}"
                          BorderThickness="1"
                          DockPanel.Dock="Right"
@@ -54,12 +56,12 @@
                         <iconPacks:PackIconBootstrapIcons Kind="Search"
                                                           VerticalAlignment="Center"
                                                           Height="14"
-                                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                                          Margin="10,0,0,0" />
+                                                          Foreground="{DynamicResource ThemeForegroundBrush}"
+                                                          Margin="5,0,0,0" />
                     </TextBox.InnerLeftContent>
                     <ToolTip.Tip>
                         <StackPanel Spacing="5">
-                            <TextBlock Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                            <TextBlock Foreground="{DynamicResource ThemeForegroundBrush}"
                                        FontWeight="Bold"
                                        Text="Advanced filtering:" />
                             <TextBlock TextWrapping="NoWrap">
@@ -76,7 +78,7 @@
 
                 <TransitioningContentControl Margin="15,0"
                                              VerticalAlignment="Center"
-                                             Foreground="{DynamicResource AccentFillColorDefaultBrush}"
+                                             Foreground="{DynamicResource ThemeAccentBrush}"
                                              FontSize="{OnFormFactor Mobile=20, Default=30}"
                                              FontWeight="DemiBold"
                                              Content="{Binding SelectedNavigationItem.Title}" />
@@ -151,7 +153,7 @@
                     Height="24"
                     x:DataType="vm:MainViewModel"
                     DataContext="{x:Static vm:MainViewModel.Instance}"
-                    Background="{DynamicResource AccentFillColorDefaultBrush}"
+                    Background="{DynamicResource ThemeAccentBrush}"
                     TextElement.Foreground="White"
                     Orientation="Horizontal">
 

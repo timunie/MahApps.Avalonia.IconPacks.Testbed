@@ -2,11 +2,13 @@
     <Design.PreviewWith>
         <Button Theme="{StaticResource TextBoxButtonStyle}" Content="Hello" />
     </Design.PreviewWith>
+    
     <Thickness x:Key="TextBoxInnerButtonMargin">2,0</Thickness>
+    
     <ControlTheme x:Key="TextBoxButtonStyle" TargetType="Button">
-        <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForeground}" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -25,7 +27,7 @@
                                       VerticalAlignment="Center"
                                       Content="{TemplateBinding Content}"
                                       ContentTemplate="{TemplateBinding ContentTemplate}"
-                                      FontSize="{DynamicResource TextBoxIconFontSize}"
+                                      FontSize="12"
                                       Foreground="{TemplateBinding Foreground}" />
                 </Border>
             </ControlTemplate>
@@ -33,23 +35,23 @@
 
         <Style Selector="^:pointerover">
             <Style Selector="^ /template/ Border#ButtonLayoutGrid">
-                <Setter Property="Background" Value="{DynamicResource TextControlButtonBackgroundPointerOver}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrushPointerOver}" />
+                <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
             </Style>
 
             <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForegroundPointerOver}" />
+                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
             </Style>
         </Style>
 
         <Style Selector="^:pressed">
             <Style Selector="^ /template/ Border#ButtonLayoutGrid">
-                <Setter Property="Background" Value="{DynamicResource TextControlButtonBackgroundPressed}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrushPressed}" />
+                <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
             </Style>
 
             <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
-                <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForegroundPressed}" />
+                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
             </Style>
         </Style>
 
@@ -57,4 +59,5 @@
             <Setter Property="Opacity" Value="0" />
         </Style>
     </ControlTheme>
+    
 </ResourceDictionary>

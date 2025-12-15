@@ -45,7 +45,7 @@ public partial class Settings : ObservableObject
     /// </summary>
     [ObservableProperty]
     [JsonConverter(typeof(JsonColorConverter))]
-    public partial Color IconForeground { get; set; } = Application.Current?.FindResource("SystemAccentColor") as Color?
+    public partial Color IconForeground { get; set; } = Application.Current?.FindResource("ThemeAccentColor") as Color?
                                                         ?? Colors.Green;
 
     /// <summary>

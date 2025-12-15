@@ -2,12 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
                     x:DataType="viewModels:IIconViewModel"
-                    Design.DataContext="{Binding Source={x:Static viewModels:_DesignData.IconPreviewData}}"
                     xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels">
-    
-    <Design.PreviewWith>
-        <ContentControl Content="xxx"></ContentControl>
-    </Design.PreviewWith>
     
     <DataTemplate x:Key="IconPacksBrowser.DataTemplates.ListBox.IconViewModel" DataType="viewModels:IIconViewModel">
         <Grid x:Name="Root"
@@ -20,20 +15,20 @@
                                        Height="48"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Kind="{Binding Value, Mode=OneWay}" />
+                                       Kind="{Binding Value, Mode=OneTime}" />
 
             <TextBlock Grid.Row="1"
                        Margin="2"
                        HorizontalAlignment="Center"
-                       Text="{Binding Name, Mode=OneWay}"
+                       Text="{Binding Name, Mode=OneTime}"
                        TextTrimming="CharacterEllipsis" />
         </Grid>
     </DataTemplate>
 
     
-    <SolidColorBrush x:Key="IconPackBrowserListBoxItemSelectedBackground" Color="{DynamicResource SystemAccentColor}" Opacity="0.1" />
-    <SolidColorBrush x:Key="IconPackBrowserListBoxItemPointerOverBackground" Color="{DynamicResource SystemAccentColorLight1}" Opacity="0.05" />
-    <SolidColorBrush x:Key="IconPackBrowserListBoxItemSelectedPointerOverBackground" Color="{DynamicResource SystemAccentColor}" Opacity="0.15" />
+    <SolidColorBrush x:Key="IconPackBrowserListBoxItemSelectedBackground" Color="{DynamicResource ThemeAccentColor}" Opacity="0.1" />
+    <SolidColorBrush x:Key="IconPackBrowserListBoxItemPointerOverBackground" Color="{DynamicResource ThemeAccentColor}" Opacity="0.05" />
+    <SolidColorBrush x:Key="IconPackBrowserListBoxItemSelectedPointerOverBackground" Color="{DynamicResource ThemeAccentColor}" Opacity="0.15" />
 
     <!-- Shared context flyout to avoid creating one per realized container -->
     <MenuFlyout x:Key="IconPackBrowserListItemActionsFlyout">
@@ -79,14 +74,14 @@
     <ControlTheme x:Key="IconPackBrowserListBoxItemStyle" TargetType="ListBoxItem">
         <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
-        <Setter Property="Background" Value="{DynamicResource ListViewItemBackground}" />
-        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-        <Setter Property="Foreground" Value="{DynamicResource ListViewItemForeground}" />
+        <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="Padding" Value="16,0,12,0" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="MinWidth" Value="{DynamicResource ListViewItemMinWidth}" />
-        <Setter Property="MinHeight" Value="{DynamicResource ListViewItemMinHeight}" />
+        <Setter Property="MinWidth" Value="40" />
+        <Setter Property="MinHeight" Value="32" />
         <Setter Property="BorderThickness" Value="1" />
         <!-- Use shared flyout instance to reduce per-container allocations -->
         <Setter Property="ContextFlyout" Value="{StaticResource IconPackBrowserListItemActionsFlyout}" />
@@ -156,8 +151,8 @@
         <Style Selector="^:pointerover">
             <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Background" Value="{DynamicResource IconPackBrowserListBoxItemPointerOverBackground}" />
-                <Setter Property="Foreground" Value="{DynamicResource ListViewItemForegroundPointerOver}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorTertiaryBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
             </Style>
             <Style Selector="^ /template/ Grid#PART_Overlay">
                 <Setter Property="IsVisible" Value="True" />
@@ -168,19 +163,19 @@
         <Style Selector="^:pressed">
             <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Background" Value="{DynamicResource IconPackBrowserListBoxItemSelectedBackground}" />
-                <Setter Property="Foreground" Value="{DynamicResource ListViewItemForegroundPressed}" />
+                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
             </Style>
         </Style>
 
         <Style Selector="^:selected">
-            <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorTertiaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
             <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Background" Value="{DynamicResource IconPackBrowserListBoxItemSelectedBackground}" />
-                <Setter Property="Foreground" Value="{DynamicResource ListViewItemForegroundSelected}" />
+                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
             </Style>
             <Style Selector="^:not(:focus) /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Background" Value="{DynamicResource IconPackBrowserListBoxItemSelectedBackground}" />
-                <Setter Property="Foreground" Value="{DynamicResource ListViewItemForegroundSelected}" />
+                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
             </Style>
             <Style Selector="^ /template/ Grid#PART_Overlay">
                 <Setter Property="IsVisible" Value="True" />
@@ -190,14 +185,14 @@
             <Style Selector="^:pointerover">
                 <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
                     <Setter Property="Background" Value="{DynamicResource IconPackBrowserListBoxItemSelectedPointerOverBackground}" />
-                    <Setter Property="Foreground" Value="{DynamicResource ListViewItemForegroundSelectedPointerOver}" />
+                    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
                 </Style>
             </Style>
 
             <Style Selector="^:pressed">
                 <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
                     <Setter Property="Background" Value="{DynamicResource IconPackBrowserListBoxItemSelectedBackground}" />
-                    <Setter Property="Foreground" Value="{DynamicResource ListViewItemForegroundSelectedPressed}" />
+                    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
                 </Style>
             </Style>
         </Style>
