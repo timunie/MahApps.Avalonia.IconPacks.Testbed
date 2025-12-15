@@ -15,7 +15,7 @@
 
     <ControlTheme x:Key="IconPackBrowserListBoxItemStyle" TargetType="ListBoxItem">
         <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
-        <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
         <Setter Property="Background" Value="{DynamicResource ListViewItemBackground}" />
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
         <Setter Property="Foreground" Value="{DynamicResource ListViewItemForeground}" />
@@ -94,7 +94,7 @@
     <!-- Default ListBox Style inspired by FluentAvalonia -->
     <ControlTheme TargetType="ListBoxItem" x:Key="{x:Type ListBoxItem}">
         <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
-        <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
+        <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
         <Setter Property="Background" Value="{DynamicResource ListViewItemBackground}" />
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
         <Setter Property="Foreground" Value="{DynamicResource ListViewItemForeground}" />

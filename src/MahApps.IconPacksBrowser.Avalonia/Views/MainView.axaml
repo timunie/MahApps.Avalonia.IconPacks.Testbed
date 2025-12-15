@@ -98,7 +98,7 @@
                         
                         <DataTemplate DataType="vm:NavigationItemViewModelBase">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Spacing="5">
-                                <!-- <ContentControl Content="{iconPacks:PackIcon Kind={Binding Icon}, Width={StaticResource ControlContentThemeFontSize}}"></ContentControl> -->
+                                <!-- <ContentControl Content="{iconPacks:PackIcon Kind={Binding Icon}, Width={StaticResource FontSizeNormal}}"></ContentControl> -->
                                 <ContentControl Content="{Binding Title}" />
                             </StackPanel>
                         </DataTemplate>
