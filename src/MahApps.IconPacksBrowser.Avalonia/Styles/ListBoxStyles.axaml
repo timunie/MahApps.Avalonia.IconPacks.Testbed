@@ -1,24 +1,70 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
+                    xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls">
     <Design.PreviewWith>
-        <ListBox  SelectedIndex="1">
-            <ListBoxItem>1</ListBoxItem>
+        <ListBox SelectedIndex="1">
+            <ListBoxItem Height="45">1sdfsdfsdf</ListBoxItem>
+            <ListBoxItem Theme="{DynamicResource SeparatorListBoxItem}" />
             <ListBoxItem>2</ListBoxItem>
             <ListBoxItem>3</ListBoxItem>
             <ListBoxItem>4</ListBoxItem>
         </ListBox>
     </Design.PreviewWith>
 
-    <ControlTheme x:Key="{x:Type ListBox}" BasedOn="{StaticResource {x:Type ListBox}}"
+    <ControlTheme x:Key="{x:Type ListBox}"
+                  BasedOn="{StaticResource {x:Type ListBox}}"
                   TargetType="ListBox">
         <Setter Property="BorderThickness" Value="0" />
     </ControlTheme>
-    
-    <!-- Default ListBox Style inspired by FluentAvalonia -->
-    <ControlTheme TargetType="ListBoxItem" x:Key="{x:Type ListBoxItem}">
+
+    <ControlTemplate x:Key="ListBoxItemDefaultTemplate" TargetType="ListBoxItem">
+        <Panel>
+            <ContentPresenter Name="PART_ContentPresenter"
+                              Margin="2"
+                              Padding="{TemplateBinding Padding}"
+                              VerticalAlignment="Stretch"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Background="{TemplateBinding Background}"
+                              BorderBrush="{TemplateBinding BorderBrush}"
+                              BorderThickness="{TemplateBinding BorderThickness}"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              CornerRadius="{TemplateBinding CornerRadius}" />
+
+            <!--
+                        added 1px left margin, otherwise we can get strange artifacts while
+                        animating, I'm guessing from bad invalidation rects?
+                    -->
+            <Rectangle Name="SelectionIndicator"
+                       Width="3"
+                       Height="16"
+                       Margin="2,0,0,0"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       Fill="{DynamicResource ThemeAccentBrush}"
+                       IsVisible="False"
+                       RadiusX="2"
+                       RadiusY="2"
+                       RenderTransform="scaleY(0)"
+                       UseLayoutRounding="False">
+                <Rectangle.Transitions>
+                    <Transitions>
+                        <TransformOperationsTransition Easing="0,0 0,1"
+                                                       Property="RenderTransform"
+                                                       Duration="00:00:00.167" />
+                    </Transitions>
+                </Rectangle.Transitions>
+            </Rectangle>
+        </Panel>
+    </ControlTemplate>
+
+    <!--  Default ListBox Style inspired by FluentAvalonia  -->
+    <ControlTheme x:Key="{x:Type ListBoxItem}" TargetType="ListBoxItem">
         <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
-        <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
+        <Setter Property="Background" Value="Transparent" />
         <Setter Property="CornerRadius" Value="4" />
         <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="Padding" Value="16,0,12,0" />
@@ -26,48 +72,10 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="MinWidth" Value="40" />
         <Setter Property="MinHeight" Value="32" />
-        <Setter Property="Template">
-            <ControlTemplate>
-                <Panel>
-                    <ContentPresenter Name="PART_ContentPresenter"
-                                      Background="{TemplateBinding Background}"
-                                      BorderBrush="{TemplateBinding BorderBrush}"
-                                      BorderThickness="{TemplateBinding BorderThickness}"
-                                      ContentTemplate="{TemplateBinding ContentTemplate}"
-                                      Content="{TemplateBinding Content}"
-                                      Padding="{TemplateBinding Padding}"
-                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      CornerRadius="{TemplateBinding CornerRadius}"
-                                      Margin="2" />
-
-                    <!-- added 1px left margin, otherwise we can get strange artifacts while
-                         animating, I'm guessing from bad invalidation rects? -->
-                    <Rectangle Name="SelectionIndicator"
-                               HorizontalAlignment="Left"
-                               VerticalAlignment="Center"
-                               Width="3" Height="16"
-                               Margin="2 0 0 0"
-                               UseLayoutRounding="False"
-                               RadiusX="2" RadiusY="2"
-                               IsVisible="False"
-                               RenderTransform="scaleY(0)"
-                               Fill="{DynamicResource ThemeAccentBrush}">
-                        <Rectangle.Transitions>
-                            <Transitions>
-                                <TransformOperationsTransition Duration="00:00:00.167"
-                                                               Property="RenderTransform"
-                                                               Easing="0,0 0,1" />
-                            </Transitions>
-                        </Rectangle.Transitions>
-                    </Rectangle>
-                </Panel>
-            </ControlTemplate>
-        </Setter>
-
-
+        <Setter Property="Template" Value="{StaticResource ListBoxItemDefaultTemplate}" />
+        
         <Style Selector="^:disabled">
-            <!-- There's no Disabled brush for LVI, so just dim opacity -->
+            <!--  There's no Disabled brush for LVI, so just dim opacity  -->
             <Setter Property="Opacity" Value="0.5" />
         </Style>
 
@@ -138,4 +146,18 @@
         </Style>
     </ControlTheme>
 
+    <ControlTemplate x:Key="NavigationPaneSeparatorTemplate">
+        <Separator Margin="10,0"
+                   HorizontalAlignment="Stretch"
+                   Background="{DynamicResource ThemeBorderLowBrush}" />
+    </ControlTemplate>
+    
+    <ControlTheme x:Key="NavigationPaneItemContainerTheme"
+                  x:DataType="x:Object"
+                  BasedOn="{StaticResource {x:Type ListBoxItem}}"
+                  TargetType="ListBoxItem">
+        <Setter Property="IsEnabled" Value="{Binding Converter={x:Static converters:NavigationItemConverters.IsEnabledConverter}}" />
+        <Setter Property="MinHeight" Value="{Binding Converter={x:Static converters:NavigationItemConverters.MinHeightConverter}}" />
+        <Setter Property="IsHitTestVisible" Value="{Binding Converter={x:Static converters:NavigationItemConverters.IsEnabledConverter}}" />
+    </ControlTheme>
 </ResourceDictionary>

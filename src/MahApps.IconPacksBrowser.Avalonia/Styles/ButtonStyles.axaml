@@ -1,35 +1,44 @@
-<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia">
     <Design.PreviewWith>
-        <Button Theme="{StaticResource TextBoxButtonStyle}" Content="Hello" />
+        <StackPanel Margin="10" Spacing="5">
+
+            <TextBox Theme="{StaticResource CopyToClipboardTextBox}" MinWidth="150">
+            </TextBox>
+
+            <Button Content="Hello" Theme="{DynamicResource TextBoxButtonStyle}" />
+            
+            <Button Content="XY" Theme="{DynamicResource IconToolButton}" />
+            
+            <ToggleButton Height="48" Theme="{DynamicResource PaneToggleButtonStyle}" />
+        </StackPanel>
     </Design.PreviewWith>
-    
-    <Thickness x:Key="TextBoxInnerButtonMargin">2,0</Thickness>
-    
-    <ControlTheme x:Key="TextBoxButtonStyle" TargetType="Button">
-        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+
+    <Thickness x:Key="TextBoxInnerButtonMargin">0</Thickness>
+
+    <ControlTheme x:Key="TextBoxButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+        <Setter Property="Foreground" Value="{DynamicResource ThemeBorderMidBrush}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
         <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="ClipToBounds" Value="True" />
+        <Setter Property="Cursor" Value="Arrow" />
         <Setter Property="Template">
             <ControlTemplate>
-                <!--
-                    Note: TextControlButtonBackground isn't defined anywhere so
-                    replaced Background with Transparent
-                -->
-                <Border Name="ButtonLayoutGrid"
-                        Margin="{DynamicResource TextBoxInnerButtonMargin}"
-                        Background="Transparent"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="{TemplateBinding CornerRadius}">
-                    <ContentPresenter x:Name="PART_ContentPresenter"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      Content="{TemplateBinding Content}"
-                                      ContentTemplate="{TemplateBinding ContentTemplate}"
-                                      FontSize="12"
-                                      Foreground="{TemplateBinding Foreground}" />
-                </Border>
+                <ContentPresenter x:Name="PART_ContentPresenter"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Stretch"
+                                  VerticalContentAlignment="Center"
+                                  Margin="{DynamicResource TextBoxInnerButtonMargin}"
+                                  Background="Transparent"
+                                  BorderBrush="{TemplateBinding BorderBrush}"
+                                  BorderThickness="{TemplateBinding BorderThickness}"
+                                  CornerRadius="{TemplateBinding CornerRadius}"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  Foreground="{TemplateBinding Foreground}" />
             </ControlTemplate>
         </Setter>
 
@@ -59,5 +68,81 @@
             <Setter Property="Opacity" Value="0" />
         </Style>
     </ControlTheme>
+
+    <ControlTheme x:Key="PaneToggleButtonStyle"
+                  BasedOn="{StaticResource {x:Type Button}}"
+                  TargetType="ToggleButton">
+        <Setter Property="Foreground" Value="{DynamicResource ThemeControlLowBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="MinWidth" Value="48" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Content">
+            <Template>
+                <iconPacks:PackIconCoolicons Width="20"
+                                             Height="20"
+                                             Kind="HamburgerLg"
+                                             UseLayoutRounding="False" />
+            </Template>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <ContentPresenter Name="PART_ContentPresenter"
+                                  Padding="{TemplateBinding Padding}"
+                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                  Background="{TemplateBinding Background}"
+                                  BorderBrush="{TemplateBinding BorderBrush}"
+                                  BorderThickness="{TemplateBinding BorderThickness}"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  CornerRadius="{TemplateBinding CornerRadius}"
+                                  TextElement.Foreground="{TemplateBinding Foreground}" />
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:checked">
+            <Setter Property="Content">
+                <Template>
+                    <iconPacks:PackIconCoolicons Width="20"
+                                                 Height="20"
+                                                 Kind="CloseLg"
+                                                 UseLayoutRounding="False" />
+                </Template>
+            </Setter>
+        </Style>
+
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeControlHighBrush}" />
+        </Style>
+
+        <Style Selector="^:pressed">
+            <Setter Property="Foreground" Value="{DynamicResource ThemeBackgroundBrush}" />
+        </Style>
+
+
+    </ControlTheme>
     
+    <ControlTheme x:Key="IconToolButton"
+                  BasedOn="{StaticResource {x:Type Button}}"
+                  TargetType="Button">
+        <Setter Property="Width" Value="22" />
+        <Setter Property="Height" Value="22" />
+        <Setter Property="CornerRadius" Value="11" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightLowBrush}" />
+        </Style>
+        
+        <Style Selector="^:pressed">
+            <Setter Property="Foreground" Value="{DynamicResource ThemeBackgroundBrush}" />
+        </Style>
+    </ControlTheme>
+
 </ResourceDictionary>

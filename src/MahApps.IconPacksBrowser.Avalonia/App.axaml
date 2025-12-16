@@ -2,8 +2,8 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
-             xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels"
              xmlns:properties="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Properties"
+             xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels"
              RequestedThemeVariant="{Binding Source={x:Static properties:Settings.Default}, Path=AppTheme}">
     <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
 
@@ -14,6 +14,7 @@
                 <ResourceInclude Source="/Styles/ExpanderStyles.axaml" />
                 <ResourceInclude Source="/Styles/ListBoxStyles.axaml" />
                 <ResourceInclude Source="/Styles/HeaderedControlStyles.axaml" />
+                <ResourceInclude Source="/Styles/NumericUpDownStyles.axaml" />
                 <ResourceInclude Source="/Styles/PropertyResizerStyles.axaml" />
                 <ResourceInclude Source="/Styles/ScrollViewerStyles.axaml" />
                 <ResourceInclude Source="/Styles/TextBoxStyles.axaml" />
@@ -27,7 +28,7 @@
         <SimpleTheme />
 
         <StyleInclude Source="avares://IconPacks.Avalonia/Icons.axaml" />
-        <StyleInclude Source="avares://LiveMarkdown.Avalonia/Styles.axaml"/>
+        <StyleInclude Source="avares://LiveMarkdown.Avalonia/Styles.axaml" />
 
         <!--  SearchTextBox-Style  -->
         <Style Selector="TextBox.Search">

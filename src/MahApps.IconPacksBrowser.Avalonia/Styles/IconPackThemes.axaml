@@ -1,9 +1,9 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
-                    x:DataType="viewModels:IIconViewModel"
-                    xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels">
-    
+                    xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels"
+                    x:DataType="viewModels:IIconViewModel">
+
     <DataTemplate x:Key="IconPacksBrowser.DataTemplates.ListBox.IconViewModel" DataType="viewModels:IIconViewModel">
         <Grid x:Name="Root"
               Width="128"
@@ -25,20 +25,32 @@
         </Grid>
     </DataTemplate>
 
-    
-    <SolidColorBrush x:Key="IconPackBrowserListBoxItemSelectedBackground" Color="{DynamicResource ThemeAccentColor}" Opacity="0.1" />
-    <SolidColorBrush x:Key="IconPackBrowserListBoxItemPointerOverBackground" Color="{DynamicResource ThemeAccentColor}" Opacity="0.05" />
-    <SolidColorBrush x:Key="IconPackBrowserListBoxItemSelectedPointerOverBackground" Color="{DynamicResource ThemeAccentColor}" Opacity="0.15" />
 
-    <!-- Shared context flyout to avoid creating one per realized container -->
+    <SolidColorBrush x:Key="IconPackBrowserListBoxItemSelectedBackground"
+                     Opacity="0.1"
+                     Color="{DynamicResource ThemeAccentColor}" />
+    <SolidColorBrush x:Key="IconPackBrowserListBoxItemPointerOverBackground"
+                     Opacity="0.05"
+                     Color="{DynamicResource ThemeAccentColor}" />
+    <SolidColorBrush x:Key="IconPackBrowserListBoxItemSelectedPointerOverBackground"
+                     Opacity="0.15"
+                     Color="{DynamicResource ThemeAccentColor}" />
+    <SolidColorBrush x:Key="IconPackBrowserListBoxItemButtonPanelBackground"
+                     Color="{DynamicResource ThemeAccentColor}" Opacity="0.2" />
+
+    <!--  Shared context flyout to avoid creating one per realized container  -->
     <MenuFlyout x:Key="IconPackBrowserListItemActionsFlyout">
         <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardTextCommand}"
                   CommandParameter="{Binding}"
                   Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as element'}">
             <MenuItem.Icon>
                 <StackPanel Orientation="Horizontal">
-                    <iconPacks:PackIconBoxIcons Width="7" Margin="1,0" Kind="RegularChevronLeft" />
-                    <iconPacks:PackIconBoxIcons Width="7" Margin="1,0" Kind="RegularChevronRight" />
+                    <iconPacks:PackIconBoxIcons Width="7"
+                                                Margin="1,0"
+                                                Kind="RegularChevronLeft" />
+                    <iconPacks:PackIconBoxIcons Width="7"
+                                                Margin="1,0"
+                                                Kind="RegularChevronRight" />
                 </StackPanel>
             </MenuItem.Icon>
         </MenuItem>
@@ -46,29 +58,39 @@
         <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsContentTextCommand}"
                   CommandParameter="{Binding}"
                   Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as content'}"
-                  Icon="{iconPacks:BoxIcons Width=14, Height=14, Kind=RegularBracket}" />
+                  Icon="{iconPacks:BoxIcons Width=14,
+                                            Height=14,
+                                            Kind=RegularBracket}" />
 
         <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsPathIconTextCommand}"
                   CommandParameter="{Binding}"
                   Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as PathIcon element'}"
-                  Icon="{iconPacks:BoxIcons Kind=RegularPolygon, Width=14, Height=14}" />
+                  Icon="{iconPacks:BoxIcons Kind=RegularPolygon,
+                                            Width=14,
+                                            Height=14}" />
 
         <MenuItem Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsGeometryTextCommand}"
                   CommandParameter="{Binding}"
                   Header="{Binding Value, StringFormat='{}Copy {0} to clipboard as Geometry'}"
-                  Icon="{iconPacks:BoxIcons Kind=RegularPencil, Width=14, Height=14}" />
+                  Icon="{iconPacks:BoxIcons Kind=RegularPencil,
+                                            Width=14,
+                                            Height=14}" />
 
         <Separator />
 
-        <MenuItem Header="View IconPack-Website"
-                  Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
+        <MenuItem Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
                   CommandParameter="{Binding MetaData.ProjectUrl, Mode=OneWay}"
-                  Icon="{iconPacks:Octicons Kind=LinkExternal, Width=14, Height=14}" />
+                  Header="View IconPack-Website"
+                  Icon="{iconPacks:Octicons Kind=LinkExternal,
+                                            Width=14,
+                                            Height=14}" />
 
-        <MenuItem Header="View IconPack-License"
-                  Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
+        <MenuItem Command="{Binding LaunchUriCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
                   CommandParameter="{Binding MetaData.LicenseUrl, Mode=OneWay}"
-                  Icon="{iconPacks:Octicons Kind=Law, Width=14, Height=14}" />
+                  Header="View IconPack-License"
+                  Icon="{iconPacks:Octicons Kind=Law,
+                                            Width=14,
+                                            Height=14}" />
     </MenuFlyout>
 
     <ControlTheme x:Key="IconPackBrowserListBoxItemStyle" TargetType="ListBoxItem">
@@ -83,7 +105,7 @@
         <Setter Property="MinWidth" Value="40" />
         <Setter Property="MinHeight" Value="32" />
         <Setter Property="BorderThickness" Value="1" />
-        <!-- Use shared flyout instance to reduce per-container allocations -->
+        <!--  Use shared flyout instance to reduce per-container allocations  -->
         <Setter Property="ContextFlyout" Value="{StaticResource IconPackBrowserListItemActionsFlyout}" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -100,44 +122,57 @@
                                       ContentTemplate="{TemplateBinding ContentTemplate}"
                                       CornerRadius="{TemplateBinding CornerRadius}" />
 
-                    <!-- Overlay toolbar moved from DataTemplate to container template -->
-                    <Grid x:Name="PART_Overlay"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Top"
-                          IsVisible="False"
-                          IsHitTestVisible="False">
-                        <Border CornerRadius="11"
-                                Background="{DynamicResource IconPackBrowserListBoxItemPointerOverBackground}" />
-                        <StackPanel Margin="11,0" Orientation="Horizontal">
-                            <Button Width="22" Height="22" Margin="2" Padding="0" BorderThickness="0"
+                    <!--  Overlay toolbar moved from DataTemplate to container template  -->
+
+                    <Border x:Name="PART_Overlay"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Top"
+                            IsHitTestVisible="False"
+                            IsVisible="False"
+                            Margin="0,2"
+                            CornerRadius="11"
+                            Background="{DynamicResource IconPackBrowserListBoxItemButtonPanelBackground}">
+
+                        <StackPanel Margin="11,0" Orientation="Horizontal" Spacing="2">
+                            <Button Theme="{StaticResource IconToolButton}"
                                     Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardTextCommand}"
-                                    CommandParameter="{Binding}" Focusable="False" IsTabStop="False">
-                                <ToolTip.Tip>{Binding Value, StringFormat='{}Copy {0} to clipboard as element'}</ToolTip.Tip>
+                                    CommandParameter="{Binding}"
+                                    ToolTip.Tip="{Binding Value, StringFormat='{}Copy {0} to clipboard as element'}">
                                 <StackPanel Orientation="Horizontal">
-                                    <iconPacks:PackIconBoxIcons Width="7" Margin="1,0" Kind="RegularChevronLeft" />
-                                    <iconPacks:PackIconBoxIcons Width="7" Margin="1,0" Kind="RegularChevronRight" />
+                                    <iconPacks:PackIconBoxIcons Width="7"
+                                                                Margin="1,0"
+                                                                Kind="RegularChevronLeft" />
+                                    <iconPacks:PackIconBoxIcons Width="7"
+                                                                Margin="1,0"
+                                                                Kind="RegularChevronRight" />
                                 </StackPanel>
                             </Button>
-                            <Button Width="22" Height="22" Margin="2" Padding="0" BorderThickness="0"
+                            <Button Theme="{StaticResource IconToolButton}"
                                     Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsContentTextCommand}"
-                                    CommandParameter="{Binding}" Focusable="False" IsTabStop="False"
+                                    CommandParameter="{Binding}"
                                     ToolTip.Tip="{Binding Value, StringFormat='{}Copy {0} to clipboard as content'}">
-                                <iconPacks:PackIconBoxIcons Width="14" Height="14" Kind="RegularBracket" />
+                                <iconPacks:PackIconBoxIcons Width="14"
+                                                            Height="14"
+                                                            Kind="RegularBracket" />
                             </Button>
-                            <Button Width="22" Height="22" Margin="2" Padding="0" BorderThickness="0"
+                            <Button Theme="{StaticResource IconToolButton}"
                                     Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsPathIconTextCommand}"
-                                    CommandParameter="{Binding}" Focusable="False" IsTabStop="False"
-                                    ToolTip.Tip ="{Binding Value, StringFormat='{}Copy {0} to clipboard as PathIcon element'}">
-                                <iconPacks:PackIconBoxIcons Width="14" Height="14" Kind="RegularPolygon" />
+                                    CommandParameter="{Binding}"
+                                    ToolTip.Tip="{Binding Value, StringFormat='{}Copy {0} to clipboard as PathIcon element'}">
+                                <iconPacks:PackIconBoxIcons Width="14"
+                                                            Height="14"
+                                                            Kind="RegularPolygon" />
                             </Button>
-                            <Button Width="22" Height="22" Margin="2" Padding="0" BorderThickness="0"
+                            <Button Theme="{StaticResource IconToolButton}"
                                     Command="{Binding Source={x:Static viewModels:MainViewModel.Instance}, Path=CopyToClipboardAsGeometryTextCommand}"
-                                    CommandParameter="{Binding}" Focusable="False" IsTabStop="False"
+                                    CommandParameter="{Binding}"
                                     ToolTip.Tip="{Binding Value, StringFormat='{}Copy {0} to clipboard as Geometry'}">
-                                <iconPacks:PackIconBoxIcons Width="14" Height="14" Kind="RegularPencil" />
+                                <iconPacks:PackIconBoxIcons Width="14"
+                                                            Height="14"
+                                                            Kind="RegularPencil" />
                             </Button>
                         </StackPanel>
-                    </Grid>
+                    </Border>
                 </Grid>
             </ControlTemplate>
         </Setter>
@@ -154,7 +189,7 @@
                 <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
             </Style>
-            <Style Selector="^ /template/ Grid#PART_Overlay">
+            <Style Selector="^ /template/ Border#PART_Overlay">
                 <Setter Property="IsVisible" Value="True" />
                 <Setter Property="IsHitTestVisible" Value="True" />
             </Style>
@@ -177,7 +212,7 @@
                 <Setter Property="Background" Value="{DynamicResource IconPackBrowserListBoxItemSelectedBackground}" />
                 <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
             </Style>
-            <Style Selector="^ /template/ Grid#PART_Overlay">
+            <Style Selector="^ /template/ Border#PART_Overlay">
                 <Setter Property="IsVisible" Value="True" />
                 <Setter Property="IsHitTestVisible" Value="True" />
             </Style>

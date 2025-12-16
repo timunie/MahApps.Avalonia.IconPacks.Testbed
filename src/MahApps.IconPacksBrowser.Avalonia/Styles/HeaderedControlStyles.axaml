@@ -9,7 +9,7 @@
         </StackPanel>
     </Design.PreviewWith>
     
-    <Thickness x:Key="HeaderedControl.HeaderMargin">0,6,0,4</Thickness>
+    <Thickness x:Key="HeaderedControl.HeaderMargin">0</Thickness>
 
     <ControlTheme x:Key="{x:Type controls:HeaderedControl}" TargetType="controls:HeaderedControl">
 
@@ -23,7 +23,7 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}">
-                    <Grid>
+                    <Grid RowSpacing="2" ColumnSpacing="4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" SharedSizeGroup="HeaderCol" />
                             <ColumnDefinition Width="*" />
@@ -71,6 +71,7 @@
             <Setter Property="Grid.ColumnSpan" Value="1" />
             <Setter Property="Grid.Column" Value="0" />
             <Setter Property="Grid.Row" Value="0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
 
         <!--  HeaderPosition: Top  -->

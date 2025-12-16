@@ -21,7 +21,7 @@
         <!--  Our ToggleButton should look like a normal button  -->
         <ControlTheme x:Key="PreviewExpanderToggleButtonTheme"
                       BasedOn="{StaticResource {x:Type Button}}"
-                      TargetType="ToggleButton" >
+                      TargetType="ToggleButton">
             <Style Selector="^:pointerover /template/ ContentPresenter">
                 <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}"></Setter>
             </Style>
@@ -29,10 +29,9 @@
                 <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightHighBrush}"></Setter>
             </Style>
         </ControlTheme>
-
     </UserControl.Resources>
 
-    <DockPanel HorizontalAlignment="Right" >
+    <DockPanel HorizontalAlignment="Right">
 
         <controls:PropertyResizer Classes="horizontal"
                                   DockPanel.Dock="Left"
@@ -192,10 +191,11 @@
                         <controls:HeaderedControl Header="Icon-Size ">
                             <Grid ColumnDefinitions="*, Auto">
                                 <NumericUpDown HorizontalAlignment="Stretch"
-                                              Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}" />
+                                               CornerRadius="5"
+                                               Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}" />
                                 <DropDownButton Grid.Column="1"
                                                 Width="{Binding $self.Bounds.Height}"
-                                                CornerRadius="50">
+                                                CornerRadius="{Binding $self.Bounds, Converter={x:Static converters:BoundsToCornerRadiusConverter.Instance}}">
                                     <DropDownButton.Flyout>
                                         <Flyout>
                                             <ListBox SelectedValue="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}">
@@ -217,7 +217,7 @@
                         <controls:HeaderedControl Header="Icon-Padding ">
                             <Grid ColumnDefinitions="*, Auto">
                                 <NumericUpDown HorizontalAlignment="Stretch"
-                                              Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Mode=TwoWay}" />
+                                               Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Mode=TwoWay}" />
                                 <DropDownButton Grid.Column="1"
                                                 Width="{Binding $self.Bounds.Height}"
                                                 CornerRadius="50">
@@ -379,25 +379,34 @@
                           Padding="4,0,4,4"
                           Header="Export"
                           IsExpanded="True">
-                    <StackPanel>
+                    <Expander.Styles>
+                        <Style Selector="Button">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="BorderThickness" Value="0" />
+                        </Style>
+                    </Expander.Styles>
+                    <StackPanel Spacing="3">
                         <!-- SVG -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsSvgCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
                                 Content="Save as svg" />
+                        <Separator />
                         
                         <!-- WPF -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsWpfCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
                                 Content="Save as XAML (WPF)" />
-                        
+                        <Separator />
+
                         <!-- Avalonia -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsAvaloniaCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
                                 Content="Save as XAML (Avalonia)" />
-                        
+                        <Separator />
+
                         <!-- Bitmap -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsBitmapCommand}"

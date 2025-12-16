@@ -49,9 +49,9 @@
                          Watermark="{OnFormFactor Desktop='Filter by... (Ctrl + F)', Default='Filter by...'}"
                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                          CornerRadius="{Binding $self.Bounds, Converter={x:Static converters:BoundsToCornerRadiusConverter.Instance}}"
-                         BorderThickness="1"
                          DockPanel.Dock="Right"
-                         Text="{Binding FilterText}">
+                         Classes="clearButton"
+                         Text="{}{Binding FilterText}">
                     <TextBox.InnerLeftContent>
                         <iconPacks:PackIconBootstrapIcons Kind="Search"
                                                           VerticalAlignment="Center"
@@ -89,26 +89,38 @@
                    Grid.Row="1"
                    PanePlacement="Left"
                    DisplayMode="Inline"
-                   OpenPaneLength="205"
-                   Content="{Binding SelectedNavigationItem}">
+                   OpenPaneLength="230"
+                   PaneBackground="{DynamicResource ThemeControlHighlightLowBrush}">
             <SplitView.Pane>
-                <Grid>
+                <Grid RowDefinitions="*, Auto" RowSpacing="15">
                     <Grid.DataTemplates>
                         <DataTemplate DataType="vm:SeparatorNavigationItemViewModel">
-                            <Separator />
+                            <Separator Margin="10,0"
+                                       HorizontalAlignment="Stretch"
+                                       Background="{DynamicResource ThemeBorderLowBrush}" />
                         </DataTemplate>
-                        
                         <DataTemplate DataType="vm:NavigationItemViewModelBase">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Spacing="5">
-                                <!-- <ContentControl Content="{iconPacks:PackIcon Kind={Binding Icon}, Width={StaticResource FontSizeNormal}}"></ContentControl> -->
-                                <ContentControl Content="{Binding Title}" />
-                            </StackPanel>
+                            <Grid ColumnDefinitions="Auto, *" VerticalAlignment="Stretch" ColumnSpacing="5" >
+                                <iconPacks:PackIconControl Kind="{Binding Icon}" Height="{DynamicResource FontSizeNormal}"
+                                                           IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="{DynamicResource FontSizeLarge}"
+                                           TextTrimming="{x:Static TextTrimming.CharacterEllipsis}"
+                                           ToolTip.Tip="{Binding Title}"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
                         </DataTemplate>
                     </Grid.DataTemplates>
                     
                     <ListBox ItemsSource="{Binding AvailableIconPacks}"
-                             SelectedValue="{Binding SelectedNavigationItem}">
-                    </ListBox>
+                             Background="Transparent"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ItemContainerTheme="{DynamicResource NavigationPaneItemContainerTheme}"
+                             SelectedValue="{Binding SelectedNavigationItem}" />
+                    
+                    <ListBox Grid.Row="1" ItemsSource="{Binding OptionNavigationItems}"
+                             Background="Transparent"
+                             SelectedValue="{Binding SelectedNavigationItem}" />
                 </Grid>
             </SplitView.Pane>
 
@@ -146,6 +158,15 @@
                 </DataTemplate>
             </SplitView.DataTemplates>
 
+            <DockPanel LastChildFill="True">
+                <controls:PropertyResizer IsVisible="{Binding $parent[SplitView].IsPaneOpen}"
+                                          MinimumHorizontal="150" MaximumHorizontal="300"
+                                          DragIncrementHorizontally="1"
+                                          DockPanel.Dock="Left"
+                                          PropertyToAdjustHorizontal="{Binding $parent[SplitView].OpenPaneLength}"
+                                          Classes="horizontal"/>
+                <TransitioningContentControl Content="{Binding SelectedNavigationItem}" />
+            </DockPanel>
 
         </SplitView>
 

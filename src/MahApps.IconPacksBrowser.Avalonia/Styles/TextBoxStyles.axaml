@@ -5,13 +5,14 @@
                     Spacing="5">
             <TextBox Text="Hello " Theme="{StaticResource CopyToClipboardTextBox}" />
 
-            <TextBox Text="www.mahapps.com" Theme="{StaticResource CopyToClipboardAndHyperlinkTextBox}" />
+            <TextBox Text="www.mahapps.com" Theme="{StaticResource CopyToClipboardAndHyperlinkTextBox}"/>
         </StackPanel>
     </Design.PreviewWith>
 
     <ControlTheme x:Key="CopyToClipboardTextBox"
                   BasedOn="{StaticResource {x:Type TextBox}}"
                   TargetType="TextBox">
+        <Setter Property="CornerRadius" Value="5" />
         <Setter Property="MaxHeight" Value="100" />
         <Setter Property="IsReadOnly" Value="True" />
         <Setter Property="TextWrapping" Value="Wrap" />
