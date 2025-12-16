@@ -47,11 +47,14 @@
                 <StackPanel Spacing="5">
                     <controls:HeaderedControl Header="App Color">
                         <ComboBox HorizontalAlignment="Stretch"
+                                  CornerRadius="5"
                                   ItemsSource="{Binding Source={x:Static converters:ColorToNameConverter.AccentColorNames}, Path=Keys}"
                                   SelectedItem="{Binding Settings.AccentColor}" />
                     </controls:HeaderedControl>
                     <controls:HeaderedControl Header="Theme">
-                        <ComboBox HorizontalAlignment="Stretch" SelectedItem="{Binding Settings.AppTheme}">
+                        <ComboBox HorizontalAlignment="Stretch" 
+                                  CornerRadius="5"
+                                  SelectedItem="{Binding Settings.AppTheme}">
                             <system:String>Default</system:String>
                             <system:String>Light</system:String>
                             <system:String>Dark</system:String>
@@ -73,11 +76,14 @@
                     </controls:HeaderedControl>
                     <Button HorizontalAlignment="Stretch"
                             Command="{Binding SelectTemplateFolderCommand}"
+                            CornerRadius="5"
                             Content="Select a custom template folder" />
                     <Button HorizontalAlignment="Stretch"
                             Command="{Binding ClearTemplatesDirCommand}"
+                            CornerRadius="5"
                             Content="Reset template folder to default" />
                     <Button HorizontalAlignment="Stretch"
+                            CornerRadius="5"
                             Command="{Binding CopyOriginalTemplatesCommand}"
                             Content="Copy original templates to custom folder" />
                 </StackPanel>

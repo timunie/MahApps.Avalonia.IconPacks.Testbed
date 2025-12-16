@@ -61,12 +61,11 @@ public partial class MainViewModel : ViewModelBase
 {
     public static MainViewModel Instance { get; } = new();
 
-    private readonly IScheduler _uiScheduler;
-
     public MainViewModel()
     {
-        // Capture the current SynchronizationContext to route Rx back to the UI thread without ReactiveUI.
-        _uiScheduler = SynchronizationContext.Current != null
+        IScheduler uiScheduler =
+            // Capture the current SynchronizationContext to route Rx back to the UI thread without ReactiveUI.
+            SynchronizationContext.Current != null
             ? new SynchronizationContextScheduler(SynchronizationContext.Current)
             : CurrentThreadScheduler.Instance;
 
@@ -88,18 +87,18 @@ public partial class MainViewModel : ViewModelBase
         var combinedFilter = Observable.CombineLatest(
                 filterByIconPack,
                 filterByText,
-                (packFilter, textFilter) => new Func<IIconViewModel, bool>(icon => 
+                (packFilter, textFilter) => new Func<IIconViewModel, bool>(icon =>
                     packFilter(icon) && textFilter(icon)))
             .StartWith(_ => true);
 
         _iconsCache.Connect()
             .Filter(combinedFilter)
-            .ObserveOn(_uiScheduler)
-            .SortAndBind(out _visibleIcons, 
+            .ObserveOn(uiScheduler)
+            .SortAndBind(out _visibleIcons,
                 SortExpressionComparer<IIconViewModel>.Ascending(e => e.Identifier))
             .DisposeMany()
             .Subscribe();
-        
+
         //LoadIconPacksAsync().SafeFireAndForget();
 
         AppVersion = GetAppVersion();
@@ -177,13 +176,13 @@ public partial class MainViewModel : ViewModelBase
         var loadIconsTasks = availableIconPacks.Select(ip => ip.LoadIconsAsync(ip.EnumType, ip.PackType));
 
         var itemsToAdd = (await Task.WhenAll(loadIconsTasks))
-                .SelectMany(x => x);
-        
+            .SelectMany(x => x);
+
         _iconsCache.Edit(cache => cache.AddOrUpdate(itemsToAdd));
- 
+
         TotalItems = _iconsCache.Count;
         SelectedIcon = SelectedIconPack?.Icons.FirstOrDefault() ?? _iconsCache.Items.FirstOrDefault();
-        
+
         IsLoading = false;
     }
 
@@ -218,9 +217,18 @@ public partial class MainViewModel : ViewModelBase
     /// <summary>
     /// Gets the selected IconPack-NavigationItem
     /// </summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SelectedIconPack))]
-    public partial NavigationItemViewModelBase? SelectedNavigationItem { get; set; }
+    public NavigationItemViewModelBase? SelectedNavigationItem
+    {
+        get => field;
+        set
+        {
+            if (value is null) return;
+            if (SetProperty(ref field, value))
+            {
+                OnPropertyChanged(nameof(SelectedIconPack));
+            }
+        }
+    }
 
     /// <summary>
     /// Gets the selected IconPack
@@ -250,7 +258,7 @@ public partial class MainViewModel : ViewModelBase
             _filterItems = null;
             return;
         }
-        
+
         var outer = value?.Split(['+', ',', ';', '&'], StringSplitOptions.RemoveEmptyEntries);
         string[][]? inner =
             outer?.Select(x => x.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
@@ -346,13 +354,13 @@ public partial class MainViewModel : ViewModelBase
     {
         await ExportHelper.SaveAsBitmapAsync(icon);
     }
-    
+
     [RelayCommand(CanExecute = nameof(CanExport))]
     private async Task SaveAsWpfAsync(IIconViewModel icon)
     {
         await ExportHelper.SaveAsWpfXamlAsync(icon);
     }
-    
+
     [RelayCommand(CanExecute = nameof(CanExport))]
     private async Task SaveAsAvaloniaAsync(IIconViewModel icon)
     {
