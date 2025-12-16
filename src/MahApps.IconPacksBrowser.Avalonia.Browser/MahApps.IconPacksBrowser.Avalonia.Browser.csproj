@@ -5,8 +5,11 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <WasmAllowUndefinedSymbols>true</WasmAllowUndefinedSymbols>
         <RunAOTCompilation>true</RunAOTCompilation>
-        <!-- Enable WebAssembly threads (requires cross-origin isolation headers when hosting) -->
+    </PropertyGroup>
 
+    <PropertyGroup>
+<!--        <WasmEnableThreads>true</WasmEnableThreads>-->
+        <WasmEnableAOT>true</WasmEnableAOT>
     </PropertyGroup>
 
     <ItemGroup>
