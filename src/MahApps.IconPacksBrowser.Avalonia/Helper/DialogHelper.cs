@@ -34,10 +34,17 @@ public class DialogManager
         // Register any new context
         if (e.NewValue != null)
         {
-            _RegistrationMapper.Add(e.NewValue, sender);
+            var newValue = e.NewValue; 
+            _RegistrationMapper[newValue] = sender;
             
             // Remove the registration when the visual is detached from the visual tree
-            sender.DetachedFromVisualTree += (s, _) => _RegistrationMapper.Remove(e.NewValue);
+            sender.DetachedFromVisualTree += (_, _) =>
+            {
+                if (_RegistrationMapper.TryGetValue(newValue, out var current) && ReferenceEquals(current, sender))
+                {
+                    _RegistrationMapper.Remove(newValue);
+                }
+            };
         }
     }
 
