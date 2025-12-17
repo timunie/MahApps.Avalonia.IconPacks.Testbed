@@ -54,6 +54,11 @@ sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
+            .AfterSetup(_ =>
+            {
+                // Register desktop settings storage service
+                MahApps.IconPacksBrowser.Avalonia.Services.SettingsStorage.Register(new MahApps.IconPacksBrowser.Avalonia.Desktop.Services.DesktopSettingsStorageService());
+            })
             .LogToTrace();
 
     private static void ConfigureLogging()

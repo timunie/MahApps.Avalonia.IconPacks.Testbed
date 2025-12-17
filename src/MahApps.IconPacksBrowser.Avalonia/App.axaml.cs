@@ -63,8 +63,6 @@ public partial class App : Application
             {
                 DataContext = MainViewModel.Instance
             };
-
-            desktop.ShutdownRequested += (_, _) => Settings.Default.SaveSettings();
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {

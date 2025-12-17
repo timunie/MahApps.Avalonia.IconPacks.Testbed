@@ -1,6 +1,8 @@
 using Foundation;
 using Avalonia;
 using Avalonia.iOS;
+using MahApps.IconPacksBrowser.Avalonia.iOS.Services;
+using MahApps.IconPacksBrowser.Avalonia.Services;
 
 namespace MahApps.IconPacksBrowser.Avalonia.iOS;
 
@@ -15,6 +17,11 @@ public partial class AppDelegate : AvaloniaAppDelegate<App>
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
         return base.CustomizeAppBuilder(builder)
-            .WithInterFont();
+            .WithInterFont()
+            .AfterSetup(_ =>
+            {
+                // Register iOS settings storage service
+                SettingsStorage.Register(new iOSSettingsStorageService());
+            });
     }
 }

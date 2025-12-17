@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
+using MahApps.IconPacksBrowser.Avalonia.Services;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Properties;
 
@@ -80,34 +81,27 @@ public partial class Settings : ObservableObject
 
     public void SaveSettings()
     {
-        // Browser/WASM doesn't support Environment.SpecialFolder paths or regular file I/O.
-        // Silently no-op to avoid blocking startup/shutdown.
-        if (OperatingSystem.IsBrowser())
-            return;
-
-        var settingsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MahApps.IconPacksBrowser");
-        var settingsFile = Path.Combine(settingsDir, "Settings.json");
-
-        if (!Directory.Exists(settingsDir))
-        {
-            Directory.CreateDirectory(settingsDir);
-        }
-        
         var json = JsonSerializer.Serialize(this, SettingsJsonContext.Default.Settings);
-        File.WriteAllText(settingsFile, json);
+        try
+        {
+            var service = SettingsStorage.Get();
+            service.Write(json);
+        }
+        catch
+        {
+            // ignore
+        }
     }
 
     public static void LoadSettings()
     {
         try
         {
-            // Browser/WASM can't read from the local file system; use defaults.
-            if (OperatingSystem.IsBrowser())
+            var service = SettingsStorage.Get();
+            var json = service.Read();
+            if (string.IsNullOrWhiteSpace(json))
                 return;
-
-            var settingsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MahApps.IconPacksBrowser", "Settings.json");
-            var json = File.ReadAllText(settingsFile);
-            var settings = JsonSerializer.Deserialize(json, SettingsJsonContext.Default.Settings) ?? new Settings();
+            var settings = JsonSerializer.Deserialize(json!, SettingsJsonContext.Default.Settings) ?? new Settings();
             
             Default.AccentColor = settings.AccentColor;
             Default.AppTheme = settings.AppTheme;
@@ -121,6 +115,9 @@ public partial class Settings : ObservableObject
             // Reset colors if unable to read.
             if (Default.AccentColor.A < 255) Default.AccentColor = Color.Parse("#FF008A00");
             if (Default.IconForeground.A < 255) Default.IconForeground = Color.Parse("#FF008A00");
+            
+            // Save the settings with each change, since not all platforms support this. 
+            Settings.Default.PropertyChanged += (_, _) => Settings.Default.SaveSettings();
         }
         catch
         {
