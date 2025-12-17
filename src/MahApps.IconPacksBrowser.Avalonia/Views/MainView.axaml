@@ -31,10 +31,13 @@
                              Value="100"
                              HorizontalAlignment="Stretch" />
 
-                <!-- Placeholder for WindowButtons -->
-                <Border x:Name="WindowButtonsPlaceHolder"
+                <!-- Placeholders for system caption buttons (updated by MainWindow at runtime) -->
+                <Border x:Name="WindowButtonsPlaceHolderLeft"
+                        DockPanel.Dock="Left"
+                        Width="{DynamicResource SystemCaptionButtonsWidthLeft}" />
+                <Border x:Name="WindowButtonsPlaceHolderRight"
                         DockPanel.Dock="Right"
-                        Width="0" />
+                        Width="{DynamicResource SystemCaptionButtonsWidthRight}" />
 
                 <!-- HamburgerMenuControls -->
                 <ToggleButton IsChecked="{Binding #NavigationView.IsPaneOpen}"
@@ -175,7 +178,7 @@
                     x:DataType="vm:MainViewModel"
                     DataContext="{x:Static vm:MainViewModel.Instance}"
                     Background="{DynamicResource ThemeAccentBrush}"
-                    TextElement.Foreground="White"
+                    TextElement.Foreground="{DynamicResource HighlightForegroundBrush}"
                     Orientation="Horizontal">
 
             <!--  Some Styles for the StatusBar appearance  -->
@@ -189,21 +192,21 @@
                     <Setter Property="Width" Value="1" />
                     <Setter Property="Height" Value="10" />
                     <Setter Property="VerticalAlignment" Value="Center" />
-                    <Setter Property="Background" Value="White" />
+                    <Setter Property="Background" Value="{DynamicResource HighlightForegroundBrush}" />
                 </Style>
 
                 <Style Selector="HyperlinkButton">
                     <Setter Property="VerticalAlignment" Value="Center" />
                     <Setter Property="Margin" Value="8,0" />
-                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="Foreground" Value="{DynamicResource HighlightForegroundBrush}" />
                     <Setter Property="IsEnabled"
                             Value="{Binding $self.NavigateUri, Converter={x:Static ObjectConverters.IsNotNull}}" />
                     <Style Selector="^:pointerover /template/ ContentPresenter#ContentPresenter">
-                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Foreground" Value="{DynamicResource HighlightForegroundBrush}" />
                         <Setter Property="TextBlock.TextDecorations" Value="{x:Static TextDecorations.Underline}" />
                     </Style>
                     <Style Selector="^:disabled /template/ ContentPresenter#ContentPresenter">
-                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Foreground" Value="{DynamicResource HighlightForegroundBrush}" />
                         <Setter Property="Opacity" Value="0.5" />
                     </Style>
                 </Style>

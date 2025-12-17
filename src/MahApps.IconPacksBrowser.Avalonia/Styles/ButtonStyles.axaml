@@ -4,6 +4,8 @@
     <Design.PreviewWith>
         <StackPanel Margin="10" Spacing="5">
 
+            <Button Content="Test"></Button>
+            
             <TextBox Theme="{StaticResource CopyToClipboardTextBox}" MinWidth="150">
             </TextBox>
 
@@ -17,6 +19,19 @@
 
     <Thickness x:Key="TextBoxInnerButtonMargin">0</Thickness>
 
+    <ControlTheme x:Key="{x:Type Button}" 
+                  BasedOn="{StaticResource {x:Type Button}}"
+                  TargetType="Button">
+        <Setter Property="CornerRadius" Value="5" />
+        <Style Selector="^:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightLowBrush}" />
+        </Style>
+        
+        <Style Selector="^:pressed">
+            <Setter Property="Foreground" Value="{DynamicResource ThemeBackgroundBrush}" />
+        </Style>
+    </ControlTheme>
+    
     <ControlTheme x:Key="TextBoxButtonStyle" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Foreground" Value="{DynamicResource ThemeBorderMidBrush}" />
         <Setter Property="Background" Value="Transparent" />
@@ -72,7 +87,7 @@
     <ControlTheme x:Key="PaneToggleButtonStyle"
                   BasedOn="{StaticResource {x:Type Button}}"
                   TargetType="ToggleButton">
-        <Setter Property="Foreground" Value="{DynamicResource ThemeControlLowBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource ThemeBorderHighBrush}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="MinWidth" Value="48" />
         <Setter Property="Padding" Value="5" />
@@ -113,15 +128,15 @@
         </Style>
 
         <Style Selector="^:pointerover">
-            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}" />
-            <Setter Property="Foreground" Value="{DynamicResource ThemeControlHighBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightLowBrush}" />
+            <Setter Property="Opacity" Value="0.5" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         </Style>
 
         <Style Selector="^:pressed">
-            <Setter Property="Foreground" Value="{DynamicResource ThemeBackgroundBrush}" />
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         </Style>
-
-
     </ControlTheme>
     
     <ControlTheme x:Key="IconToolButton"

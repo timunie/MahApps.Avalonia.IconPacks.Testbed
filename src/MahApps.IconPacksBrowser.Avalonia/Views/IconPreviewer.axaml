@@ -376,36 +376,26 @@
                 </Expander>
 
                 <Expander Margin="0,5,0,0"
-                          Padding="4,0,4,4"
+                          Padding="4,8,4,4"
                           Header="Export"
                           IsExpanded="True">
-                    <Expander.Styles>
-                        <Style Selector="Button">
-                            <Setter Property="Background" Value="Transparent" />
-                            <Setter Property="BorderThickness" Value="0" />
-                        </Style>
-                    </Expander.Styles>
-                    <StackPanel Spacing="3">
+                    <StackPanel Spacing="5">
                         <!-- SVG -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsSvgCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
                                 Content="Save as svg" />
-                        <Separator />
                         
                         <!-- WPF -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsWpfCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
                                 Content="Save as XAML (WPF)" />
-                        <Separator />
-
                         <!-- Avalonia -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsAvaloniaCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
                                 Content="Save as XAML (Avalonia)" />
-                        <Separator />
 
                         <!-- Bitmap -->
                         <Button HorizontalAlignment="Stretch"
