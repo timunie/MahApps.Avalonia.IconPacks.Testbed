@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <WasmEnableThreads>true</WasmEnableThreads>
+<!--        <WasmEnableThreads>true</WasmEnableThreads>-->
         <WasmEnableAOT>true</WasmEnableAOT>
     </PropertyGroup>
 
