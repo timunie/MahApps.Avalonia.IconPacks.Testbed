@@ -101,7 +101,7 @@ internal static class ExportHelper
     {
         try
         {
-            var pathData = PackIconControlDataFactory.DataIndex.Value[kind];
+            _ = PackIconDataIndex.TryGetPath(kind, out var pathData);
             SKPath? skPath = SKPath.ParseSvgPathData(pathData);
 
 #if DEBUG

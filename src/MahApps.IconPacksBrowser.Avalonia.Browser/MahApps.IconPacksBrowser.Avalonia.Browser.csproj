@@ -7,8 +7,8 @@
         <RunAOTCompilation>true</RunAOTCompilation>
     </PropertyGroup>
 
-    <PropertyGroup>
-<!--        <WasmEnableThreads>true</WasmEnableThreads>-->
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <WasmEnableThreads>true</WasmEnableThreads>
         <WasmEnableAOT>true</WasmEnableAOT>
     </PropertyGroup>
 
