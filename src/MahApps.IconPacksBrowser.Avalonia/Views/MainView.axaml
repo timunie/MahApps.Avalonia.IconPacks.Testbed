@@ -51,7 +51,7 @@
                          CornerRadius="{Binding $self.Bounds, Converter={x:Static converters:BoundsToCornerRadiusConverter.Instance}}"
                          DockPanel.Dock="Right"
                          Classes="clearButton"
-                         Text="{}{Binding FilterText}">
+                         Text="{Binding FilterText}">
                     <TextBox.InnerLeftContent>
                         <iconPacks:PackIconBootstrapIcons Kind="Search"
                                                           VerticalAlignment="Center"

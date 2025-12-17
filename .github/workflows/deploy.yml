@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 env:
   PROJECT_PATH: src/MahApps.IconPacksBrowser.Avalonia.Browser/MahApps.IconPacksBrowser.Avalonia.Browser.csproj
-  OUTPUT_PATH: src/MahApps.IconPacksBrowser.Avalonia.Browser/bin/Release/net9.0-browser/publish/wwwroot
+  OUTPUT_PATH: src/MahApps.IconPacksBrowser.Avalonia.Browser/bin/Release/net10.0-browser/publish/wwwroot
 on:
   workflow_dispatch:
 
@@ -12,7 +12,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
-
+        with:
+          submodules: true
+        
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v5
         with:
