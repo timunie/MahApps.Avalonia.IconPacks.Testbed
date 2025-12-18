@@ -1,5 +1,4 @@
-using System;
-using System.IO;
+using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Avalonia;
@@ -29,11 +28,17 @@ public partial class Settings : ObservableObject
     public partial string AppTheme { get; set; } = "Default";
 
     /// <summary>
+    /// Gets or sets the font size
+    /// </summary>
+    [ObservableProperty] 
+    public partial double FontSize { get; set; } = 14;
+    
+    /// <summary>
     /// Gets or sets the folder with the export templates to use
     /// </summary>
     [ObservableProperty]
     public partial string? ExportTemplatesDir { get; set; }
-
+    
     /// <summary>
     /// Gets or sets the preview background
     /// </summary>
@@ -71,7 +76,6 @@ public partial class Settings : ObservableObject
         if (value < 0) IconPreviewPadding = 0;
     }
     
-    
     /// <summary>
     /// Gets or sets if the previewer is visible 
     /// </summary>
@@ -81,6 +85,9 @@ public partial class Settings : ObservableObject
 
     public void SaveSettings()
     {
+        // Don't save during loading.'
+        if (_isLoading) return;
+        
         var json = JsonSerializer.Serialize(this, SettingsJsonContext.Default.Settings);
         try
         {
@@ -93,10 +100,14 @@ public partial class Settings : ObservableObject
         }
     }
 
+    private static bool _isLoading; 
+    
     public static void LoadSettings()
     {
         try
         {
+            _isLoading = true;
+            
             var service = SettingsStorage.Get();
             var json = service.Read();
             if (string.IsNullOrWhiteSpace(json))
@@ -105,6 +116,7 @@ public partial class Settings : ObservableObject
             
             Default.AccentColor = settings.AccentColor;
             Default.AppTheme = settings.AppTheme;
+            Default.FontSize = settings.FontSize;
             Default.ExportTemplatesDir = settings.ExportTemplatesDir;
             Default.IconBackground = settings.IconBackground;
             Default.IconForeground = settings.IconForeground;
@@ -115,13 +127,20 @@ public partial class Settings : ObservableObject
             // Reset colors if unable to read.
             if (Default.AccentColor.A < 255) Default.AccentColor = Color.Parse("#FF008A00");
             if (Default.IconForeground.A < 255) Default.IconForeground = Color.Parse("#FF008A00");
-            
-            // Save the settings with each change, since not all platforms support this. 
-            Settings.Default.PropertyChanged += (_, _) => Settings.Default.SaveSettings();
         }
         catch
         {
             // Empty 
         }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+        SaveSettings();
     }
 }

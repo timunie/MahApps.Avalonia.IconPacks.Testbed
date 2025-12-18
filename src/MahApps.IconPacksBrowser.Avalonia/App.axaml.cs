@@ -32,6 +32,11 @@ public partial class App : Application
             case (nameof(Settings.AppTheme)):
                 ApplyAccentColor(Settings.Default.AccentColor);
                 break;
+            case (nameof(Settings.FontSize)):
+                Resources["FontSizeNormal"] = Settings.Default.FontSize;
+                Resources["FontSizeLarge"] = Settings.Default.FontSize * 1.25;
+                Resources["FontSizeSmall"] = Settings.Default.FontSize * 0.85;
+                break;
         }
     }
 

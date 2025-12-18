@@ -69,7 +69,6 @@ public partial class MainViewModel : ViewModelBase
             ? new SynchronizationContextScheduler(SynchronizationContext.Current)
             : CurrentThreadScheduler.Instance;
 
-        this.AppVersion = GetAppVersion();
         SelectedNavigationItem = AvailableIconPacks[0];
 
         // Throttle text filter to avoid filtering on every keystroke
@@ -101,18 +100,7 @@ public partial class MainViewModel : ViewModelBase
 
         //LoadIconPacksAsync().SafeFireAndForget();
 
-        AppVersion = GetAppVersion();
-    }
-
-    private static string GetAppVersion()
-    {
-        // Fallbacks that work in Browser/WASM
-        var asm = Assembly.GetExecutingAssembly();
-        var infoVersion = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-        if (!string.IsNullOrWhiteSpace(infoVersion))
-            return infoVersion;
-
-        return asm.GetName().Version?.ToString() ?? "unknown";
+        AppVersion = Assembly.GetExecutingAssembly().GetAssemblyVersionSafe();
     }
 
     [ObservableProperty] public partial int TotalItems { get; set; }
@@ -274,7 +262,8 @@ public partial class MainViewModel : ViewModelBase
     /// <summary>
     /// Gets the App version of this Application
     /// </summary>
-    public string? AppVersion { get; }
+    [ObservableProperty]
+    public partial string? AppVersion { get; private set; }
 
 
     private Func<IIconViewModel, bool> FilterIconsByStringPredicate(string? filterText) => icon =>

@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using IconPacks.Avalonia.Core.Attributes;
+using MahApps.IconPacksBrowser.Avalonia.Helper;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
@@ -23,7 +23,7 @@ public partial class IconPackViewModel : ViewModelBase
         this.MetaData = Attribute.GetCustomAttribute(packType, typeof(MetaDataAttribute)) as MetaDataAttribute;
 
         this.Caption = this.MetaData?.Name;
-        this.IconPacksVersion = GetAssemblyVersionSafe(packType.Assembly);
+        this.IconPacksVersion = packType.Assembly.GetAssemblyVersionSafe();
     }
     
     public async Task<IList<IIconViewModel>> LoadIconsAsync(Type enumType, Type packType)
@@ -71,14 +71,4 @@ public partial class IconPackViewModel : ViewModelBase
     /// Gets the Version info for this pack
     /// </summary>
     public string? IconPacksVersion { get; }
-
-    private static string? GetAssemblyVersionSafe(Assembly asm)
-    {
-        // Prefer informational version if present
-        var info = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-        if (!string.IsNullOrWhiteSpace(info))
-            return info;
-
-        return asm.GetName().Version?.ToString();
-    }
 }
