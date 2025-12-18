@@ -13,15 +13,7 @@
         MinWidth="400"
         MinHeight="300"
         Icon="/Assets/Icon.ico"
-        Title="MahApps.IconPacksBrowser"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome"
-        ExtendClientAreaTitleBarHeightHint="48">
-    <Window.Resources>
-        <!-- Default space reserved for system caption buttons (will be updated at runtime) -->
-        <x:Double x:Key="SystemCaptionButtonsWidthLeft">0</x:Double>
-        <x:Double x:Key="SystemCaptionButtonsWidthRight">140</x:Double>
-    </Window.Resources>
+        Title="MahApps.IconPacksBrowser">
 
     <!-- Main content extended into title bar area -->
     <views:MainView />

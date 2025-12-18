@@ -81,7 +81,9 @@
                                 VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
                                 ContentTemplate="{TemplateBinding ContentTemplate}"
                                 Padding="0,0,10,0"
-                                UseLayoutRounding="False">
+                                UseLayoutRounding="False"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
                     <DropDownButton.Styles>
                         <Style Selector="FlyoutPresenter.nopadding">
                             <Setter Property="Padding" Value="0" />
@@ -102,7 +104,6 @@
                                 </Grid.Resources>
 
                                 <!-- Backgrounds -->
-                                <!-- TODO: Background="{DynamicResource ColorViewTabBackgroundBrush}" -->
                                 <Border x:Name="TabBackgroundBorder"
                                         Grid.Row="0"
                                         Grid.RowSpan="2"

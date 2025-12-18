@@ -237,8 +237,7 @@ internal static class ExportHelper
         }
 
         paint.Color = Settings.Default.IconForeground.ToSKColor();
-        // TODO: Needed? paint.IsStroke = icon.Value is PackIconFeatherIconsKind;
-
+        
         canvas.DrawPath(path, paint);
 
         var encoding = Path.GetExtension(saveFile.Name) switch
@@ -274,7 +273,7 @@ internal struct ExportParameters
         this.PageHeight = Settings.Default.IconPreviewSize.ToString(CultureInfo.InvariantCulture);
         this.FillColor = Settings.Default.IconForeground.ToString();
         this.Background = Settings.Default.IconBackground.ToString();
-        this.TransformMatrix = Matrix.Identity.ToString(); // TODO Get correct Matrix
+        this.TransformMatrix = Matrix.Identity.ToString();
 
         this.IconPackHomepage = metaData.ProjectUrl;
         this.IconPackLicense = metaData.LicenseUrl;

@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Platform.Storage;
+using MahApps.IconPacksBrowser.Avalonia.Controls.Dialogs;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Helper;
 
@@ -205,24 +207,12 @@ public static class DialogHelper
 
         return null;
     }
-
-
-    // TODO: Implement ShowMessageAsync with Avalonia dialogs
+    
     public static async Task ShowMessageAsync(this object? context, string? title, object? content)
     {
         ArgumentNullException.ThrowIfNull(context);
-
-        // lookup the TopLevel for the context
-        var topLevel = DialogManager.GetTopLevelForContext(context);
-
-        //var dialog = new ContentDialog
-        //{
-        //    Title = title,
-        //    Content = content,
-        //    PrimaryButtonText = "OK",
-        //};
-
-        //return await dialog.ShowAsync(topLevel);
+        
+        await ShowOverlayDialogAsync<DialogResult?>(context, title ?? string.Empty, content, DialogCommands.Ok);
     }
 
     public static async Task SetClipboardContentAsync(this object? context, string content)
@@ -254,5 +244,48 @@ public static class DialogHelper
         {
             await topLevel!.Launcher.LaunchUriAsync(navigateUri);
         }
+    }
+    
+    /// <summary>
+    /// Shows an overlay dialog for a given context.
+    /// </summary>
+    /// <param name="context">the context to resolve the TopLevel</param>
+    /// <param name="title">The title of the dialog</param>
+    /// <param name="content">The content to show</param>
+    /// <param name="dialogCommands">The <see cref="DialogCommands"/> to show built in commands</param>
+    /// <typeparam name="T">The expected return type</typeparam>
+    /// <returns>the dialog result</returns>
+    /// <exception cref="InvalidOperationException">If either the Toplevel or the Overlayer wasn't found</exception>
+    public static async Task<T?> ShowOverlayDialogAsync<T>(
+        this object? context, 
+        string title,
+        object? content,
+        params DialogCommand[] dialogCommands)
+    {
+        var tcs = new TaskCompletionSource<object?>();
+
+        ArgumentNullException.ThrowIfNull(context);
+
+        var overlayDialog = new OverlayDialog(tcs)
+        {
+            Content = content,
+            Header = title,
+            DialogCommands = dialogCommands
+        };
+
+        // Get the owner window. If it is null, throw an exception
+        var topLevel = DialogManager.GetTopLevelForContext(context)
+                       ?? throw new InvalidOperationException("Unable to find TopLevel for context");
+        
+        var overlayLayer = OverlayLayer.GetOverlayLayer(topLevel) ??
+                           throw new InvalidOperationException("Unable to find OverlayLayer");
+        
+        overlayLayer.Children.Add(overlayDialog); 
+
+        var result = await tcs.Task;
+        
+        overlayLayer.Children.Remove(overlayDialog);
+        
+        return (T?)result;
     }
 }

@@ -17,6 +17,7 @@
                 <ResourceInclude Source="/Styles/ColorPickerStyles.axaml" />
                 <ResourceInclude Source="/Styles/ExpanderStyles.axaml" />
                 <ResourceInclude Source="/Styles/ListBoxStyles.axaml" />
+                <ResourceInclude Source="/Styles/OverlayDialog.axaml" />
                 <ResourceInclude Source="/Styles/HeaderedControlStyles.axaml" />
                 <ResourceInclude Source="/Styles/NumericUpDownStyles.axaml" />
                 <ResourceInclude Source="/Styles/PropertyResizerStyles.axaml" />

@@ -23,10 +23,10 @@
                       BasedOn="{StaticResource {x:Type Button}}"
                       TargetType="ToggleButton">
             <Style Selector="^:pointerover /template/ ContentPresenter">
-                <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}"></Setter>
+                <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}" />
             </Style>
             <Style Selector="^:pressed /template/ ContentPresenter">
-                <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightHighBrush}"></Setter>
+                <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightHighBrush}" />
             </Style>
         </ControlTheme>
     </UserControl.Resources>
@@ -46,8 +46,8 @@
                       Background="{DynamicResource ThemeControlHighlightLowBrush}"
                       BorderBrush="Transparent"
                       BorderThickness="0"
-                      DockPanel.Dock="Left"
                       CornerRadius="0"
+                      DockPanel.Dock="Left"
                       IsChecked="{Binding Source={x:Static prop:Settings.Default}, Path=IsPreviewerVisible}"
                       Theme="{StaticResource PreviewExpanderToggleButtonTheme}"
                       ToolTip.Tip="Toggle Previewer visibility">
@@ -70,14 +70,14 @@
                       IsVisible="{Binding Source={x:Static prop:Settings.Default}, Path=IsPreviewerVisible}"
                       VerticalScrollBarVisibility="Auto">
             <StackPanel x:Name="Panel"
-                        Margin="5"
                         Width="400"
                         MaxWidth="{Binding $parent[TopLevel].Bounds.Width, Converter={x:Static converters:MathConverters.Multiply}, ConverterParameter=.75}"
+                        Margin="5"
                         Spacing="5">
                 <Expander x:Name="PreviewExpander"
+                          Padding="0"
                           DataContext="{Binding SelectedIcon}"
                           Header="Preview"
-                          Padding="0"
                           IsExpanded="True">
                     <ScrollViewer x:Name="PreviewScrollViewer"
                                   Height="200"
@@ -189,14 +189,17 @@
                 <Expander Header="Preview options" IsExpanded="True">
                     <StackPanel>
                         <controls:HeaderedControl Header="Icon-Size ">
-                            <Grid ColumnDefinitions="*, Auto">
+                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="5">
                                 <NumericUpDown HorizontalAlignment="Stretch"
                                                CornerRadius="5"
                                                Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}" />
-                                <DropDownButton Grid.Column="1"
-                                                Width="{Binding $self.Bounds.Height}"
-                                                CornerRadius="{Binding $self.Bounds, Converter={x:Static converters:BoundsToCornerRadiusConverter.Instance}}">
-                                    <DropDownButton.Flyout>
+                                <Button Grid.Column="1"
+                                        Width="{Binding $self.Bounds.Height}"
+                                        Background="{DynamicResource ThemeBackgroundBrush}"
+                                        Content="{iconPacks:BoxIcons RegularChevronDown,
+                                                                     Width=12}"
+                                        CornerRadius="{Binding $self.Bounds, Converter={x:Static converters:BoundsToCornerRadiusConverter.Instance}}">
+                                    <Button.Flyout>
                                         <Flyout>
                                             <ListBox SelectedValue="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewSize, Mode=TwoWay}">
                                                 <system:Double>16</system:Double>
@@ -210,18 +213,20 @@
                                                 <system:Double>1024</system:Double>
                                             </ListBox>
                                         </Flyout>
-                                    </DropDownButton.Flyout>
-                                </DropDownButton>
+                                    </Button.Flyout>
+                                </Button>
                             </Grid>
                         </controls:HeaderedControl>
                         <controls:HeaderedControl Header="Icon-Padding ">
-                            <Grid ColumnDefinitions="*, Auto">
-                                <NumericUpDown HorizontalAlignment="Stretch"
-                                               Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Mode=TwoWay}" />
-                                <DropDownButton Grid.Column="1"
-                                                Width="{Binding $self.Bounds.Height}"
-                                                CornerRadius="50">
-                                    <DropDownButton.Flyout>
+                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="5">
+                                <NumericUpDown HorizontalAlignment="Stretch" Value="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Mode=TwoWay}" />
+                                <Button Grid.Column="1"
+                                        Width="{Binding $self.Bounds.Height}"
+                                        Background="{DynamicResource ThemeBackgroundBrush}"
+                                        Content="{iconPacks:BoxIcons RegularChevronDown,
+                                                                     Width=12}"
+                                        CornerRadius="{Binding $self.Bounds, Converter={x:Static converters:BoundsToCornerRadiusConverter.Instance}}">
+                                    <Button.Flyout>
                                         <Flyout>
                                             <ListBox SelectedValue="{Binding Source={x:Static prop:Settings.Default}, Path=IconPreviewPadding, Mode=TwoWay}">
                                                 <system:Double>0</system:Double>
@@ -232,18 +237,16 @@
                                                 <system:Double>20</system:Double>
                                             </ListBox>
                                         </Flyout>
-                                    </DropDownButton.Flyout>
-                                </DropDownButton>
+                                    </Button.Flyout>
+                                </Button>
                             </Grid>
                         </controls:HeaderedControl>
                         <controls:HeaderedControl Header="Foreground">
-                            <ColorPicker HorizontalAlignment="Left" Color="{Binding Source={x:Static prop:Settings.Default}, Path=IconForeground}" />
+                            <ColorPicker Color="{Binding Source={x:Static prop:Settings.Default}, Path=IconForeground}" />
                         </controls:HeaderedControl>
 
                         <controls:HeaderedControl Header="Background">
-                            <ColorPicker HorizontalAlignment="Left"
-                                         IsAlphaVisible="True"
-                                         Color="{Binding Source={x:Static prop:Settings.Default}, Path=IconBackground}" />
+                            <ColorPicker IsAlphaVisible="True" Color="{Binding Source={x:Static prop:Settings.Default}, Path=IconBackground}" />
                         </controls:HeaderedControl>
                     </StackPanel>
                 </Expander>
@@ -380,24 +383,24 @@
                           Header="Export"
                           IsExpanded="True">
                     <StackPanel Spacing="5">
-                        <!-- SVG -->
+                        <!--  SVG  -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsSvgCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
                                 Content="Save as svg" />
-                        
-                        <!-- WPF -->
+
+                        <!--  WPF  -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsWpfCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
                                 Content="Save as XAML (WPF)" />
-                        <!-- Avalonia -->
+                        <!--  Avalonia  -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsAvaloniaCommand}"
                                 CommandParameter="{Binding SelectedIcon}"
                                 Content="Save as XAML (Avalonia)" />
 
-                        <!-- Bitmap -->
+                        <!--  Bitmap  -->
                         <Button HorizontalAlignment="Stretch"
                                 Command="{Binding SaveAsBitmapCommand}"
                                 CommandParameter="{Binding SelectedIcon}"

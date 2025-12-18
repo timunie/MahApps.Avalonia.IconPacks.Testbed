@@ -31,14 +31,6 @@
                              Value="100"
                              HorizontalAlignment="Stretch" />
 
-                <!-- Placeholders for system caption buttons (updated by MainWindow at runtime) -->
-                <Border x:Name="WindowButtonsPlaceHolderLeft"
-                        DockPanel.Dock="Left"
-                        Width="{DynamicResource SystemCaptionButtonsWidthLeft}" />
-                <Border x:Name="WindowButtonsPlaceHolderRight"
-                        DockPanel.Dock="Right"
-                        Width="{DynamicResource SystemCaptionButtonsWidthRight}" />
-
                 <!-- HamburgerMenuControls -->
                 <ToggleButton IsChecked="{Binding #NavigationView.IsPaneOpen}"
                               Theme="{StaticResource PaneToggleButtonStyle}">
