@@ -1,5 +1,3 @@
-using Avalonia;
-using Avalonia.Controls;
 using IconPacks.Avalonia.MaterialDesign;
 using System;
 
@@ -26,6 +24,8 @@ public class IconPackNavigationItemViewModel : NavigationItemViewModelBase
     }
 
     public IconPackViewModel IconPack { get; }
+    
+    public override string ToString() => Title ?? "Unknown IconPack";
 }
 
 public class AllIconPacksNavigationItemViewModel : NavigationItemViewModelBase
@@ -36,6 +36,8 @@ public class AllIconPacksNavigationItemViewModel : NavigationItemViewModelBase
     }
 
     public MainViewModel MainViewModel => MainViewModel.Instance;
+    
+    public override string ToString() => "All Icons";
 }
 
 public class SettingsNavigationItem : NavigationItemViewModelBase
@@ -46,6 +48,8 @@ public class SettingsNavigationItem : NavigationItemViewModelBase
         Icon = PackIconMaterialDesignKind.Settings;
         Tag = new SettingsViewModel();
     }
+    
+    public override string ToString() => "Settings";
 }
 
 public class AboutNavigationItem : NavigationItemViewModelBase
@@ -56,4 +60,6 @@ public class AboutNavigationItem : NavigationItemViewModelBase
         Icon = PackIconMaterialDesignKind.InfoOutline;
         Tag = new AboutViewModel();
     }
+
+    public override string ToString() => "About";
 }

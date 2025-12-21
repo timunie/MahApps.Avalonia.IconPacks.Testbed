@@ -4,6 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Styling;
+using IconPacks.Avalonia.Core;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
 using MahApps.IconPacksBrowser.Avalonia.Properties;
 using MahApps.IconPacksBrowser.Avalonia.ViewModels;
@@ -20,6 +21,9 @@ public partial class App : Application
         Settings.Default.PropertyChanged += SettingsOnPropertyChanged;
         Settings.LoadSettings();
 
+        // Increase cache size, since we expect a lot of icons
+        PackIconGeometryCache.CacheSize = 1500;
+        
         // initial accent color
         ApplyAccentColor(Settings.Default.AccentColor);
     }
@@ -57,6 +61,7 @@ public partial class App : Application
         Resources["ThemeAccentBrush3"] = new SolidColorBrush(accent3);
         Resources["ThemeAccentBrush4"] = new SolidColorBrush(accent4);
         
+        Resources["HighlightForegroundColor"] = ColorHelper.GetIdealForeground(accent);
         Resources["HighlightForegroundBrush"] = new SolidColorBrush(ColorHelper.GetIdealForeground(accent));
     }
 

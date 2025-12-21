@@ -6,7 +6,7 @@ using Avalonia;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Skia;
-using IconPacks.Avalonia;
+using IconPacks.Avalonia.Core;
 using MahApps.IconPacksBrowser.Avalonia.Properties;
 using MahApps.IconPacksBrowser.Avalonia.ViewModels;
 using SkiaSharp;

@@ -9,7 +9,7 @@
              xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls"
              xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
              xmlns:views="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Views"
-             d:DesignWidth="800"
+             d:DesignWidth="801"
              d:DesignHeight="450"
              helper:DialogManager.Register="{Binding Mode=OneTime}"
              x:DataType="vm:MainViewModel"
@@ -25,7 +25,7 @@
             <DockPanel LastChildFill="True">
                 <!-- Loading indicator -->
                 <ProgressBar DockPanel.Dock="Bottom"
-                             Height="3" 
+                             Height="3"
                              MinHeight="3"
                              IsIndeterminate="{Binding IsLoading}"
                              Value="100"
@@ -85,6 +85,7 @@
                    PanePlacement="Left"
                    DisplayMode="Inline"
                    OpenPaneLength="230"
+                   IsPaneOpen="True"
                    PaneBackground="{DynamicResource ThemeControlHighlightLowBrush}">
             <SplitView.Pane>
                 <Grid RowDefinitions="*, Auto" RowSpacing="15">
@@ -95,26 +96,28 @@
                                        Background="{DynamicResource ThemeBorderLowBrush}" />
                         </DataTemplate>
                         <DataTemplate DataType="vm:NavigationItemViewModelBase">
-                            <Grid ColumnDefinitions="Auto, *" VerticalAlignment="Stretch" ColumnSpacing="5" >
+                            <Grid ColumnDefinitions="Auto, *" VerticalAlignment="Stretch" ColumnSpacing="5">
                                 <iconPacks:PackIconControl Kind="{Binding Icon}" Height="{DynamicResource FontSizeNormal}"
                                                            IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                                           VerticalAlignment="Center"/>
+                                                           VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="{DynamicResource FontSizeLarge}"
                                            TextTrimming="{x:Static TextTrimming.CharacterEllipsis}"
                                            ToolTip.Tip="{Binding Title}"
-                                           VerticalAlignment="Center"/>
+                                           VerticalAlignment="Center" />
                             </Grid>
                         </DataTemplate>
                     </Grid.DataTemplates>
-                    
+
                     <ListBox ItemsSource="{Binding AvailableIconPacks}"
                              Background="Transparent"
+                             SelectionChanged="Navigation_OnSelectionChanged"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ItemContainerTheme="{DynamicResource NavigationPaneItemContainerTheme}"
                              SelectedValue="{Binding SelectedNavigationItem}" />
-                    
+
                     <ListBox Grid.Row="1" ItemsSource="{Binding OptionNavigationItems}"
                              Background="Transparent"
+                             SelectionChanged="Navigation_OnSelectionChanged"
                              SelectedValue="{Binding SelectedNavigationItem}" />
                 </Grid>
             </SplitView.Pane>
@@ -159,7 +162,7 @@
                                           DragIncrementHorizontally="1"
                                           DockPanel.Dock="Left"
                                           PropertyToAdjustHorizontal="{Binding $parent[SplitView].OpenPaneLength}"
-                                          Classes="horizontal"/>
+                                          Classes="horizontal" />
                 <TransitioningContentControl Content="{Binding SelectedNavigationItem}" />
             </DockPanel>
 
@@ -172,6 +175,9 @@
                     Background="{DynamicResource ThemeAccentBrush}"
                     TextElement.Foreground="{DynamicResource HighlightForegroundBrush}"
                     Orientation="Horizontal">
+            <StackPanel.Resources>
+                <SolidColorBrush x:Key="HyperlinkVisitedBrush" Color="{DynamicResource HighlightForegroundColor}"></SolidColorBrush>
+            </StackPanel.Resources>
 
             <!--  Some Styles for the StatusBar appearance  -->
             <StackPanel.Styles>

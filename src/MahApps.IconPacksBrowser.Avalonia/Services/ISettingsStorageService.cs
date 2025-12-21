@@ -1,5 +1,3 @@
-using System;
-
 namespace MahApps.IconPacksBrowser.Avalonia.Services;
 
 public interface ISettingsStorageService

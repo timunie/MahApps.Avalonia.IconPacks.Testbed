@@ -53,4 +53,13 @@ Also thanks to all auhtors of the used libraries:
 
 """);
     }
+
+    private void MarkdownRenderer_OnInlineHyperlinkClick(object? sender, InlineHyperlinkClickedEventArgs e)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (e.HRef != null)
+        {
+            topLevel?.Launcher.LaunchUriAsync(e.HRef);
+        }
+    }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.Versioning;
 using MahApps.IconPacksBrowser.Avalonia.Services;
 
