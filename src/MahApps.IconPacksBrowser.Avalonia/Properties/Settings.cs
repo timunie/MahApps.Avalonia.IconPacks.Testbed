@@ -110,13 +110,11 @@ public partial class Settings : ObservableObject
             _isLoading = true;
             
             var service = SettingsStorage.Get();
-            Console.WriteLine("Loading settings");
             var json = await service.ReadAsync();
-            
-            Console.WriteLine("Settings loaded: " + json);
             
             if (string.IsNullOrWhiteSpace(json))
                 return;
+            
             var settings = JsonSerializer.Deserialize(json!, SettingsJsonContext.Default.Settings) ?? new Settings();
             
             Default.AccentColor = settings.AccentColor;

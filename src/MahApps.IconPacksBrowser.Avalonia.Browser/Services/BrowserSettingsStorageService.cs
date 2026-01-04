@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
@@ -15,36 +16,37 @@ public partial class BrowserSettingsStorageService : ISettingsStorageService
     private static partial string? GetItem(string key);
 
     private static string Identifier { get; } = "MahApps_IconPacksBrowser_Settings";
-    
+
     public async Task<string?> ReadAsync()
-    {    
+    {
         try
         {
             await InitializeAsync();
-            
-            Console.WriteLine("Attempting to read settings from storage");
-            var json = GetItem(Identifier);
-            Console.WriteLine($"Settings read from storage for key '{Identifier}': '{(json ?? "null")}'");
-            return json;
+            return GetItem(Identifier);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Trace.WriteLine(e);
             return null;
         }
     }
 
     public async Task WriteAsync(string json)
     {
-        await InitializeAsync();
-        Console.WriteLine($"Attempting to write settings to storage for key '{Identifier}'");
-        SetItem(Identifier, json);
-        Console.WriteLine($"Wrote settings to storage: {Identifier}");
+        try
+        {
+            await InitializeAsync();
+            SetItem(Identifier, json);
+        }
+        catch (Exception e)
+        {
+            Trace.WriteLine(e);
+        }
     }
 
     private async Task InitializeAsync()
     {
         const string storageJsLocation = "../storage.js";
-        await JSHost.ImportAsync("storage",storageJsLocation);
+        await JSHost.ImportAsync("storage", storageJsLocation);
     }
 }
