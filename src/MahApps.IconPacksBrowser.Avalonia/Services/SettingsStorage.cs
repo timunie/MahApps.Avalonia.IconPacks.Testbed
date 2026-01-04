@@ -1,3 +1,5 @@
+using MahApps.IconPacksBrowser.Avalonia.Properties;
+
 namespace MahApps.IconPacksBrowser.Avalonia.Services;
 
 public static class SettingsStorage
@@ -7,6 +9,8 @@ public static class SettingsStorage
     public static void Register(ISettingsStorageService service)
     {
         _service = service;
+        // We can load the settings as soon as the service is registered.
+        Settings.LoadSettings();
     }
 
     public static ISettingsStorageService Get()

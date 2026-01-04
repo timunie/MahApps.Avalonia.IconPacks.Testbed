@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Services;
 
@@ -11,13 +12,13 @@ public sealed class DefaultSettingsStorageService : ISettingsStorageService
     private static string SettingsDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MahApps.IconPacksBrowser");
     private static string SettingsFile => Path.Combine(SettingsDirectory, "Settings.json");
 
-    public string? Read()
+    public async Task<string?> ReadAsync()
     {
         try
         {
             if (OperatingSystem.IsBrowser()) return null;
             if (!File.Exists(SettingsFile)) return null;
-            return File.ReadAllText(SettingsFile);
+            return await File.ReadAllTextAsync(SettingsFile);
         }
         catch
         {
@@ -25,7 +26,7 @@ public sealed class DefaultSettingsStorageService : ISettingsStorageService
         }
     }
 
-    public void Write(string json)
+    public async Task WriteAsync(string json)
     {
         try
         {
@@ -34,7 +35,7 @@ public sealed class DefaultSettingsStorageService : ISettingsStorageService
             {
                 Directory.CreateDirectory(SettingsDirectory);
             }
-            File.WriteAllText(SettingsFile, json);
+            await File.WriteAllTextAsync(SettingsFile, json);
         }
         catch
         {

@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace MahApps.IconPacksBrowser.Avalonia.Services;
 
 public interface ISettingsStorageService
@@ -5,11 +7,11 @@ public interface ISettingsStorageService
     /// <summary>
     /// Reads the settings JSON string or returns null if unavailable.
     /// </summary>
-    string? Read();
+    Task<string?> ReadAsync();
 
     /// <summary>
     /// Writes the provided settings JSON string.
     /// No-op if writing is not supported on the current platform.
     /// </summary>
-    void Write(string json);
+    Task WriteAsync(string json);
 }

@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -92,7 +93,7 @@ public partial class Settings : ObservableObject
         try
         {
             var service = SettingsStorage.Get();
-            service.Write(json);
+            service.WriteAsync(json);
         }
         catch
         {
@@ -102,14 +103,18 @@ public partial class Settings : ObservableObject
 
     private static bool _isLoading; 
     
-    public static void LoadSettings()
+    public static async void LoadSettings()
     {
         try
         {
             _isLoading = true;
             
             var service = SettingsStorage.Get();
-            var json = service.Read();
+            Console.WriteLine("Loading settings");
+            var json = await service.ReadAsync();
+            
+            Console.WriteLine("Settings loaded: " + json);
+            
             if (string.IsNullOrWhiteSpace(json))
                 return;
             var settings = JsonSerializer.Deserialize(json!, SettingsJsonContext.Default.Settings) ?? new Settings();

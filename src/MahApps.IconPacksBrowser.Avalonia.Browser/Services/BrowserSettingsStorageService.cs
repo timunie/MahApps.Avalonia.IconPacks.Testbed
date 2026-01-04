@@ -1,81 +1,41 @@
-using System.Runtime.Versioning;
+using System;
+using System.Net.Http.Json;
+using System.Runtime.InteropServices.JavaScript;
+using System.Threading.Tasks;
 using MahApps.IconPacksBrowser.Avalonia.Services;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Browser.Services;
 
-public sealed class BrowserSettingsStorageService : ISettingsStorageService
+public partial class BrowserSettingsStorageService : ISettingsStorageService
 {
-    private const string StorageKey = "MahApps.IconPacksBrowser.Settings";
-    private static string? _inMemoryCache; // last known settings when persistent storage is unavailable
+    [JSImport("globalThis.localStorage.setItem")]
+    private static partial void SetItem(string key, string value);
 
-    [SupportedOSPlatform("browser")]
-    public string? Read()
-    {
-        // Try localStorage first
+    [JSImport("globalThis.localStorage.getItem")]
+    private static partial string? GetItem(string key);
+
+    private static string Identifier { get; } = "MahApps_IconPacksBrowser_Settings";
+    
+    public async Task<string?> ReadAsync()
+    {    
         try
         {
-            var json = BrowserStorageInterop.LocalStorageGetItem(StorageKey);
-            if (!string.IsNullOrWhiteSpace(json))
-            {
-                _inMemoryCache = json;
-                return json;
-            }
+            Console.WriteLine("Attempting to read settings from storage");
+            var json = GetItem(Identifier);
+            Console.WriteLine($"Settings read from storage for key '{Identifier}': '{(json ?? "null")}'");
+            return json;
         }
-        catch
+        catch (Exception e)
         {
-            // ignore and try sessionStorage
+            Console.WriteLine(e);
+            return null;
         }
-
-        // Fallback to sessionStorage
-        try
-        {
-            var json = BrowserStorageInterop.SessionStorageGetItem(StorageKey);
-            if (!string.IsNullOrWhiteSpace(json))
-            {
-                _inMemoryCache = json;
-                return json;
-            }
-        }
-        catch
-        {
-            // ignore and fallback to memory
-        }
-
-        // Final fallback: in-memory for current session only
-        return _inMemoryCache;
     }
 
-    [SupportedOSPlatform("browser")]
-    public void Write(string json)
+    public async Task WriteAsync(string json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return;
-        }
-
-        // Always update in-memory cache first so UI stays consistent
-        _inMemoryCache = json;
-
-        // Try localStorage
-        try
-        {
-            BrowserStorageInterop.LocalStorageSetItem(StorageKey, json);
-            return;
-        }
-        catch
-        {
-            // ignored, try sessionStorage next
-        }
-
-        // Fallback to sessionStorage
-        try
-        {
-            BrowserStorageInterop.SessionStorageSetItem(StorageKey, json);
-            return;
-        }
-        catch
-        {
-            // Both persistent stores failed; keep using in-memory cache only
-        }
+        Console.WriteLine($"Attempting to write settings to storage for key '{Identifier}'");
+        SetItem(Identifier, json);
+        Console.WriteLine($"Wrote settings to storage: {Identifier}");
     }
 }
