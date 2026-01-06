@@ -2,12 +2,14 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls">
     <Design.PreviewWith>
+        <ThemeVariantScope RequestedThemeVariant="Light">
         <Border Padding="20">
             <controls:CardControl Header="Header 01" SecondaryHeader="Secondary Header"
                                   ScaleOnPointerOver="true">
                 Hello world
             </controls:CardControl>
         </Border>
+        </ThemeVariantScope>
     </Design.PreviewWith>
 
     <ControlTheme x:Key="{x:Type controls:CardControl}" TargetType="controls:CardControl">
@@ -53,7 +55,8 @@
                                 <ContentPresenter Grid.Row="1"
                                                   Margin="10,0,10,10"
                                                   Content="{TemplateBinding SecondaryHeader}"
-                                                  TextElement.Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                                  Opacity=".8"
+                                                  TextElement.Foreground="{DynamicResource ThemeForegroundBrush}" />
                             </Grid>
                         </Border>
                     </Grid>
