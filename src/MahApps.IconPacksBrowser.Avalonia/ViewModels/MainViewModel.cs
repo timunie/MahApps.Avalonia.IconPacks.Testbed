@@ -183,11 +183,6 @@ public partial class MainViewModel : ViewModelBase
 
         IsLoading = false;
         
-        foreach (var iconPack in AvailableIconPacks)
-        {
-            iconPack.FilterStringYieldsIcons = true;
-        }
-
         UpdateFavorites(Settings.Default.FavoriteIconPacks);
     }
     

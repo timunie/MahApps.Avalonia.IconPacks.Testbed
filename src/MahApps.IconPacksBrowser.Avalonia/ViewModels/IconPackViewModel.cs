@@ -51,7 +51,7 @@ public partial class IconPackViewModel : ViewModelBase
     public partial int IconCount { get; set; }
     
     [ObservableProperty]
-    public partial bool FilterStringYieldsIcons { get; set; }
+    public partial bool FilterStringYieldsIcons { get; set; } = true;
     
     [ObservableProperty]
     public partial bool IsFavorite { get; set; }
