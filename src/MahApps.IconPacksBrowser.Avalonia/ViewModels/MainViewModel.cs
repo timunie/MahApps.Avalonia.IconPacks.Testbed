@@ -54,6 +54,8 @@ using IconPacks.Avalonia.Zondicons;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
 using System.Reactive.Concurrency;
 using System.Threading;
+using AsyncAwaitBestPractices;
+using MahApps.IconPacksBrowser.Avalonia.Properties;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
@@ -69,7 +71,7 @@ public partial class MainViewModel : ViewModelBase
             ? new SynchronizationContextScheduler(SynchronizationContext.Current)
             : CurrentThreadScheduler.Instance;
 
-        SelectedNavigationItem = AvailableIconPacks[0];
+        SelectedNavigationItem = Navigationitems[0];
 
         // Throttle text filter to avoid filtering on every keystroke
         var filterByText = this.ObserveValue(nameof(FilterText), () => FilterText)
@@ -98,17 +100,24 @@ public partial class MainViewModel : ViewModelBase
             .DisposeMany()
             .Subscribe();
 
-        //LoadIconPacksAsync().SafeFireAndForget();
+        LoadIconPacksAsync().SafeFireAndForget();
 
         AppVersion = Assembly.GetExecutingAssembly().GetAssemblyVersionSafe();
     }
 
     [ObservableProperty] public partial int TotalItems { get; set; }
 
-    [ObservableProperty] public partial bool IsLoading { get; private set; } = true;
+    [ObservableProperty] public partial bool IsLoading { get; private set; }
+    
 
     public async Task LoadIconPacksAsync()
     {
+        if (IsLoading)
+        {
+            return;
+        }
+
+        IsLoading = true;
         var availableIconPacks = new List<(Type EnumType, Type IconPackType)>(
             [
                 (typeof(PackIconBootstrapIconsKind), typeof(PackIconBootstrapIcons)),
@@ -157,7 +166,8 @@ public partial class MainViewModel : ViewModelBase
             .Select(tuple =>
             {
                 var iconPack = new IconPackViewModel(tuple.EnumType, tuple.IconPackType);
-                AvailableIconPacks.Add(new IconPackNavigationItemViewModel(iconPack));
+                AvailableIconPacks.Add(iconPack);
+                Navigationitems.Add(new IconPackNavigationItemViewModel(iconPack));
                 return iconPack;
             });
 
@@ -172,17 +182,67 @@ public partial class MainViewModel : ViewModelBase
         SelectedIcon = SelectedIconPack?.Icons.FirstOrDefault() ?? _iconsCache.Items.FirstOrDefault();
 
         IsLoading = false;
-    }
+        
+        foreach (var iconPack in AvailableIconPacks)
+        {
+            iconPack.FilterStringYieldsIcons = true;
+        }
 
+        UpdateFavorites(Settings.Default.FavoriteIconPacks);
+    }
+    
+    /// <summary>
+    /// Gets a list of available icon packs
+    /// </summary>
+    public ObservableCollection<IconPackViewModel> AvailableIconPacks { get; } = new();
+
+    /// <summary>
+    /// Gets a list of favorite icon packs
+    /// </summary>
+    [ObservableProperty]
+    public partial IList<IconPackViewModel> FavoriteIconPacks { get; set; } = [];
+
+    bool _isUpdatingFavorites = false;
+    
+    internal void UpdateFavorites(IList<string>? favoriteNames = null)
+    {
+        // We have a list with favorite names, so we need to update the favorites collection.
+        // This can be passed from Settings during loading, for example
+        if (favoriteNames is not null)
+        {
+            _isUpdatingFavorites = true;
+            
+            foreach (var pack in AvailableIconPacks)
+            {
+                pack.IsFavorite = favoriteNames.Contains(pack.EnumType.Name);
+            }
+            _isUpdatingFavorites = false;
+        }
+        
+        // Update the collection
+        FavoriteIconPacks = AvailableIconPacks.Where(x => x.IsFavorite).ToArray();
+
+        // Save the favorite names to the settings, if it was not passed as a parameter and 
+        // if we are not updating favorites from settings
+        if (favoriteNames is null && !_isUpdatingFavorites)
+        {
+            Settings.Default.FavoriteIconPacks = FavoriteIconPacks
+                     .Select(x => x.EnumType.Name).ToArray();
+        }
+    }
+    
     /// <summary>
     /// Gets the navigation view items for all icon packs
     /// </summary>
-    public ObservableCollection<NavigationItemViewModelBase> AvailableIconPacks { get; } =
+    public ObservableCollection<NavigationItemViewModelBase> Navigationitems { get; } =
     [
+        new WelcomeNavigationItem(),
+        new SeparatorNavigationItemViewModel(),
+        
         new AllIconPacksNavigationItemViewModel(),
         new SeparatorNavigationItemViewModel()
     ];
-
+    
     /// <summary>
     /// Gets a list of option items such as settings and about
     /// </summary>
@@ -217,6 +277,12 @@ public partial class MainViewModel : ViewModelBase
             }
         }
     }
+    
+    [RelayCommand]
+    private void NavigateToIconPack(IconPackViewModel iconPack)
+    {
+        SelectedNavigationItem = Navigationitems.First(x => x.Tag == iconPack);
+    }
 
     /// <summary>
     /// Gets the selected IconPack
@@ -241,20 +307,26 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnFilterTextChanged(string? value)
     {
-        if (string.IsNullOrWhiteSpace(FilterText))
+        if (string.IsNullOrWhiteSpace(value))
         {
             _filterItems = null;
-            return;
+        }
+        else
+        {
+            var outer = value.Split(['+', ',', ';', '&'], StringSplitOptions.RemoveEmptyEntries);
+            string[][]? inner =
+                outer.Select(x => x.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(y => y.Trim().ToLowerInvariant())
+                        .ToArray())
+                    .ToArray();
+
+            _filterItems = inner;
         }
 
-        var outer = value?.Split(['+', ',', ';', '&'], StringSplitOptions.RemoveEmptyEntries);
-        string[][]? inner =
-            outer?.Select(x => x.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(y => y.Trim().ToLowerInvariant())
-                    .ToArray())
-                .ToArray();
-
-        _filterItems = inner;
+        foreach (var iconPack in AvailableIconPacks)
+        {
+            iconPack.FilterStringYieldsIcons = _filterItems is null || iconPack.Icons.Any(icon => FilterIconsByStringPredicate(value)(icon));
+        }
     }
 
     private string[][]? _filterItems;

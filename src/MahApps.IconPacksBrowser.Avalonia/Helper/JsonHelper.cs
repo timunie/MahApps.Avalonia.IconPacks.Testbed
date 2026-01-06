@@ -34,6 +34,7 @@ public class JsonColorConverter : JsonConverter<Color>
 [JsonSerializable(typeof(Color))]
 [JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(string[]))]
 [JsonSerializable(typeof(bool))]
 internal partial class SettingsJsonContext : JsonSerializerContext
 {

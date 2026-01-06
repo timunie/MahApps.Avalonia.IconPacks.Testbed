@@ -4,7 +4,7 @@
                     xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls">
     <Design.PreviewWith>
         <ListBox SelectedIndex="1">
-            <ListBoxItem Height="45">1sdfsdfsdf</ListBoxItem>
+            <ListBoxItem Height="45">Hello World</ListBoxItem>
             <ListBoxItem Theme="{DynamicResource SeparatorListBoxItem}" />
             <ListBoxItem>2</ListBoxItem>
             <ListBoxItem>3</ListBoxItem>

@@ -1,5 +1,7 @@
 using IconPacks.Avalonia.MaterialDesign;
 using System;
+using IconPacks.Avalonia.Octicons;
+using IconPacks.Avalonia.PhosphorIcons;
 
 namespace MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
@@ -21,6 +23,7 @@ public class IconPackNavigationItemViewModel : NavigationItemViewModelBase
         Title = iconPack.Caption;
         Tag = iconPack;
         IconPack = iconPack;
+        Icon = PackIconOcticonsKind.StarFill;
     }
 
     public IconPackViewModel IconPack { get; }
@@ -28,11 +31,23 @@ public class IconPackNavigationItemViewModel : NavigationItemViewModelBase
     public override string ToString() => Title ?? "Unknown IconPack";
 }
 
+public class WelcomeNavigationItem : NavigationItemViewModelBase
+{
+    public WelcomeNavigationItem()
+    {
+        Title = "Welcome";
+        Icon = PackIconMaterialDesignKind.HomeOutline;
+    }
+    
+    public override string ToString() => "Welcome";
+}
+
 public class AllIconPacksNavigationItemViewModel : NavigationItemViewModelBase
 {
     public AllIconPacksNavigationItemViewModel()
     {
         Title = "All Icons";
+        Icon = PackIconPhosphorIconsKind.Shapes;
     }
 
     public MainViewModel MainViewModel => MainViewModel.Instance;

@@ -90,14 +90,44 @@
             <SplitView.Pane>
                 <Grid RowDefinitions="*, Auto" RowSpacing="15">
                     <Grid.DataTemplates>
+                        <!-- Put specialized DataTemplates before any other  -->
                         <DataTemplate DataType="vm:SeparatorNavigationItemViewModel">
                             <Separator Margin="10,0"
                                        HorizontalAlignment="Stretch"
                                        Background="{DynamicResource ThemeBorderLowBrush}" />
                         </DataTemplate>
+                        
+                        <!-- Specialized IconPacks -->
+                        <DataTemplate DataType="vm:IconPackNavigationItemViewModel">
+                            <Grid ColumnDefinitions="*, Auto" VerticalAlignment="Stretch" ColumnSpacing="5"
+                                  Background="Transparent"
+                                  Opacity="{Binding IconPack.FilterStringYieldsIcons, Converter={StaticResource BoolToOpacityConverter}}">
+                                <Grid.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuItem Command="{Binding IconPack.ToggleFavoriteCommand}"
+                                                  Header="Toggle Favorite"
+                                                  Icon="{iconPacks:Octicons Star,
+                                                            Width={StaticResource FontSizeNormal},
+                                                            Height={StaticResource FontSizeNormal}}" />
+                                    </MenuFlyout>
+                                </Grid.ContextFlyout>
+                                
+                                <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="{DynamicResource FontSizeLarge}"
+                                           TextTrimming="{x:Static TextTrimming.CharacterEllipsis}"
+                                           ToolTip.Tip="{Binding Title}"
+                                           VerticalAlignment="Center" />
+                                <iconPacks:PackIconControl Grid.Column="1" Kind="{Binding Icon}" Height="{DynamicResource FontSizeNormal}"
+                                                           IsVisible="{Binding IconPack.IsFavorite}"
+                                                           Foreground="Goldenrod"
+                                                           VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                        
+                        <!-- Any other NavigationItem -->
                         <DataTemplate DataType="vm:NavigationItemViewModelBase">
                             <Grid ColumnDefinitions="Auto, *" VerticalAlignment="Stretch" ColumnSpacing="5">
-                                <iconPacks:PackIconControl Kind="{Binding Icon}" Height="{DynamicResource FontSizeNormal}"
+                                <iconPacks:PackIconControl Kind="{Binding Icon}" 
+                                                           Height="{DynamicResource FontSizeNormal}"
                                                            IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}"
                                                            VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="{DynamicResource FontSizeLarge}"
@@ -108,22 +138,26 @@
                         </DataTemplate>
                     </Grid.DataTemplates>
 
-                    <ListBox ItemsSource="{Binding AvailableIconPacks}"
+                    <ListBox ItemsSource="{Binding Navigationitems}"
                              Background="Transparent"
-                             SelectionChanged="Navigation_OnSelectionChanged"
+                             PointerReleased="Navigation_OnPointerReleased"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ItemContainerTheme="{DynamicResource NavigationPaneItemContainerTheme}"
                              SelectedValue="{Binding SelectedNavigationItem}" />
 
                     <ListBox Grid.Row="1" ItemsSource="{Binding OptionNavigationItems}"
                              Background="Transparent"
-                             SelectionChanged="Navigation_OnSelectionChanged"
+                             PointerReleased="Navigation_OnPointerReleased"
                              SelectedValue="{Binding SelectedNavigationItem}" />
                 </Grid>
             </SplitView.Pane>
 
             <SplitView.DataTemplates>
                 <!-- We have to use specialized DataTemplates bevore any other since these will be resolved first -->
+                <DataTemplate DataType="vm:WelcomeNavigationItem">
+                    <views:WelcomeView DataContext="{x:Static vm:MainViewModel.Instance}" />
+                </DataTemplate>
+                
                 <DataTemplate DataType="vm:SettingsNavigationItem">
                     <views:SettingsView DataContext="{Binding Tag}" />
                 </DataTemplate>

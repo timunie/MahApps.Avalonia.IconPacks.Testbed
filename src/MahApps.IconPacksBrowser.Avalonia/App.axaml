@@ -1,10 +1,8 @@
 <Application x:Class="MahApps.IconPacksBrowser.Avalonia.App"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
              xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
              xmlns:properties="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Properties"
-             xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels"
              RequestedThemeVariant="{Binding Source={x:Static properties:Settings.Default}, Path=AppTheme}">
     <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
 
@@ -15,16 +13,20 @@
                 <ResourceInclude Source="/Styles/ButtonStyles.axaml" />
                 <ResourceInclude Source="/Styles/ComboBoxStyles.axaml" />
                 <ResourceInclude Source="/Styles/ColorPickerStyles.axaml" />
+                <ResourceInclude Source="/Styles/CardControlStyles.axaml" />
                 <ResourceInclude Source="/Styles/ExpanderStyles.axaml" />
                 <ResourceInclude Source="/Styles/ListBoxStyles.axaml" />
                 <ResourceInclude Source="/Styles/OverlayDialog.axaml" />
                 <ResourceInclude Source="/Styles/HeaderedControlStyles.axaml" />
+                <ResourceInclude Source="/Styles/MenuStyles.axaml" />
                 <ResourceInclude Source="/Styles/NumericUpDownStyles.axaml" />
                 <ResourceInclude Source="/Styles/PropertyResizerStyles.axaml" />
                 <ResourceInclude Source="/Styles/ScrollViewerStyles.axaml" />
                 <ResourceInclude Source="/Styles/TextBoxStyles.axaml" />
                 <ResourceInclude Source="/Styles/IconPackThemes.axaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 

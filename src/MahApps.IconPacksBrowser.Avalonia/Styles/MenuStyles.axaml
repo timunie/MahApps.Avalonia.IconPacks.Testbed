@@ -1,0 +1,46 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia">
+    <Design.PreviewWith>
+
+        <Border Width="400" Height="400">
+            <StackPanel>
+                <Menu>
+                    <MenuItem Header="Test">
+                        <MenuItem Header="SubItem 01"></MenuItem>
+                        <MenuItem Header="SubItem 02"></MenuItem>
+                        <MenuItem Icon="{iconPacks:Octicons Star, Height=14, Width=14}"
+                                  Header="SubItem 03 and more">
+                            <MenuItem Header="Sub-Sub-Sub"></MenuItem>
+                        </MenuItem>
+                    </MenuItem>
+                </Menu>
+            </StackPanel>
+        </Border>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type MenuItem}"
+                  BasedOn="{StaticResource {x:Type MenuItem}}"
+                  TargetType="MenuItem">
+        <Setter Property="Padding" Value="0,4" />
+        <Setter Property="MinHeight" Value="32" />
+
+        <Style Selector="^ /template/ ContentControl#PART_IconPresenter">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style Selector="^:selected /template/ Border#root">
+            <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightLowBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentBrush}" />
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="SimpleTopLevelMenuItem"
+                  TargetType="MenuItem"
+                  BasedOn="{StaticResource {x:Type MenuItem}}">
+        <Setter Property="MinHeight" Value="20" />
+    </ControlTheme>
+
+</ResourceDictionary>

@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
@@ -15,7 +16,6 @@ public partial class MainView : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        _ = (DataContext as MainViewModel)!.LoadIconPacksAsync();
         
         CollapsePaneIfWidthTooSmall();
     }
@@ -23,6 +23,9 @@ public partial class MainView : UserControl
     protected override void OnSizeChanged(SizeChangedEventArgs e)
     {
         base.OnSizeChanged(e);
+        
+        NavigationView.DisplayMode = e.NewSize.Width < 800 
+            ? SplitViewDisplayMode.Overlay : SplitViewDisplayMode.Inline;
         
         CollapsePaneIfWidthTooSmall();
     }
@@ -32,9 +35,13 @@ public partial class MainView : UserControl
         if (IsLoaded && this.Bounds.Width < 800)
             NavigationView.IsPaneOpen = false;   
     }
-
-    private void Navigation_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    
+    
+    private void Navigation_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
+        // Only collapse the pane if the left mouse button was pressed
+        if (e.InitialPressMouseButton != MouseButton.Left) 
+            return;
         CollapsePaneIfWidthTooSmall();
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -8,6 +7,7 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
 using MahApps.IconPacksBrowser.Avalonia.Services;
+using MahApps.IconPacksBrowser.Avalonia.ViewModels;
 
 namespace MahApps.IconPacksBrowser.Avalonia.Properties;
 
@@ -82,7 +82,9 @@ public partial class Settings : ObservableObject
     /// </summary>
     [ObservableProperty]
     public partial bool IsPreviewerVisible { get; set; } = false;
-    
+
+    [ObservableProperty]
+    public partial string[] FavoriteIconPacks { get; set; } = [];
 
     public void SaveSettings()
     {
@@ -115,7 +117,7 @@ public partial class Settings : ObservableObject
             if (string.IsNullOrWhiteSpace(json))
                 return;
             
-            var settings = JsonSerializer.Deserialize(json!, SettingsJsonContext.Default.Settings) ?? new Settings();
+            var settings = JsonSerializer.Deserialize(json, SettingsJsonContext.Default.Settings) ?? new Settings();
             
             Default.AccentColor = settings.AccentColor;
             Default.AppTheme = settings.AppTheme;
@@ -126,10 +128,13 @@ public partial class Settings : ObservableObject
             Default.IconPreviewSize = settings.IconPreviewSize;
             Default.IconPreviewPadding = settings.IconPreviewPadding;
             Default.IsPreviewerVisible = settings.IsPreviewerVisible;
+            Default.FavoriteIconPacks = settings.FavoriteIconPacks;
 
             // Reset colors if unable to read.
             if (Default.AccentColor.A < 255) Default.AccentColor = Color.Parse("#FF008A00");
             if (Default.IconForeground.A < 255) Default.IconForeground = Color.Parse("#FF008A00");
+            
+            MainViewModel.Instance.UpdateFavorites(settings.FavoriteIconPacks);
         }
         catch
         {

@@ -1,0 +1,149 @@
+<UserControl x:Class="MahApps.IconPacksBrowser.Avalonia.Views.WelcomeView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Controls"
+             xmlns:converters="clr-namespace:MahApps.IconPacksBrowser.Avalonia.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:MahApps.IconPacksBrowser.Avalonia.ViewModels"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             x:DataType="viewModels:MainViewModel"
+             Design.DataContext="{x:Static viewModels:MainViewModel.Instance}"
+             mc:Ignorable="d">
+
+    <UserControl.Styles>
+        <Style Selector="CheckBox.favorite">
+            <Setter Property="Margin" Value="-4,-2,-5,-10" />
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Foreground" Value="{DynamicResource ThemeBorderMidBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border x:Name="PART_Border"
+                            Width="{TemplateBinding Width}"
+                            Height="{TemplateBinding Height}"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{Binding $self.Bounds, Converter={x:Static converters:BoundsToCornerRadiusConverter.Instance}}">
+                        <iconPacks:PackIconOcticons x:Name="PART_CheckIcon"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Foreground="{TemplateBinding Foreground}"
+                                                    Kind="Star" />
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover">
+                <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+                <Setter Property="Background" Value="#7777" />
+                <Setter Property="RenderTransform" Value="scale(1.25)" />
+            </Style>
+            <Style Selector="^:checked">
+                <Setter Property="Foreground" Value="Goldenrod" />
+                <Style Selector="^  /template/ iconPacks|PackIconOcticons#PART_CheckIcon">
+                    <Setter Property="Kind" Value="StarFill" />
+                </Style>
+                <Style Selector="^:pointerover">
+                    <Setter Property="Foreground" Value="DarkGoldenrod" />
+                </Style>
+            </Style>
+
+        </Style>
+    </UserControl.Styles>
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="IconPackCard" DataType="viewModels:IconPackViewModel">
+            <controls:CardControl Width="180"
+                                  Height="230"
+                                  Opacity="{Binding FilterStringYieldsIcons, Converter={StaticResource BoolToOpacityConverter}}"
+                                  Command="{Binding NavigateToIconPackCommand, Source={x:Static viewModels:MainViewModel.Instance}}"
+                                  CommandParameter="{Binding}"
+                                  Header="{Binding}"
+                                  InternalPadding="0"
+                                  ScaleOnPointerOver="True"
+                                  SecondaryHeader="{Binding IconCount, StringFormat='{}{0:N0} Icons'}"
+                                  ToolTip.Tip="{Binding Caption}">
+                <controls:CardControl.HeaderTemplate>
+                    <DataTemplate DataType="viewModels:IconPackViewModel">
+                        <DockPanel>
+                            <CheckBox Classes="favorite"
+                                      DockPanel.Dock="Right"
+                                      IsChecked="{Binding IsFavorite}"
+                                      ToolTip.Tip="Toggle Favorite"
+                                      ZIndex="2" />
+                            <TextBlock FontWeight="Bold"
+                                       Text="{Binding Caption}"
+                                       TextTrimming="{x:Static TextTrimming.CharacterEllipsis}" />
+                        </DockPanel>
+                    </DataTemplate>
+                </controls:CardControl.HeaderTemplate>
+
+                <controls:CardControl.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuItem Command="{Binding ToggleFavoriteCommand}"
+                                  Header="Toggle Favorite"
+                                  Icon="{iconPacks:Octicons Star,
+                                                            Width={StaticResource FontSizeNormal},
+                                                            Height={StaticResource FontSizeNormal}}" />
+                    </MenuFlyout>
+                </controls:CardControl.ContextFlyout>
+
+                <ItemsControl HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              ItemsSource="{Binding PreviewIcons}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3" Rows="3" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <iconPacks:PackIconControl HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Kind="{Binding Value}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </controls:CardControl>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ScrollViewer>
+        <StackPanel Margin="10" Spacing="10">
+
+            <TextBlock FontSize="24"
+                       Foreground="{DynamicResource ThemeAccentBrush}"
+                       IsVisible="{Binding !!FavoriteIconPacks.Count}"
+                       Text="Favorites" />
+
+            <ItemsControl IsVisible="{Binding !!FavoriteIconPacks.Count}"
+                          ItemTemplate="{StaticResource IconPackCard}"
+                          ItemsSource="{Binding FavoriteIconPacks}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <controls:VirtualizingWrapPanel AllowDifferentSizedItems="False"
+                                                        ItemSize="180,230"
+                                                        SpacingMode="StartAndEndOnly" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
+            <TextBlock FontSize="24"
+                       Foreground="{DynamicResource ThemeAccentBrush}"
+                       Text="Available IconPacks" />
+
+            <ItemsControl ItemTemplate="{StaticResource IconPackCard}" ItemsSource="{Binding AvailableIconPacks}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <controls:VirtualizingWrapPanel AllowDifferentSizedItems="False"
+                                                        ItemSize="180,230"
+                                                        SpacingMode="StartAndEndOnly" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

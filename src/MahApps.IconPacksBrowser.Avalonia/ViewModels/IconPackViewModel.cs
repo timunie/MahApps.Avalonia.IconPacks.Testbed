@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using IconPacks.Avalonia.Core.Attributes;
 using MahApps.IconPacksBrowser.Avalonia.Helper;
 
@@ -17,8 +18,8 @@ public partial class IconPackViewModel : ViewModelBase
 
     public IconPackViewModel(Type enumType, Type packType)
     {
-        EnumType = enumType;
-        PackType = packType;
+        this.EnumType = enumType;
+        this.PackType = packType;
         // Get the Name of the IconPack via Attributes
         this.MetaData = Attribute.GetCustomAttribute(packType, typeof(MetaDataAttribute)) as MetaDataAttribute;
 
@@ -33,16 +34,40 @@ public partial class IconPackViewModel : ViewModelBase
         this.Icons = new ObservableCollection<IIconViewModel>(collection);
         this.IconCount = collection.Count;
 
+        OnPropertyChanged(nameof(PreviewIcons));
+        
         return Icons;
     }
 
     [ObservableProperty] 
     public partial IList<IIconViewModel> Icons { get; set; } = [];
-
+ 
+    /// <summary>
+    /// Gets the first 9 icons for the preview in the Welcome view
+    /// </summary>
+    public IEnumerable<IIconViewModel> PreviewIcons => Icons.Take(9);
     
     [ObservableProperty]
     public partial int IconCount { get; set; }
+    
+    [ObservableProperty]
+    public partial bool FilterStringYieldsIcons { get; set; }
+    
+    [ObservableProperty]
+    public partial bool IsFavorite { get; set; }
+    
+    // ReSharper disable once UnusedParameterInPartialMethod
+    partial void OnIsFavoriteChanged(bool value)
+    {
+        MainViewModel.Instance.UpdateFavorites();
+    }
 
+    [RelayCommand]
+    private void ToggleFavorite()
+    {
+        IsFavorite = !IsFavorite;
+    }
+    
     private static MetaDataAttribute? GetMetaData(Type packType)
     {
         var metaData = Attribute.GetCustomAttribute(packType, typeof(MetaDataAttribute)) as MetaDataAttribute;
