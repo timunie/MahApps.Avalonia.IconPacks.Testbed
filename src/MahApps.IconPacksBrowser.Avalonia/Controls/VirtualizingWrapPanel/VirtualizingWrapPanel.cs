@@ -24,6 +24,8 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// </summary>
         private static readonly Size _EmptySize = new Size(0, 0);
 
+        private const double EPSILON = 0.001;
+        
         static VirtualizingWrapPanel()
         {
             AffectsMeasure<VirtualizingWrapPanel>(
@@ -665,7 +667,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
 
             if (itemWidth == 0 || itemHeight == 0) return _EmptySize;
 
-            var itemsPerRow = Math.Max(Math.Floor(viewportWidth / itemWidth), 1);
+            var itemsPerRow = Math.Max(Math.Floor((viewportWidth + EPSILON) / itemWidth), 1);
 
             double sizeU = 0d;
             if (AllowDifferentSizedItems)
@@ -719,7 +721,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 var viewportWidth = GetWidth(_viewport.Size);
                 var avgSize = GetAverageItemSize();
                 var avgWidth = GetWidth(avgSize);
-                var itemsPerRow = Math.Max(Math.Floor(viewportWidth / avgWidth), 1);
+                var itemsPerRow = Math.Max(Math.Floor((viewportWidth + EPSILON) / avgWidth), 1);
                 var remainingRows = (int)Math.Ceiling(remainingItems / itemsPerRow);
                 var u = GetY(_scrollToElement.Bounds.BottomRight);
                 var sizeU = u + (remainingRows * GetHeight(avgSize));
@@ -809,7 +811,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 if (itemWidth == 0 || itemHeight == 0) return new Point();
 
                 var viewportWidth = GetWidth(_viewport.Size);
-                var itemsPerRow = Math.Max(Math.Floor(viewportWidth / itemWidth), 1);
+                var itemsPerRow = Math.Max(Math.Floor((viewportWidth + EPSILON) / itemWidth), 1);
 
                 var itemRowIndex = (int)Math.Floor(itemIndex * 1.0 / itemsPerRow);
                 x = (itemIndex - itemRowIndex * itemsPerRow) * itemWidth;
@@ -965,7 +967,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
 
                 if (itemWidth == 0 || itemHeight == 0) return;
 
-                var itemsPerRow = Math.Max(Math.Floor(GetWidth(_viewport.Size) / itemWidth), 1);
+                var itemsPerRow = Math.Max(Math.Floor((GetWidth(_viewport.Size) + EPSILON) / itemWidth), 1);
 
                 var startRowIndex = (int)Math.Floor(startOffsetY / itemHeight);
                 _startItemIndex = (int)(startRowIndex * itemsPerRow);
@@ -1076,7 +1078,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                     _sizeOfFirstItem = containerSize;
                 }
 
-                if (x != 0 && x + GetWidth(containerSize) > GetWidth(_viewport.Size))
+                if (x != 0 && (x + GetWidth(containerSize)) > (GetWidth(_viewport.Size) + EPSILON))
                 {
                     // finalize previous row in cache
                     AddRowCacheEntry(currentRowStartIndex, y, rowHeight, currentRowCount);
@@ -1281,7 +1283,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             {
                 double childWidth = GetWidth(childSizes[0]);
                 int itemsPerRow = IsGridLayoutEnabled ?
-                    (int)Math.Max(Math.Floor(rowWidth / childWidth), 1) :
+                    (int)Math.Max(Math.Floor((rowWidth + EPSILON) / childWidth), 1) :
                     childCount;
 
                 if (StretchItems)
@@ -1350,7 +1352,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             else
             {
                 childCount = IsGridLayoutEnabled ?
-                    (int)Math.Max(1, Math.Floor(rowWidth / GetWidth(_sizeOfFirstItem!.Value))) :
+                    (int)Math.Max(1, Math.Floor((rowWidth + EPSILON) / GetWidth(_sizeOfFirstItem!.Value))) :
                     children.Count;
             }
 
@@ -1421,7 +1423,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             var oldViewportEndX = GetX(_viewport.BottomRight);
             var oldViewportEndY = GetY(_viewport.BottomRight); // vertical ? _viewport.Bottom : _viewport.Right;
 
-            _viewport = e.EffectiveViewport.Intersect(new(Bounds.Size));
+            _viewport = e.EffectiveViewport;
             _isWaitingForViewportUpdate = false;
 
             var newViewportStartX = GetX(_viewport.TopLeft);
@@ -1495,7 +1497,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 case Orientation.Vertical:
                     if (AllowDifferentSizedItems) return;
                     var itemsPerRow =
-                        (int)Math.Max(Math.Floor(GetWidth(_viewport.Size) / GetWidth(GetAverageItemSize())), 1);
+                        (int)Math.Max(Math.Floor((GetWidth(_viewport.Size) + EPSILON) / GetWidth(GetAverageItemSize())), 1);
                     currentIndex -= itemsPerRow;
                     break;
             }
@@ -1512,7 +1514,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 case Orientation.Vertical:
                     if (AllowDifferentSizedItems) return;
                     var itemsPerRow =
-                        (int)Math.Max(Math.Floor(GetWidth(_viewport.Size) / GetWidth(GetAverageItemSize())), 1);
+                        (int)Math.Max(Math.Floor((GetWidth(_viewport.Size) + EPSILON) / GetWidth(GetAverageItemSize())), 1);
                     currentIndex += itemsPerRow;
                     break;
             }
@@ -1528,7 +1530,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 case Orientation.Horizontal:
                     if (AllowDifferentSizedItems) return;
                     var itemsPerRow =
-                        (int)Math.Max(Math.Floor(GetWidth(_viewport.Size) / GetWidth(GetAverageItemSize())), 1);
+                        (int)Math.Max(Math.Floor((GetWidth(_viewport.Size) + EPSILON) / GetWidth(GetAverageItemSize())), 1);
                     currentIndex -= itemsPerRow;
                     break;
             }
@@ -1544,7 +1546,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 case Orientation.Horizontal:
                     if (AllowDifferentSizedItems) return;
                     var itemsPerRow =
-                        (int)Math.Max(Math.Floor(GetWidth(_viewport.Size) / GetWidth(GetAverageItemSize())), 1);
+                        (int)Math.Max(Math.Floor((GetWidth(_viewport.Size) + EPSILON) / GetWidth(GetAverageItemSize())), 1);
                     currentIndex += itemsPerRow;
                     break;
             }
