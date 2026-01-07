@@ -30,10 +30,6 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
     <PackageReference Include="SkiaSharp.NativeAssets.MacOs" />
-    <!-- Logging -->
-    <PackageReference Include="Serilog" />
-    <PackageReference Include="Serilog.Sinks.File" />
-    <PackageReference Include="SerilogTraceListener" />
   </ItemGroup>
 
     <ItemGroup>
