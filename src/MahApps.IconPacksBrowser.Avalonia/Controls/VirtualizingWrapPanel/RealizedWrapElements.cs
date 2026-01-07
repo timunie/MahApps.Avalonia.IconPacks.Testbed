@@ -15,6 +15,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         private int _firstIndex;
         private readonly List<Control?> _elements;
         private readonly List<Size> _sizes;
+        private readonly Dictionary<Control, int> _elementToIndex = new();
 
         public RealizedWrapElements()
         {
@@ -65,18 +66,21 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             {
                 _elements.Add(element);
                 _sizes.Add(size);
+                _elementToIndex[element] = index;
                 _firstIndex = index;
             }
             else if (index == _firstIndex + count)
             {
                 _elements.Add(element);
                 _sizes.Add(size);
+                _elementToIndex[element] = index;
             }
             else if (index == _firstIndex - 1)
             {
                 --_firstIndex;
                 _elements.Insert(0, element);
                 _sizes.Insert(0, size);
+                _elementToIndex[element] = index;
             }
             else
             {
@@ -139,8 +143,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// <returns>The index or -1 if the element is not present in the collection.</returns>
         public int GetIndex(Control element)
         {
-            var index = _elements.IndexOf(element);
-            return index >= 0 ? index + _firstIndex : -1;
+            return _elementToIndex.TryGetValue(element, out var index) ? index : -1;
         }
 
         /// <summary>
@@ -173,7 +176,9 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                     if (_elements[i] is not { } element)
                         continue;
                     var oldIndex = i + first;
-                    updateElementIndex(element, oldIndex, oldIndex + count);
+                    var newIndex = oldIndex + count;
+                    updateElementIndex(element, oldIndex, newIndex);
+                    _elementToIndex[element] = newIndex;
                 }
 
                 if (realizedIndex < 0)
@@ -227,7 +232,11 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 for (var i = 0; i < elementCount; ++i)
                 {
                     if (_elements[i] is { } element)
+                    {
                         updateElementIndex(element, newIndex + count, newIndex);
+                        _elementToIndex[element] = newIndex;
+                    }
+
                     ++newIndex;
                 }
             }
@@ -242,6 +251,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                     if (_elements[i] is { } element)
                     {
                         _elements[i] = null;
+                        _elementToIndex.Remove(element);
                         recycleElement(element);
                     }
                 }
@@ -263,7 +273,11 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 for (var i = start; i < end; ++i)
                 {
                     if (_elements[i] is { } element)
+                    {
                         updateElementIndex(element, newIndex + count, newIndex);
+                        _elementToIndex[element] = newIndex;
+                    }
+
                     ++newIndex;
                 }
             }
@@ -295,6 +309,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                     if (_elements[i] is { } element)
                     {
                         recycleElement(element);
+                        _elementToIndex.Remove(element);
                         _elements[i] = null;
                         _sizes[i] = Size.Infinity;
                     }
@@ -317,12 +332,14 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 if (_elements[i] is { } e)
                 {
                     _elements[i] = null;
+                    _elementToIndex.Remove(e);
                     recycleElement(e);
                 }
             }
 
             _elements.Clear();
             _sizes.Clear();
+            _elementToIndex.Clear();
         }
 
         /// <summary>
@@ -351,6 +368,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                     if (_elements[i] is { } e)
                     {
                         _elements[i] = null;
+                        _elementToIndex.Remove(e);
                         recycleElement(e, i + first);
                     }
                 }
@@ -387,6 +405,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                     if (_elements[i] is { } e)
                     {
                         _elements[i] = null;
+                        _elementToIndex.Remove(e);
                         recycleElement(e, i + first);
                     }
                 }
@@ -413,6 +432,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 if (_elements[i] is { } e)
                 {
                     _elements[i] = null;
+                    _elementToIndex.Remove(e);
                     recycleElement(e, i + first);
                 }
             }
@@ -420,6 +440,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             _firstIndex = 0;
             _elements.Clear();
             _sizes.Clear();
+            _elementToIndex.Clear();
         }
 
         /// <summary>
@@ -430,6 +451,7 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             _firstIndex = 0;
             _elements.Clear();
             _sizes.Clear();
+            _elementToIndex.Clear();
         }
     }
 }
