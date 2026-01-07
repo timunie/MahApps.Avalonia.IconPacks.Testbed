@@ -379,37 +379,37 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                     ArrangeRow(finalWidth, rowChilds, childSizes, y);
                 }
 
-                // Ensure that the focused element is in the correct position.
-                if (_focusedElement is not null && _focusedIndex >= 0)
-                {
-                    var startPoint = FindItemOffset(_focusedIndex);
+            // Ensure that the focused element is in the correct position.
+            if (_focusedElement is not null && _focusedIndex >= 0)
+            {
+                var startPoint = FindItemOffset(_focusedIndex);
 
-                    _startItemOffsetX = GetX(startPoint);
-                    _startItemOffsetY = GetY(startPoint);
+                double focusedOffsetX = GetX(startPoint);
+                double focusedOffsetY = GetY(startPoint);
 
-                    var rect = Orientation == Orientation.Horizontal ?
-                        new Rect(_startItemOffsetX, _startItemOffsetY, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height) :
-                        new Rect(_startItemOffsetY, _startItemOffsetX, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height);
-                    _focusedElement.Arrange(rect);
-                }
+                var rect = Orientation == Orientation.Horizontal ?
+                    new Rect(focusedOffsetX, focusedOffsetY, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height) :
+                    new Rect(focusedOffsetY, focusedOffsetX, _focusedElement.DesiredSize.Width, _focusedElement.DesiredSize.Height);
+                _focusedElement.Arrange(rect);
+            }
 
-                // Ensure that the scrollTo element is in the correct position.
-                if (_scrollToElement is not null && _scrollToIndex >= 0)
-                {
-                    var startPoint = FindItemOffset(_scrollToIndex);
+            // Ensure that the scrollTo element is in the correct position.
+            if (_scrollToElement is not null && _scrollToIndex >= 0)
+            {
+                var startPoint = FindItemOffset(_scrollToIndex);
 
-                    _startItemOffsetX = GetX(startPoint);
-                    _startItemOffsetY = GetY(startPoint);
+                double scrollToOffsetX = GetX(startPoint);
+                double scrollToOffsetY = GetY(startPoint);
 
-                    var rect = Orientation == Orientation.Horizontal ?
-                        new Rect(_startItemOffsetX, _startItemOffsetY, _scrollToElement.DesiredSize.Width,
-                            finalSize.Height) :
-                        new Rect(_startItemOffsetY, _startItemOffsetX, finalSize.Width,
-                            _scrollToElement.DesiredSize.Height);
-                    _scrollToElement.Arrange(rect);
-                }
+                var rect = Orientation == Orientation.Horizontal ?
+                    new Rect(scrollToOffsetX, scrollToOffsetY, _scrollToElement.DesiredSize.Width,
+                        finalSize.Height) :
+                    new Rect(scrollToOffsetY, scrollToOffsetX, finalSize.Width,
+                        _scrollToElement.DesiredSize.Height);
+                _scrollToElement.Arrange(rect);
+            }
 
-                return finalSize;
+            return finalSize;
             }
             finally
             {
@@ -944,14 +944,6 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
         /// </summary>
         private void FindStartIndexAndOffset()
         {
-            if (GetY(_viewport.TopLeft) == 0 && GetY(_viewport.BottomRight) == 0)
-            {
-                _startItemIndex = -1;
-                _startItemOffsetX = 0;
-                _startItemOffsetY = 0;
-                return;
-            }
-
             double startOffsetY = DetermineStartOffsetY();
 
             if (startOffsetY <= 0)
@@ -1084,10 +1076,9 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 return;
             }
 
-            // Rebuild the row cache for the currently realized window only.
-            // This keeps the cache ordered by Y and prevents stale/duplicated rows
-            // that could confuse the binary search when resolving the start index.
-            // _rowCache.Clear();
+            // Clear the row cache if we're not starting from the first item.
+            // This is safer to avoid stale entries or duplication when scrolling/realizing a new window.
+            _rowCache.Clear();
 
             int newEndItemIndex = Items.Count - 1;
             bool endItemIndexFound = false;
@@ -1104,20 +1095,6 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
 
             _knownExtendX = 0;
 
-            // Remove any row cache entries starting from our _startItemIndex to avoid duplication or stale data
-            // Since we realize from start to end, we can safely prune everything after start index.
-            for (int i = _rowCache.Count - 1; i >= 0; i--)
-            {
-                if (_rowCache[i].StartIndex >= _startItemIndex)
-                {
-                    _rowCache.RemoveAt(i);
-                }
-                else
-                {
-                    // Assuming _rowCache is ordered by StartIndex, we can break once we find an item before our start
-                    break;
-                }
-            }
 
             for (int itemIndex = _startItemIndex; itemIndex <= newEndItemIndex; itemIndex++)
             {
@@ -1143,6 +1120,11 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
                 Size? measureSize = upfrontKnownItemSize
                                     ?? _sizeOfFirstItem
                                     ?? (!ItemSize.NearlyEquals(_EmptySize) ? ItemSize : (Size?)null);
+
+                // Optimization: Skip Measure if the container already has the correct desired size.
+                // However, we MUST measure if the container was just recycled (e.g. from GetOrCreateElement)
+                // because it might have a different item now.
+                // Avalonia's VirtualizingPanel usually handles this, but since we are doing custom realization:
                 container.Measure(measureSize ?? Size.Infinity);
 
                 var containerSize = DetermineContainerSize(item, container, upfrontKnownItemSize);
@@ -1529,11 +1511,37 @@ namespace MahApps.IconPacksBrowser.Avalonia.Controls
             var newViewportEndY = GetY(_viewport.BottomRight); // ? _viewport.Bottom : _viewport.Right);
 
             var newViewportWidth = GetWidth(_viewport.Size);
-            if (!_lastViewportWidth.IsCloseTo(newViewportWidth))
+
+            if (_lastViewportWidth.IsCloseTo(newViewportWidth))
             {
-                _lastViewportWidth = newViewportWidth;
-                ClearRowCache();
+                // Optimization: Skip InvalidateMeasure if the new viewport is within what we already have realized/cached.
+                // This is safe because:
+                // 1. We already have the elements in _realizedElements.
+                // 2. MeasureOverride would just result in the same _startItemIndex and _endItemIndex.
+                // 3. We STILL call InvalidateArrange() because items might need to be repositioned relative to the viewport.
+
+                bool withinCached = _realizedElements != null &&
+                                    _startItemIndex >= 0 && _endItemIndex >= 0 &&
+                                    newViewportStartY >= _startItemOffsetY &&
+                                    newViewportEndY <= GetY(FindItemOffset(_endItemIndex)) +
+                                    GetHeight(GetAssumedItemSize(_endItemIndex, Items[_endItemIndex]));
+
+                if (withinCached)
+                {
+                    if (!oldViewportStartX.IsCloseTo(newViewportStartX) ||
+                        !oldViewportEndX.IsCloseTo(newViewportEndX) ||
+                        !oldViewportStartY.IsCloseTo(newViewportStartY) ||
+                        !oldViewportEndY.IsCloseTo(newViewportEndY))
+                    {
+                        InvalidateArrange();
+                    }
+
+                    return;
+                }
             }
+
+            _lastViewportWidth = newViewportWidth;
+            ClearRowCache();
 
             if (!oldViewportStartX.IsCloseTo(newViewportStartX) ||
                 !oldViewportEndX.IsCloseTo(newViewportEndX) ||

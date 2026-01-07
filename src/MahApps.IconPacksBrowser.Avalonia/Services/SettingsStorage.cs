@@ -1,5 +1,3 @@
-using MahApps.IconPacksBrowser.Avalonia.Properties;
-
 namespace MahApps.IconPacksBrowser.Avalonia.Services;
 
 public static class SettingsStorage

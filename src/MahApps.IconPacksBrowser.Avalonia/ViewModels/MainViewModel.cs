@@ -80,17 +80,15 @@ public partial class MainViewModel : ViewModelBase
             .Select(FilterIconsByStringPredicate);
 
         // Icon pack filter doesn't need throttling (changes infrequently)
-        var filterByIconPack = this.ObserveValue(nameof(SelectedIconPack), () => SelectedIconPack)
+        var filterByIconPack = this.ObserveValue(nameof(SelectedNavigationItem), () => SelectedNavigationItem)
             .DistinctUntilChanged()
             .Select(FilterIconsByTypePredicate);
 
         // Combine both filters into a single observable for better performance
-        var combinedFilter = Observable.CombineLatest(
-                filterByIconPack,
-                filterByText,
+        var combinedFilter = filterByIconPack.CombineLatest(filterByText,
                 (packFilter, textFilter) => new Func<IIconViewModel, bool>(icon =>
                     packFilter(icon) && textFilter(icon)))
-            .StartWith(_ => true);
+            .StartWith(_ => false);
 
         _iconsCache.Connect()
             .Filter(combinedFilter)
@@ -197,7 +195,7 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     public partial IList<IconPackViewModel> FavoriteIconPacks { get; set; } = [];
 
-    bool _isUpdatingFavorites = false;
+    bool _isUpdatingFavorites;
     
     internal void UpdateFavorites(IList<string>? favoriteNames = null)
     {
@@ -260,18 +258,21 @@ public partial class MainViewModel : ViewModelBase
     /// <summary>
     /// Gets the selected IconPack-NavigationItem
     /// </summary>
-    public NavigationItemViewModelBase? SelectedNavigationItem
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedIconPack))]
+    private NavigationItemViewModelBase _selectedNavigationItem;
+
+    partial void OnSelectedNavigationItemChanged(NavigationItemViewModelBase? oldValue, NavigationItemViewModelBase newValue)
     {
-        get => field;
-        set
+        if (newValue is null && !IsLoading)
         {
-            if (value is null) return;
-            if (SetProperty(ref field, value))
+            if (oldValue is not null)
             {
-                OnPropertyChanged(nameof(SelectedIconPack));
+                _selectedNavigationItem = oldValue;
             }
         }
     }
+    
     
     [RelayCommand]
     private void NavigateToIconPack(IconPackViewModel iconPack)
@@ -282,7 +283,7 @@ public partial class MainViewModel : ViewModelBase
     /// <summary>
     /// Gets the selected IconPack
     /// </summary>
-    public IconPackViewModel? SelectedIconPack => SelectedNavigationItem?.Tag as IconPackViewModel;
+    public IconPackViewModel? SelectedIconPack => SelectedNavigationItem.Tag as IconPackViewModel;
 
     /// <summary>
     /// Gets or sets the selected icon
@@ -309,8 +310,8 @@ public partial class MainViewModel : ViewModelBase
         else
         {
             var outer = value.Split(['+', ',', ';', '&'], StringSplitOptions.RemoveEmptyEntries);
-            string[][]? inner =
-                outer.Select(x => x.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
+            string[][] inner =
+                outer.Select(x => x.Split(['|'], StringSplitOptions.RemoveEmptyEntries)
                         .Select(y => y.Trim().ToLowerInvariant())
                         .ToArray())
                     .ToArray();
@@ -346,10 +347,14 @@ public partial class MainViewModel : ViewModelBase
                 icon.FilterString.Contains(searchStr)));
     };
 
-    private Func<IIconViewModel, bool> FilterIconsByTypePredicate(IconPackViewModel? selectedIconPack) => icon =>
+    private Func<IIconViewModel, bool> FilterIconsByTypePredicate(NavigationItemViewModelBase? navigationItem) => icon =>
     {
-        return SelectedNavigationItem is AllIconPacksNavigationItemViewModel
-               || icon.IconPackType == selectedIconPack?.PackType;
+        return navigationItem switch
+        {
+            AllIconPacksNavigationItemViewModel => true,
+            IconPackNavigationItemViewModel iconPackNavItem => icon.IconPackType == iconPackNavItem.IconPack.PackType,
+            _ => false
+        };
     };
 
 

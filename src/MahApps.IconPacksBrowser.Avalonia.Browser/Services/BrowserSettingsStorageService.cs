@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Net.Http.Json;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
 using MahApps.IconPacksBrowser.Avalonia.Services;

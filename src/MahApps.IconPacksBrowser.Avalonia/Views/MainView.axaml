@@ -143,12 +143,12 @@
                              PointerReleased="Navigation_OnPointerReleased"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ItemContainerTheme="{DynamicResource NavigationPaneItemContainerTheme}"
-                             SelectedValue="{Binding SelectedNavigationItem}" />
+                             SelectedItem="{Binding SelectedNavigationItem}" />
 
                     <ListBox Grid.Row="1" ItemsSource="{Binding OptionNavigationItems}"
                              Background="Transparent"
                              PointerReleased="Navigation_OnPointerReleased"
-                             SelectedValue="{Binding SelectedNavigationItem}" />
+                             SelectedItem="{Binding SelectedNavigationItem}" />
                 </Grid>
             </SplitView.Pane>
 
