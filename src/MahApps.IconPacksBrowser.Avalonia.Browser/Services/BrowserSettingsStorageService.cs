@@ -8,10 +8,10 @@ namespace MahApps.IconPacksBrowser.Avalonia.Browser.Services;
 
 public partial class BrowserSettingsStorageService : ISettingsStorageService
 {
-    [JSImport("setItem", "storage")]
+    [JSImport("setItem", "settings-storage")]
     private static partial void SetItem(string key, string value);
 
-    [JSImport("getItem", "storage")]
+    [JSImport("getItem", "settings-storage")]
     private static partial string? GetItem(string key);
 
     private static string Identifier { get; } = "MahApps_IconPacksBrowser_Settings";
@@ -45,7 +45,7 @@ public partial class BrowserSettingsStorageService : ISettingsStorageService
 
     private async Task InitializeAsync()
     {
-        const string storageJsLocation = "../storage.js";
-        await JSHost.ImportAsync("storage", storageJsLocation);
+        const string storageJsLocation = "../settings-storage.js";
+        await JSHost.ImportAsync("settings-storage", storageJsLocation);
     }
 }

@@ -11,7 +11,7 @@
             BoxShadow="5 5 7 5 gray">
         <ScrollViewer ClipToBounds="True">
             <md:MarkdownRenderer x:Name="MarkdownRenderer" Margin="20" 
-                                 InlineHyperlinkClick="MarkdownRenderer_OnInlineHyperlinkClick"/>
+                                 LinkClick="MarkdownRenderer_OnLinkClick"/>
         </ScrollViewer>
     </Border>
 
