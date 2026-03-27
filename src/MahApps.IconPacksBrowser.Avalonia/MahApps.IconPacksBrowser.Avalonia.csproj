@@ -24,20 +24,19 @@
         <PackageReference Include="Avalonia.Themes.Simple" />
         <PackageReference Include="Avalonia.Controls.ColorPicker" />
         <PackageReference Include="Avalonia.Skia" />
-        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics"/>
-
+        
         <!--        <PackageReference Include="IconPacks.Avalonia" />-->
         <PackageReference Include="CommunityToolkit.Mvvm" />
         <!-- Removed ReactiveUI to reduce trim/AOT problems; use System.Reactive + DynamicData directly -->
         <PackageReference Include="System.Reactive" />
         <PackageReference Include="DynamicData" />
         <PackageReference Include="SkiaSharp" />
-        <PackageReference Include="LiveMarkdown.Avalonia" />
+        <!-- <PackageReference Include="LiveMarkdown.Avalonia" /> removed for now until we have v12 version. Use submodule until then. This is a known TODO -->
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\ext\src\IconPacks.Avalonia.Core\IconPacks.Avalonia.Core.csproj" />
       <ProjectReference Include="..\..\ext\src\IconPacks.Avalonia\IconPacks.Avalonia.csproj" />
+      <ProjectReference Include="..\ext\LiveMarkdown.Avalonia\src\LiveMarkdown.Avalonia\LiveMarkdown.Avalonia.csproj" />
     </ItemGroup>
 </Project>

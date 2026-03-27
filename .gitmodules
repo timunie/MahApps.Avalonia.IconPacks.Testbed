@@ -2,3 +2,6 @@
 	path = ext
 	url = https://github.com/timunie/IconPacks.Avalonia.git
 	branch = main
+[submodule "src/ext/LiveMarkdown.Avalonia"]
+	path = src/ext/LiveMarkdown.Avalonia
+	url = https://github.com/DearVa/LiveMarkdown.Avalonia.git
