@@ -44,7 +44,6 @@
     <Project Path="../ext/src/IconPacks.Avalonia.VaadinIcons/IconPacks.Avalonia.VaadinIcons.csproj" />
     <Project Path="../ext/src/IconPacks.Avalonia.WeatherIcons/IconPacks.Avalonia.WeatherIcons.csproj" />
     <Project Path="../ext/src/IconPacks.Avalonia.Zondicons/IconPacks.Avalonia.Zondicons.csproj" />
-    <Project Path="ext/LiveMarkdown.Avalonia/src/LiveMarkdown.Avalonia/LiveMarkdown.Avalonia.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../Directory.Packages.props" />

@@ -3,9 +3,9 @@ using Android.App;
 using Android.Runtime;
 using Avalonia;
 using Avalonia.Android;
-using AdvancedToDoList.Android.Services;
-using AdvancedToDoList.Services;
-using Microsoft.Extensions.DependencyInjection;
+using MahApps.IconPacksBrowser.Avalonia;
+using MahApps.IconPacksBrowser.Avalonia.Android.Services;
+using MahApps.IconPacksBrowser.Avalonia.Services;
 
 namespace AdvancedToDoList.Android;
 
@@ -20,14 +20,14 @@ public class MainApplication : AvaloniaAndroidApplication<App>
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
         // Register Android-specific services before App initialization.
-        var services = new ServiceCollection();
-        services.AddSingleton<IDatabaseService>(new AndroidDbService());
-        services.AddSingleton<ISettingsStorageService>(new DefaultSettingsStorageService());
-
-        App.RegisterAppServices(services);
 
         return base.CustomizeAppBuilder(builder)
-            .WithInterFont();
+            .WithInterFont()
+            .AfterSetup(_ =>
+            {
+                // Register Android settings storage service
+                SettingsStorage.Register(new AndroidSettingsStorageService());
+            });
     }
 }
 
