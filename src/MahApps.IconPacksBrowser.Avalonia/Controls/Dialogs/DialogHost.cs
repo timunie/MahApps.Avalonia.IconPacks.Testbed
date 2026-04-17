@@ -26,7 +26,7 @@ public class DialogHost : ContentControl
     {
         base.OnAttachedToVisualTree(e);
         
-        if (e.Root is Control root)
+        if (e.RootVisual is {} root)
         {
             // OverlayLayer is a Canvas, so we won't get a signal to resize if the window
             // bounds change. Subscribe to force update

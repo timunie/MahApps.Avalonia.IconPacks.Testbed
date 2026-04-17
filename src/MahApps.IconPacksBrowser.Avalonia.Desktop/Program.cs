@@ -30,7 +30,7 @@ sealed class Program
             .AfterSetup(_ =>
             {
                 // Register desktop settings storage service
-                MahApps.IconPacksBrowser.Avalonia.Services.SettingsStorage.Register(new MahApps.IconPacksBrowser.Avalonia.Desktop.Services.DesktopSettingsStorageService());
+                MahApps.IconPacksBrowser.Avalonia.Services.SettingsStorage.Register(new Services.DesktopSettingsStorageService());
             })
             .LogToTrace();
 }
